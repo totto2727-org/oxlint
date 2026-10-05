@@ -39,7 +39,8 @@ export default defineConfig({ extends: [typescript, effect] })
 ```
 
 The Effect preset can also be used alone.
-`@totto2727/oxlint/preset` enables both groups with the original test and generated-file exceptions.
+`@totto2727/oxlint/preset` enables both groups with the generated-file exception.
+Test files receive the same rules as production files; no test-only relaxation is inherited.
 All rule IDs retain the `rules/` prefix.
 
 ### Import extensions
@@ -72,6 +73,28 @@ export default defineConfig({
 - Default export from `@totto2727/oxlint`: the Oxlint plugin with 34 rules.
 - Named exports `typescriptRuleNames`, `effectRuleNames`, and `compatibilityRuleNames`: readonly rule-name lists.
 - Default exports from `/typescript`, `/effect`, and `/preset`: Oxlint configurations.
+
+### Ultracite baseline
+
+Both groups include the native Oxlint core configuration from Ultracite `7.12.3`, incorporated at its fixed source revision with MIT attribution.
+Only the core configuration and shared ignores are incorporated, not the Ultracite CLI or its runtime dependency tree.
+Its native rules, plugins, browser environment and shared output/cache/generated-file ignores are flattened into the public configurations.
+Upstream file-specific overrides, including test-only relaxations and Astro exceptions, are not inherited.
+Normal and test source files receive the same custom and native rules.
+The two groups remain TypeScript and Effect; Ultracite does not introduce a third group.
+
+Three native rules are explicitly disabled in the shared baseline:
+
+- `unicorn/prefer-bigint-literals` would suggest literals that the official Effect `no-bigint-literals` rule forbids.
+- `preserve-caught-error` requires the native `{ cause }` convention rejected by `no-error-cause-option`.
+- `prefer-const` overlaps the stricter custom `no-let` policy and would report some declarations twice.
+
+These choices are shared by both groups so changing their composition order does not restore the conflicts.
+The TypeScript-only preset does not ban BigInt literals.
+Other ordinary upstream `off` settings remain intact; skipping test-only relaxations does not mean enabling every disabled rule.
+React, JavaScript-plugin and type-aware Ultracite layers are not automatically enabled.
+The separate Ultracite Oxfmt preset is not adopted, so the existing Vite Plus formatter policy remains unchanged.
+See the [pinned official core configuration](https://github.com/haydenbleasel/ultracite/blob/48156546701badf2c6e60f25cf1e8511f7dc44c7/packages/cli/config/oxlint/core/index.mjs) and [official Oxlint integration documentation](https://github.com/haydenbleasel/ultracite/blob/48156546701badf2c6e60f25cf1e8511f7dc44c7/apps/docs/docs/provider/oxlint.mdx).
 
 ### TypeScript
 
