@@ -58,7 +58,7 @@ flake.nix           Development shells only
 ## Package-specific rules
 
 - Keep all existing formatter defaults, including no semicolons, single quotes, print width 120, and preserved Markdown wrapping.
-- Keep `files: ["dist"]` aligned with generated outputs. Update `pnpm-lock.yaml` when dependencies change and `flake.lock` when Nix inputs change.
+- Keep `files: ["dist", "THIRD-PARTY-NOTICES.md", "docs/upstream-differences.md"]` aligned with generated outputs and required attribution. Update `pnpm-lock.yaml` when dependencies change and `flake.lock` when Nix inputs change.
 - Do not introduce `package.nix`, Nix package or CLI overlay outputs, CLI installation routes, or Nix build CI.
 - Keep README usage consumer-focused, document all public exports, and use only supported dependency installation paths. Do not claim npm availability before the package exists.
 - The tag-triggered `publish.yml` workflow is enabled at the user's request. Before creating a release tag, the package owner must complete the first publication and configure npm trusted publishing for GitHub owner `totto2727-org`, repository `oxlint`, and workflow filename `publish.yml`. No GitHub environment is configured for the publication job. Permit direct publishing, not staged-only publishing.
