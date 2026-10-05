@@ -1,7 +1,51 @@
-import { expect, test } from 'vite-plus/test'
+import { describe, expect, test } from 'vite-plus/test'
 
-import * as library from './index.ts'
+import effect from './effect.ts'
+import plugin, { compatibilityRuleNames, effectRuleNames, typescriptRuleNames } from './index.ts'
+import preset from './preset.ts'
+import typescript from './typescript.ts'
 
-test('the initialized package does not expose template APIs', () => {
-  expect(Object.keys(library)).toEqual([])
+const keys = (names: readonly string[]) => names.map((name) => `rules/${name}`).sort()
+
+describe('public plugin and grouped presets', () => {
+  test('every rule belongs to one group or the compatibility surface', () => {
+    const names = [...typescriptRuleNames, ...effectRuleNames, ...compatibilityRuleNames]
+    expect(new Set(names).size).toBe(34)
+    expect(Object.keys(plugin.rules).sort()).toEqual([...names].sort())
+  })
+  test('TypeScript preset does not enable Effect policy', () => {
+    expect(Object.keys(typescript.rules ?? {}).sort()).toEqual(keys(typescriptRuleNames))
+  })
+  test('Effect preset does not enable generic policy', () => {
+    expect(Object.keys(effect.rules ?? {}).sort()).toEqual(keys(effectRuleNames))
+  })
+  test('Effect preset checks official module imports rather than opposing legacy imports', () => {
+    expect(effect.rules?.['rules/no-import-from-barrel-package']).toEqual([
+      'error',
+      {
+        checkPatterns: [
+          '^effect$',
+          '^effect/(.+/)?[a-z][a-z0-9]*$',
+          '^@effect/[^/]+$',
+          '^@effect/[^/]+/(.+/)?[a-z][a-z0-9]*$',
+        ],
+        checkRelativeIndexImports: true,
+      },
+    ])
+    expect(effect.rules).not.toHaveProperty('rules/no-effect-import-as')
+    expect(effect.rules).not.toHaveProperty('rules/no-effect-subpath-import')
+    expect(preset.rules).not.toHaveProperty('rules/no-js-extension-imports')
+  })
+  test('combined preset enables both groups without duplicate extension diagnostics', () => {
+    expect(Object.keys(preset.rules ?? {}).sort()).toEqual(keys([...typescriptRuleNames, ...effectRuleNames]))
+    for (const name of compatibilityRuleNames) {
+      expect(preset.rules).not.toHaveProperty(`rules/${name}`)
+    }
+    expect(preset.rules).toHaveProperty('rules/no-import-from-barrel-package')
+  })
+  test('all presets resolve the built public plugin', () => {
+    expect(preset.jsPlugins).toEqual(typescript.jsPlugins)
+    expect(effect.jsPlugins).toEqual(typescript.jsPlugins)
+    expect(preset.jsPlugins?.[0]).toMatch(/index\.js$/)
+  })
 })

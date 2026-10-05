@@ -1,5 +1,4 @@
-# Disabled until package metadata and the registry's GitHub trust are configured.
-# Follow AGENTS.md, then rename this file to publish.yml.
+# Registry owner must configure the matching npm Trusted Publisher before tagging a release.
 name: Publish to npm
 
 on:
@@ -25,6 +24,12 @@ jobs:
         run: |
           eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
           vp pack
-      - uses: totto2727-org/monorepo/.github/actions/publish-npm@main
-        with:
-          working-directory: .
+      - name: Publish with npm Trusted Publishing
+        run: |
+          eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"
+          version="$(node -p 'JSON.parse(require("node:fs").readFileSync("package.json", "utf8")).version')"
+          if [[ "$GITHUB_REF_NAME" != "v$version" ]]; then
+            echo 'Release tag must match package.json version' >&2
+            exit 1
+          fi
+          npm publish --provenance --access public

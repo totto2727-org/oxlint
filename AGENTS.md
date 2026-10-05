@@ -5,10 +5,13 @@
 ```text
 src/index.ts        Public library entry point
 src/index.test.ts   Public-entry-point tests
+src/rules/          Rules and colocated Oxlint RuleTester tests
+src/rule-groups.ts  TypeScript and Effect classification
+src/{preset,typescript,effect}.ts  Built preset entry points
 vite.config.ts      Vite+ formatter, linter, tests, packaging, and tasks
 package.json        Package identity and runtime/type export map
 flake.nix           Development shells only
-.github/workflows/  CI and disabled optional npm publication
+.github/workflows/  CI and tag-triggered npm publication
 ```
 
 ## Development commands
@@ -33,7 +36,7 @@ flake.nix           Development shells only
 - `vp run package`: Build or restore the library, then inspect npm package contents without publishing.
 - `npm pack --dry-run`: Inspect package contents after `vp pack` without publishing.
 - `npm pack --pack-destination tmp`: Create a real consumer archive after creating `tmp/` and running `vp pack`.
-- `actionlint .github/workflows/ci.yml .github/workflows/publish.yml.disabled`: Validate both workflow definitions without enabling publication. Supply actionlint separately when needed.
+- `actionlint .github/workflows/ci.yml .github/workflows/publish.yml`: Validate both workflow definitions. Supply actionlint separately when needed.
 
 ## Architecture
 
@@ -55,13 +58,20 @@ flake.nix           Development shells only
 ## Package-specific rules
 
 - Keep all existing formatter defaults, including no semicolons, single quotes, print width 120, and preserved Markdown wrapping.
-- Keep `files: ["dist"]` aligned with generated outputs. Update `pnpm-lock.yaml` when dependencies change and `flake.lock` when Nix inputs change.
+- Keep `files: ["dist", "THIRD-PARTY-NOTICES.md", "docs/upstream-differences.md"]` aligned with generated outputs and required attribution. Update `pnpm-lock.yaml` when dependencies change and `flake.lock` when Nix inputs change.
 - Do not introduce `package.nix`, Nix package or CLI overlay outputs, CLI installation routes, or Nix build CI.
 - Keep README usage consumer-focused, document all public exports, and use only supported dependency installation paths. Do not claim npm availability before the package exists.
-- Keep `private: true` and `publish.yml.disabled` until the package owner configures npm trusted publishing for the exact GitHub owner, repository, and workflow filename `publish.yml`. If an initial package publication is required to create registry settings, the owner must perform it manually. Permit direct publishing, not staged-only publishing. Match any configured environment with a protected workflow job environment.
-- Before enabling publication, review package metadata, third-party action pins, protected release tags, and a real packed consumer. Remove `private: true` and rename the disabled file to `publish.yml` only after registry linking. Use a protected `v<version>` tag matching the manifest from a validated commit.
-- Retain job-scoped `id-token: write` and a GitHub-hosted runner. Do not add long-lived registry tokens. The publish workflow installs locked dependencies, runs `vp pack`, then calls `publish-npm@main` with the required `working-directory: .`. It must not duplicate pre-merge checks, tests, or dry runs.
-- The shared publish action uses `bun publish` and skips versions already present on the registry. Use a new version for changed contents. Keep the workflow disabled or remove it when publication is not wanted.
+- The tag-triggered `publish.yml` workflow is enabled at the user's request. Before creating a release tag, the package owner must complete the first publication and configure npm trusted publishing for GitHub owner `totto2727-org`, repository `oxlint`, and workflow filename `publish.yml`. No GitHub environment is configured for the publication job. Permit direct publishing, not staged-only publishing.
+- Review package metadata, third-party action pins, protected release tags, and a real packed consumer before each release. Use a protected `v<version>` tag matching the manifest from a validated commit. Do not claim registry linking or publication is complete until verified.
+- Retain job-scoped `id-token: write` and a GitHub-hosted runner. Do not add long-lived registry tokens. The publish workflow installs locked dependencies, runs `vp pack`, verifies the release tag matches the manifest version, and runs `npm publish --provenance --access public`. It must not duplicate pre-merge checks, tests, or dry runs.
+- The shared `publish-npm@main` action currently uses `vp pm stage publish`, which stages rather than completes publication. This repository deliberately publishes directly to meet the automatic release requirement. Use a new version for changed contents.
+
+## Upstream Effect rules
+
+- `src/upstream/effect/` incorporates the five official Effect Oxc rules at the revision documented in [upstream differences](./docs/upstream-differences.md).
+- Update source, tests, MIT notices, revision metadata, and the divergence record together. Keep upstream semantics unless a documented compatibility adaptation is necessary.
+- The unpublished `@effect/oxc` package cannot be used as a normal registry dependency. Keep the stable compiler API dependency alias independent of Vite Plus's TypeScript CLI.
+- Never enable both the official module-import policy and the opposite legacy root-import policies. Keep overlapping extension rules opt-in and test the combined preset with a real Oxlint consumer.
 
 ## Task-specific documentation
 
