@@ -16,8 +16,14 @@ export default defineConfig({
     singleQuote: true,
   },
   lint: { options: { typeAware: true, typeCheck: true } },
-  test: { include: ['src/**/*.test.ts'] },
-  pack: { entry: ['src/index.ts'], format: ['esm'], platform: 'neutral', dts: true, clean: true },
+  test: { include: ['src/**/*.test.ts'], setupFiles: ['./src/__fixtures__/rule-tester-setup.ts'] },
+  pack: {
+    entry: ['src/index.ts', 'src/preset.ts', 'src/typescript.ts', 'src/effect.ts'],
+    format: ['esm'],
+    platform: 'neutral',
+    dts: true,
+    clean: true,
+  },
   run: {
     tasks: {
       build: {

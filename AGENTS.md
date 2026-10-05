@@ -5,6 +5,9 @@
 ```text
 src/index.ts        Public library entry point
 src/index.test.ts   Public-entry-point tests
+src/rules/          Rules and colocated Oxlint RuleTester tests
+src/rule-groups.ts  TypeScript and Effect classification
+src/{preset,typescript,effect}.ts  Built preset entry points
 vite.config.ts      Vite+ formatter, linter, tests, packaging, and tasks
 package.json        Package identity and runtime/type export map
 flake.nix           Development shells only
