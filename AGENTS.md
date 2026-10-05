@@ -63,8 +63,8 @@ flake.nix           Development shells only
 - Keep README usage consumer-focused, document all public exports, and use only supported dependency installation paths. Do not claim npm availability before the package exists.
 - The tag-triggered `publish.yml` workflow is enabled at the user's request. Before creating a release tag, the package owner must complete the first publication and configure npm trusted publishing for GitHub owner `totto2727-org`, repository `oxlint`, and workflow filename `publish.yml`. No GitHub environment is configured for the publication job. Permit direct publishing, not staged-only publishing.
 - Review package metadata, third-party action pins, protected release tags, and a real packed consumer before each release. Use a protected `v<version>` tag matching the manifest from a validated commit. Do not claim registry linking or publication is complete until verified.
-- Retain job-scoped `id-token: write` and a GitHub-hosted runner. Do not add long-lived registry tokens. The publish workflow installs locked dependencies, runs `vp pack`, then calls `publish-npm@main` with the required `working-directory: .`. It must not duplicate pre-merge checks, tests, or dry runs.
-- The shared publish action uses `bun publish` and skips versions already present on the registry. Use a new version for changed contents.
+- Retain job-scoped `id-token: write` and a GitHub-hosted runner. Do not add long-lived registry tokens. The publish workflow installs locked dependencies, runs `vp pack`, verifies the release tag matches the manifest version, and runs `npm publish --provenance --access public`. It must not duplicate pre-merge checks, tests, or dry runs.
+- The shared `publish-npm@main` action currently uses `vp pm stage publish`, which stages rather than completes publication. This repository deliberately publishes directly to meet the automatic release requirement. Use a new version for changed contents.
 
 ## Upstream Effect rules
 
