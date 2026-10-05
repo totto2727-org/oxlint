@@ -1,4 +1,4 @@
-# Effect Oxlint source integration
+# Upstream Oxlint source integrations
 
 ## Provenance
 
@@ -55,3 +55,19 @@ It does not implement lexical binding/shadowing resolution beyond upstream's imp
 
 Compare all five rules and their upstream tests against a fixed replacement revision before updating.
 Keep the compiler alias, attribution, optional-rule coverage, policy conflicts, and retained filesystem/cache constraints synchronized with that comparison in the same change.
+
+## Ultracite native configuration integration
+
+Only the native core configuration and shared ignore patterns from Ultracite `7.12.3` are incorporated under `src/upstream/ultracite/` with MIT attribution.
+The complete CLI npm package is not a runtime dependency.
+A direct dependency trial introduced the unused CLI's `fast-glob`/`micromatch`/`braces` chain affected by [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), with no patched dependency version available at review time.
+The static native configuration does not require that code, so fixed source integration avoids distributing the unnecessary vulnerable dependency tree.
+Its npm `gitHead` is `48156546701badf2c6e60f25cf1e8511f7dc44c7`; the [public core configuration](https://github.com/haydenbleasel/ultracite/blob/48156546701badf2c6e60f25cf1e8511f7dc44c7/packages/cli/config/oxlint/core/index.mjs) contains 537 native rule settings and is compatible with the current Oxlint `1.87.0`.
+The local preset builder flattens this configuration into both custom-rule groups, replaces upstream overrides rather than inheriting test-specific or Astro exceptions, and removes the original monorepo's test-only custom relaxations.
+It retains the existing generated alias exemption and upstream shared generated/output/cache ignores.
+It disables `unicorn/prefer-bigint-literals` and `preserve-caught-error` to avoid opposite Effect recommendations, and `prefer-const` to avoid the subset overlap with `no-let`.
+The adjustments are common to both groups so reversing their composition does not restore a conflict.
+Optional React, JavaScript-plugin, type-aware and formatter configurations are not inherited.
+Source adjustments are limited to provenance headers, TypeScript/local formatting and rewriting the shared-ignore import to `./ignores.ts`; core configuration values are unchanged before the documented preset adaptations.
+Update both source files, their MIT notice, tests and this fixed revision together.
+The package's development CLI and formatter remain Vite Plus with the existing formatter settings.

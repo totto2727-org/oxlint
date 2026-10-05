@@ -73,6 +73,13 @@ flake.nix           Development shells only
 - The unpublished `@effect/oxc` package cannot be used as a normal registry dependency. Keep the stable compiler API dependency alias independent of Vite Plus's TypeScript CLI.
 - Never enable both the official module-import policy and the opposite legacy root-import policies. Keep overlapping extension rules opt-in and test the combined preset with a real Oxlint consumer.
 
+## Ultracite native baseline
+
+- Keep `src/upstream/ultracite/{core,ignores}.ts` aligned with the fixed official version and its MIT notice. Update source, tests, provenance and source revision together. Do not add the full Ultracite CLI dependency tree merely to load static configuration.
+- Keep upstream file-specific overrides out of the public presets, including test-only relaxations. Preserve ordinary native rule settings, plugins, environment and shared ignores.
+- Keep the three documented conflict/deduplication adjustments common to both groups so either composition order remains valid.
+- Do not implicitly adopt optional React, JavaScript-plugin, type-aware or Oxfmt layers. Updates must validate the current Oxlint version with real packed consumers, both group orders and identical ordinary/test-file policy.
+
 ## Task-specific documentation
 
 - When changing task dependencies or cache inputs/outputs: [Vite+ run configuration](https://viteplus.dev/config/run) and [automatic tracking](https://viteplus.dev/guide/automatic-data-tracking).
