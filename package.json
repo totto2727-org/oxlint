@@ -1,0 +1,36 @@
+{
+  "name": "template-vite-plus-lib",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A simple TypeScript library with Vite+",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/totto2727-org/template-vite-plus-lib.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@tsconfig/node-ts": "23.6.4",
+    "@tsconfig/strictest": "2.0.8",
+    "@types/node": "24.13.4",
+    "typescript": "7.0.2",
+    "vite-plus": "0.3.0"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@12.4.1"
+}
