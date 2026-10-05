@@ -1,7 +1,6 @@
 {
   "name": "@totto2727/oxlint",
   "version": "0.1.0",
-  "private": true,
   "description": "Custom Oxlint rules and preset for Effect-oriented TypeScript projects",
   "license": "MIT",
   "repository": {
@@ -9,7 +8,9 @@
     "url": "git+https://github.com/totto2727-org/oxlint.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "THIRD-PARTY-NOTICES.md",
+    "docs/upstream-differences.md"
   ],
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -37,7 +38,8 @@
   "dependencies": {
     "@oxlint/plugins": "^1.87.0",
     "effect": "4.0.0-beta.65",
-    "oxlint": "^1.87.0"
+    "oxlint": "^1.87.0",
+    "typescript-api": "npm:typescript@6.0.3"
   },
   "devDependencies": {
     "@tsconfig/node-ts": "23.6.4",

@@ -14,9 +14,11 @@ export const effectRuleNames = [
   'force-iterable-empty',
   'force-predicate',
   'force-string-empty',
-  'no-effect-import-as',
   'no-effect-runtime-run',
-  'no-effect-subpath-import',
+  'no-bigint-literals',
+  'no-import-from-barrel-package',
+  'no-opaque-instance-fields',
+  'no-unused-internal',
   'no-error-cause-option',
   'no-error-property-access',
   'no-fetch',
@@ -32,6 +34,11 @@ export const effectRuleNames = [
   'require-top-level-decoder',
 ] as const
 
-// The legacy combined extension rule remains available, but is not enabled
-// alongside its replacement rules to avoid duplicate reports.
-export const compatibilityRuleNames = ['force-ts-extension'] as const
+// Retained opt-in rules are not enabled with their replacements or policies
+// that conflict with the official Effect import convention.
+export const compatibilityRuleNames = [
+  'force-ts-extension',
+  'no-effect-import-as',
+  'no-effect-subpath-import',
+  'no-js-extension-imports',
+] as const

@@ -1,11 +1,12 @@
 # @totto2727/oxlint
 
 Custom [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) rules for TypeScript and Effect-oriented applications.
-The plugin preserves the monorepo's 27 rules and adds two independently configurable import-extension rules.
+The plugin preserves the monorepo's 27 rules, adds two independently configurable import-extension rules, and incorporates five official Effect Oxc rules.
 
 ## Setup
 
 The first npm release is pending registry-owner setup.
+The enabled GitHub Actions workflow publishes automatically on `v<version>` tags using npm Trusted Publishing, once the owner links `totto2727-org/oxlint` and `publish.yml` in npm package settings.
 Until publication, install a supplied archive as a project dependency:
 
 ```sh
@@ -68,7 +69,7 @@ export default defineConfig({
 
 ## API and groups
 
-- Default export from `@totto2727/oxlint`: the Oxlint plugin with 29 rules.
+- Default export from `@totto2727/oxlint`: the Oxlint plugin with 34 rules.
 - Named exports `typescriptRuleNames`, `effectRuleNames`, and `compatibilityRuleNames`: readonly rule-name lists.
 - Default exports from `/typescript`, `/effect`, and `/preset`: Oxlint configurations.
 
@@ -78,9 +79,27 @@ export default defineConfig({
 
 ### Effect
 
-`force-array-empty`, `force-iterable-empty`, `force-predicate`, `force-string-empty`, `no-effect-import-as`, `no-effect-runtime-run`, `no-effect-subpath-import`, `no-error-cause-option`, `no-error-property-access`, `no-fetch`, `no-instanceof-error`, `no-js-date`, `no-node-imports`, `no-option-tag-comparison`, `no-raw-hono-create-middleware`, `no-sync-decode`, `no-type-predicate`, `prefer-is-nullish`, `prefer-non-unknown-decode`, and `require-top-level-decoder`.
+`force-array-empty`, `force-iterable-empty`, `force-predicate`, `force-string-empty`, `no-bigint-literals`, `no-import-from-barrel-package`, `no-opaque-instance-fields`, `no-unused-internal`, `no-effect-runtime-run`, `no-error-cause-option`, `no-error-property-access`, `no-fetch`, `no-instanceof-error`, `no-js-date`, `no-node-imports`, `no-option-tag-comparison`, `no-raw-hono-create-middleware`, `no-sync-decode`, `no-type-predicate`, `prefer-is-nullish`, `prefer-non-unknown-decode`, and `require-top-level-decoder`.
 
 These rules encode the original application's Effect policy, including shared Hono middleware and external-library boundaries, rather than universal recommendations for every Effect project.
+
+### Official Effect rules and deduplication
+
+The [official Effect Oxc rules](https://github.com/Effect-TS/effect/tree/b1d200c40a1dad69def51ebdbf0a1a612a12b8ac/packages/tools/oxc/src/oxlint/rules) are incorporated at a fixed revision because `@effect/oxc` is currently a private, unpublished upstream package.
+The Effect preset enables `no-bigint-literals`, `no-import-from-barrel-package`, `no-opaque-instance-fields`, and `no-unused-internal` with the upstream barrel-check options.
+It does not import unrelated native-rule settings from upstream's repository configuration.
+`no-unused-internal` retains upstream's `cwd/packages/**/src/*.ts` workspace scan and per-working-directory cache, so flat `src/` projects are not covered by this rule.
+Its runtime compiler API is pinned separately as `typescript-api` (TypeScript 6), while Vite Plus development continues to use TypeScript 7.
+
+The following rules remain available for explicit use, but are not enabled by the presets:
+
+- `force-ts-extension` and official `no-js-extension-imports` overlap the independently configurable extension rules and would cause duplicate diagnostics or conflict with JavaScript mode. The upstream rule also supports `.mjs` / `.cjs` to `.mts` / `.cts` conversion for static relative imports, which the custom four-extension rule does not cover. They are not exact equivalents.
+- `no-effect-subpath-import` conflicts with the official preference for direct module imports.
+- `no-effect-import-as` rejects the namespace imports used by the official convention.
+
+For example, the official import policy accepts `import * as Schema from 'effect/Schema'` and rejects `import { Schema } from 'effect'`.
+The two custom legacy import policies can still be explicitly enabled by projects that retain the opposite convention.
+See [upstream differences](./docs/upstream-differences.md) and [third-party notices](./THIRD-PARTY-NOTICES.md) for source provenance and license details.
 
 ## Documentation
 

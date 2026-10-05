@@ -22,7 +22,22 @@ export const createPreset = (names: readonly RuleName[]): OxlintConfig => ({
   rules: Object.fromEntries(
     names.map((name) => [
       `rules/${name}`,
-      name === 'no-node-imports' ? ['error', { allow: ['child_process', 'crypto', 'os', 'util'] }] : 'error',
+      name === 'no-node-imports'
+        ? ['error', { allow: ['child_process', 'crypto', 'os', 'util'] }]
+        : name === 'no-import-from-barrel-package'
+          ? [
+              'error',
+              {
+                checkPatterns: [
+                  '^effect$',
+                  '^effect/(.+/)?[a-z][a-z0-9]*$',
+                  '^@effect/[^/]+$',
+                  '^@effect/[^/]+/(.+/)?[a-z][a-z0-9]*$',
+                ],
+                checkRelativeIndexImports: true,
+              },
+            ]
+          : 'error',
     ]),
   ),
   overrides: [

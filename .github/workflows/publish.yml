@@ -1,5 +1,4 @@
-# Disabled until package metadata and the registry's GitHub trust are configured.
-# Follow AGENTS.md, then rename this file to publish.yml.
+# Registry owner must configure the matching npm Trusted Publisher before tagging a release.
 name: Publish to npm
 
 on:

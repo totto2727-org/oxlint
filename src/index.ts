@@ -27,10 +27,20 @@ import preferNonUnknownDecode from './rules/prefer-non-unknown-decode.ts'
 import requireDisableReason from './rules/require-disable-reason.ts'
 import requireImportExtension from './rules/require-import-extension.ts'
 import requireTopLevelDecoder from './rules/require-top-level-decoder.ts'
+import noBigintLiterals from './upstream/effect/no-bigint-literals.ts'
+import noImportFromBarrelPackage from './upstream/effect/no-import-from-barrel-package.ts'
+import noJsExtensionImports from './upstream/effect/no-js-extension-imports.ts'
+import noOpaqueInstanceFields from './upstream/effect/no-opaque-instance-fields.ts'
+import noUnusedInternal from './upstream/effect/no-unused-internal.ts'
 
 const plugin = {
   meta: { name: 'rules' },
   rules: {
+    'no-bigint-literals': noBigintLiterals,
+    'no-import-from-barrel-package': noImportFromBarrelPackage,
+    'no-js-extension-imports': noJsExtensionImports,
+    'no-opaque-instance-fields': noOpaqueInstanceFields,
+    'no-unused-internal': noUnusedInternal,
     'consistent-import-extension': consistentImportExtension,
     'require-import-extension': requireImportExtension,
     'force-array-empty': forceArrayEmpty,

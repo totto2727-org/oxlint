@@ -10,7 +10,7 @@ const keys = (names: readonly string[]) => names.map((name) => `rules/${name}`).
 describe('public plugin and grouped presets', () => {
   test('every rule belongs to one group or the compatibility surface', () => {
     const names = [...typescriptRuleNames, ...effectRuleNames, ...compatibilityRuleNames]
-    expect(new Set(names).size).toBe(29)
+    expect(new Set(names).size).toBe(34)
     expect(Object.keys(plugin.rules).sort()).toEqual([...names].sort())
   })
   test('TypeScript preset does not enable Effect policy', () => {
@@ -19,9 +19,29 @@ describe('public plugin and grouped presets', () => {
   test('Effect preset does not enable generic policy', () => {
     expect(Object.keys(effect.rules ?? {}).sort()).toEqual(keys(effectRuleNames))
   })
+  test('Effect preset checks official module imports rather than opposing legacy imports', () => {
+    expect(effect.rules?.['rules/no-import-from-barrel-package']).toEqual([
+      'error',
+      {
+        checkPatterns: [
+          '^effect$',
+          '^effect/(.+/)?[a-z][a-z0-9]*$',
+          '^@effect/[^/]+$',
+          '^@effect/[^/]+/(.+/)?[a-z][a-z0-9]*$',
+        ],
+        checkRelativeIndexImports: true,
+      },
+    ])
+    expect(effect.rules).not.toHaveProperty('rules/no-effect-import-as')
+    expect(effect.rules).not.toHaveProperty('rules/no-effect-subpath-import')
+    expect(preset.rules).not.toHaveProperty('rules/no-js-extension-imports')
+  })
   test('combined preset enables both groups without duplicate extension diagnostics', () => {
     expect(Object.keys(preset.rules ?? {}).sort()).toEqual(keys([...typescriptRuleNames, ...effectRuleNames]))
-    expect(preset.rules).not.toHaveProperty('rules/force-ts-extension')
+    for (const name of compatibilityRuleNames) {
+      expect(preset.rules).not.toHaveProperty(`rules/${name}`)
+    }
+    expect(preset.rules).toHaveProperty('rules/no-import-from-barrel-package')
   })
   test('all presets resolve the built public plugin', () => {
     expect(preset.jsPlugins).toEqual(typescript.jsPlugins)
