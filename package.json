@@ -1,12 +1,12 @@
 {
-  "name": "template-vite-plus-lib",
+  "name": "@totto2727/oxlint",
   "version": "0.0.0",
   "private": true,
-  "description": "A simple TypeScript library with Vite+",
+  "description": "Custom Oxlint rules and preset for Effect-oriented TypeScript projects",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/totto2727-org/template-vite-plus-lib.git"
+    "url": "git+https://github.com/totto2727-org/oxlint.git"
   },
   "files": [
     "dist"

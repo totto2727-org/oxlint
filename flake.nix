@@ -1,5 +1,5 @@
 {
-  description = "A simple Vite+ library development environment";
+  description = "Development environment for @totto2727/oxlint";
 
   inputs = {
     nixpkgs.url = "https://flakehub.com/f/NixOS/nixpkgs/0.1";
