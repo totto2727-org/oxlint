@@ -84,6 +84,22 @@ describe('matchJsImport', () => {
 
 runRuleTest('force-ts-extension', rule, {
   invalid: [
+    ...[
+      ['mjs', 'mts'],
+      ['cjs', 'cts'],
+    ].flatMap(([javascript, typescript]) => [
+      {
+        code: `import './foo.${javascript}'`,
+        errors: 1,
+        output: `import './foo.${typescript}'`,
+      },
+      {
+        code: `import('#@/foo.${typescript}?raw#part')`,
+        errors: 1,
+        options: [{ mode: 'js' }],
+        output: `import('#@/foo.${javascript}?raw#part')`,
+      },
+    ]),
     { code: "import './foo.js'", options: [{}], errors: 1, output: "import './foo.ts'" },
     { code: "import './foo.jsx'", options: [{ mode: 'ts' }], errors: 1, output: "import './foo.tsx'" },
     ...['jsx', 'ts', 'tsx'].map((extension) => ({
@@ -138,6 +154,10 @@ runRuleTest('force-ts-extension', rule, {
     },
   ],
   valid: [
+    "import './module.mts'",
+    "export * from './module.cts?raw'",
+    { code: "import('./module.mjs#part')", options: [{ mode: 'js' }] },
+    { code: "import '#@/module.cjs'", options: [{ mode: 'js' }] },
     { code: "import './foo.js?raw#part'", options: [{ mode: 'js' }] },
     { code: "import './asset.svg'", options: [{ mode: 'js' }] },
     "import './foo.tsx'",

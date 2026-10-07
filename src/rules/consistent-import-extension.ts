@@ -14,8 +14,8 @@ const rule: Rule = {
       context,
       (value) => normalizeImportExtension(value, mode),
       mode === 'js'
-        ? 'Use the .js import extension for code modules'
-        : 'Use TypeScript import extensions (.ts or .tsx) for code modules',
+        ? 'Use JavaScript import extensions (.js, .mjs or .cjs) for code modules'
+        : 'Use TypeScript import extensions (.ts, .tsx, .mts or .cts) for code modules',
     )
   },
   meta: {

@@ -18,6 +18,8 @@ export const createPreset = (names: readonly RuleName[]): OxlintConfig => ({
     'preserve-caught-error': 'off',
     // The custom no-let policy is broader and should report the declaration only once.
     'prefer-const': 'off',
+    // The configurable local rule covers these conversions without duplicate fixes.
+    'rules/no-js-extension-imports': 'off',
     ...Object.fromEntries(
       names.map((name) => [
         `rules/${name}`,

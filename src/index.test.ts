@@ -8,8 +8,9 @@ import ultraciteCore from './upstream/ultracite/core.ts'
 
 const keys = (names: readonly string[]) => names.map((name) => `rules/${name}`).sort()
 const customKeys = (config: { rules?: unknown }) =>
-  Object.keys(config.rules ?? {})
-    .filter((name) => name.startsWith('rules/'))
+  Object.entries(config.rules ?? {})
+    .filter(([name, setting]) => name.startsWith('rules/') && setting !== 'off')
+    .map(([name]) => name)
     .sort()
 
 describe('public plugin and grouped presets', () => {
@@ -39,12 +40,16 @@ describe('public plugin and grouped presets', () => {
     ])
     expect(effect.rules).not.toHaveProperty('rules/no-effect-import-as')
     expect(effect.rules).not.toHaveProperty('rules/no-effect-subpath-import')
-    expect(preset.rules).not.toHaveProperty('rules/no-js-extension-imports')
+    expect(preset.rules?.['rules/no-js-extension-imports']).toBe('off')
   })
   test('combined preset enables both groups without duplicate extension diagnostics', () => {
     expect(customKeys(preset)).toEqual(keys([...typescriptRuleNames, ...effectRuleNames]))
     for (const name of compatibilityRuleNames) {
-      expect(preset.rules).not.toHaveProperty(`rules/${name}`)
+      if (name === 'no-js-extension-imports') {
+        expect(preset.rules?.[`rules/${name}`]).toBe('off')
+      } else {
+        expect(preset.rules).not.toHaveProperty(`rules/${name}`)
+      }
     }
     expect(preset.rules).toHaveProperty('rules/no-import-from-barrel-package')
   })
@@ -67,6 +72,7 @@ describe('public plugin and grouped presets', () => {
       expect(config.rules?.['unicorn/prefer-bigint-literals']).toBe('off')
       expect(config.rules?.['preserve-caught-error']).toBe('off')
       expect(config.rules?.['prefer-const']).toBe('off')
+      expect(config.rules?.['rules/no-js-extension-imports']).toBe('off')
       expect(config.plugins).toContain('unicorn')
     }
     expect(typescript.rules).not.toHaveProperty('rules/no-bigint-literals')

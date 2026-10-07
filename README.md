@@ -63,8 +63,9 @@ export default defineConfig({
 })
 ```
 
-- `mode: 'js'`: normalize `.js`, `.jsx`, `.ts`, and `.tsx` to `.js`.
-- `mode: 'ts'` (default): normalize `.js` / `.ts` to `.ts`, and `.jsx` / `.tsx` to `.tsx`.
+- `mode: 'js'`: normalize `.js`, `.jsx`, `.ts`, and `.tsx` to `.js`, `.mjs` / `.mts` to `.mjs`, and `.cjs` / `.cts` to `.cjs`.
+- `mode: 'ts'` (default): normalize `.js` / `.ts` to `.ts`, `.jsx` / `.tsx` to `.tsx`, `.mjs` / `.mts` to `.mts`, and `.cjs` / `.cts` to `.cts`.
+- Preserve explicit ESM and CommonJS module families instead of collapsing them to `.js` / `.ts`.
 - `require-import-extension`: only enforce the presence of an explicit extension.
 - `force-ts-extension`: compatibility rule combining required extensions and TypeScript normalization. It accepts the same mode option, but is not enabled by presets to avoid duplicate reports.
 
@@ -96,27 +97,32 @@ React, JavaScript-plugin and type-aware Ultracite layers are not automatically e
 The separate Ultracite Oxfmt preset is not adopted, so the existing Vite Plus formatter policy remains unchanged.
 See the [pinned official core configuration](https://github.com/haydenbleasel/ultracite/blob/48156546701badf2c6e60f25cf1e8511f7dc44c7/packages/cli/config/oxlint/core/index.mjs) and [official Oxlint integration documentation](https://github.com/haydenbleasel/ultracite/blob/48156546701badf2c6e60f25cf1e8511f7dc44c7/apps/docs/docs/provider/oxlint.mdx).
 
-### TypeScript
+### Locally authored TypeScript rules
+
+The plugin exports 29 locally authored rules and five definitions incorporated from Effect.
+The following local rule lists are separate from external policy layers applied by presets.
 
 `consistent-import-extension`, `no-eslint-disable-comments`, `no-jsx-script-tag`, `no-let`, `no-redundant-alias`, `no-string-style`, `require-disable-reason`, and `require-import-extension`.
 
-### Effect
+### Locally authored Effect-oriented rules
 
-`force-array-empty`, `force-iterable-empty`, `force-predicate`, `force-string-empty`, `no-bigint-literals`, `no-import-from-barrel-package`, `no-opaque-instance-fields`, `no-unused-internal`, `no-effect-runtime-run`, `no-error-cause-option`, `no-error-property-access`, `no-fetch`, `no-instanceof-error`, `no-js-date`, `no-node-imports`, `no-option-tag-comparison`, `no-raw-hono-create-middleware`, `no-sync-decode`, `no-type-predicate`, `prefer-is-nullish`, `prefer-non-unknown-decode`, and `require-top-level-decoder`.
+`force-array-empty`, `force-iterable-empty`, `force-predicate`, `force-string-empty`, `no-effect-runtime-run`, `no-error-cause-option`, `no-error-property-access`, `no-fetch`, `no-instanceof-error`, `no-js-date`, `no-node-imports`, `no-option-tag-comparison`, `no-raw-hono-create-middleware`, `no-sync-decode`, `no-type-predicate`, `prefer-is-nullish`, `prefer-non-unknown-decode`, and `require-top-level-decoder`.
 
 These rules encode the original application's Effect policy, including shared Hono middleware and external-library boundaries, rather than universal recommendations for every Effect project.
 
-### Official Effect rules and deduplication
+### Presets and external policy layers
 
-The [official Effect Oxc rules](https://github.com/Effect-TS/effect/tree/b1d200c40a1dad69def51ebdbf0a1a612a12b8ac/packages/tools/oxc/src/oxlint/rules) are incorporated at a fixed revision because `@effect/oxc` is currently a private, unpublished upstream package.
-The Effect preset enables `no-bigint-literals`, `no-import-from-barrel-package`, `no-opaque-instance-fields`, and `no-unused-internal` with the upstream barrel-check options.
-It does not import unrelated native-rule settings from upstream's repository configuration.
-`no-unused-internal` retains upstream's `cwd/packages/**/src/*.ts` workspace scan and per-working-directory cache, so flat `src/` projects are not covered by this rule.
-Its runtime compiler API is pinned separately as `typescript-api` (TypeScript 6), while Vite Plus development continues to use TypeScript 7.
+Both presets apply the pinned native Ultracite baseline described above.
+The Effect preset additionally applies four definitions from [Effect's official Oxc integration](https://github.com/Effect-TS/effect/tree/b1d200c40a1dad69def51ebdbf0a1a612a12b8ac/packages/tools/oxc/src/oxlint/rules).
+The combined preset applies both groups and their external layers.
+These are fixed MIT source integrations, not separate external npm plugins: upstream `@effect/oxc` is private and unpublished.
+The public `effectRuleNames` list includes the four enabled external definitions in addition to the local Effect-oriented rules above.
+External details remain upstream; the maintained [upstream differences](./docs/upstream-differences.md) record documents integration boundaries and [third-party notices](./THIRD-PARTY-NOTICES.md) preserve licenses.
 
-The following rules remain available for explicit use, but are not enabled by the presets:
+The following preset choices avoid duplicate or conflicting checks; the three local compatibility rules remain individually available:
 
-- `force-ts-extension` and official `no-js-extension-imports` overlap the independently configurable extension rules and would cause duplicate diagnostics or conflict with JavaScript mode. The upstream rule also supports `.mjs` / `.cjs` to `.mts` / `.cts` conversion for static relative imports, which the custom four-extension rule does not cover. They are not exact equivalents.
+- `force-ts-extension` duplicates the independently configurable split rules. The external `no-js-extension-imports` is explicitly `off` in every preset: the local rule now covers its `.js`, `.jsx`, `.mjs` and `.cjs` conversions and avoids duplicate diagnostics or fixes opposite to JavaScript mode.
+- `require-import-extension` remains enabled in TypeScript and combined presets because conversion alone does not require missing extensions.
 - `no-effect-subpath-import` conflicts with the official preference for direct module imports.
 - `no-effect-import-as` rejects the namespace imports used by the official convention.
 
