@@ -11,7 +11,7 @@ src/{preset,typescript,effect}.ts  Built preset entry points
 vite.config.ts      Vite+ formatter, linter, tests, packaging, and tasks
 package.json        Package identity and runtime/type export map
 flake.nix           Development shells only
-.github/workflows/  CI and tag-triggered npm publication
+.github/workflows/  CI and disabled template npm publication
 ```
 
 ## Development commands
@@ -36,7 +36,7 @@ flake.nix           Development shells only
 - `vp run package`: Build or restore the library, then inspect npm package contents without publishing.
 - `npm pack --dry-run`: Inspect package contents after `vp pack` without publishing.
 - `npm pack --pack-destination tmp`: Create a real consumer archive after creating `tmp/` and running `vp pack`.
-- `actionlint .github/workflows/ci.yml .github/workflows/publish.yml`: Validate both workflow definitions. Supply actionlint separately when needed.
+- `actionlint .github/workflows/ci.yml .github/workflows/publish.yml.disabled`: Validate both workflow definitions without enabling publication. Supply actionlint separately when needed.
 
 ## Architecture
 
@@ -61,10 +61,9 @@ flake.nix           Development shells only
 - Keep `files: ["dist", "THIRD-PARTY-NOTICES.md", "docs/upstream-differences.md"]` aligned with generated outputs and required attribution. Update `pnpm-lock.yaml` when dependencies change and `flake.lock` when Nix inputs change.
 - Do not introduce `package.nix`, Nix package or CLI overlay outputs, CLI installation routes, or Nix build CI.
 - Keep README usage consumer-focused, document all public exports, and use only supported dependency installation paths. Do not claim npm availability before the package exists.
-- The tag-triggered `publish.yml` workflow is enabled at the user's request. Before creating a release tag, the package owner must complete the first publication and configure npm trusted publishing for GitHub owner `totto2727-org`, repository `oxlint`, and workflow filename `publish.yml`. No GitHub environment is configured for the publication job. Permit direct publishing, not staged-only publishing.
-- Review package metadata, third-party action pins, protected release tags, and a real packed consumer before each release. Use a protected `v<version>` tag matching the manifest from a validated commit. Do not claim registry linking or publication is complete until verified.
-- Retain job-scoped `id-token: write` and a GitHub-hosted runner. Do not add long-lived registry tokens. The publish workflow installs locked dependencies, runs `vp pack`, verifies the release tag matches the manifest version, and runs `npm publish --provenance --access public`. It must not duplicate pre-merge checks, tests, or dry runs.
-- The shared `publish-npm@main` action currently uses `vp pm stage publish`, which stages rather than completes publication. This repository deliberately publishes directly to meet the automatic release requirement. Use a new version for changed contents.
+- Keep npm publication aligned with the library template, including its shared `publish-npm@main` action. Do not invent repository-specific triggers, tag validation or direct publication commands.
+- Keep `.github/workflows/publish.yml.disabled` disabled until the package owner enables publication. Registry linking, missing permissions and credential configuration are the owner's responsibility, not agent implementation work.
+- Do not change publication behavior or configure permissions without an explicit user request. Do not claim registry linking or publication is complete until verified.
 
 ## Upstream Effect rules
 

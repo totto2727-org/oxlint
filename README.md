@@ -6,7 +6,8 @@ The plugin preserves the monorepo's 27 rules, adds two independently configurabl
 ## Setup
 
 The first npm release is pending registry-owner setup.
-The enabled GitHub Actions workflow publishes automatically on `v<version>` tags using npm Trusted Publishing, once the owner links `totto2727-org/oxlint` and `publish.yml` in npm package settings.
+The publication workflow is retained unchanged from the library template as `.github/workflows/publish.yml.disabled` and uses the shared `publish-npm` action.
+The package owner handles registry permissions and enables publication when ready.
 Until publication, install a supplied archive as a project dependency:
 
 ```sh
@@ -136,7 +137,7 @@ The separate [documentation site repository](https://github.com/totto2727-org/ox
 
 ## Development
 
-See [AGENTS.md](./AGENTS.md) for commands and npm Trusted Publisher setup.
+See [AGENTS.md](./AGENTS.md) for development commands and the template publication policy.
 
 ## License
 
