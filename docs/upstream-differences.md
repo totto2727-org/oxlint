@@ -8,6 +8,12 @@ The vendored files are `no-bigint-literals.ts`, `no-import-from-barrel-package.t
 Vendoring provides the rules independently of the private, unpublished upstream `@effect/oxc` package.
 This is source integration into the local lint plugin, not deployment customization and not a modification to the upstream Effect runtime library.
 
+## Stable runtime and tooling compatibility
+
+The runtime dependency uses the stable Effect `^4.0.1` range, and development tooling uses Vite Plus `^1.0.0`.
+Vite Plus task inputs and outputs are nested under `cache` as documented in its [run configuration](https://viteplus.dev/config/run), retaining [automatic input tracking](https://viteplus.dev/guide/automatic-data-tracking) and built-artifact restoration.
+The fixed upstream source comparison revisions below are unchanged, and no upstream Effect runtime source is modified.
+
 ## Local source adjustments
 
 - Add provenance/license headers and apply the local formatter, including single quotes, trailing commas, import ordering, and equivalent control-flow presentation.
