@@ -1,13 +1,6 @@
 # @totto2727/oxlint
 
-## Boundaries
-
-- Keep README content for package users. Put maintenance instructions here.
-- Do not merge PRs, publish packages or change credentials without an explicit user request.
-- Keep temporary files under ignored `tmp/`. Do not commit them.
-- Use `AGENTS.md`. Do not create `CLAUDE.md`.
-
-## Files
+## Repository structure
 
 | Path                                | Purpose                                    |
 | ----------------------------------- | ------------------------------------------ |
@@ -20,12 +13,21 @@
 | `package.json`                      | Dependencies, exports and package files    |
 | `flake.nix`                         | Development shell                          |
 
-## Tasks
+## Development commands
 
-Run commands from the repository root inside `nix develop`.
+### Execution rules
+
+- Run commands from the repository root inside `nix develop`.
+- Use Vite+ for formatting, lint, source type checks, tests and packaging.
+- Keep temporary files under ignored `tmp/`. Do not commit them.
+- Use `AGENTS.md`. Do not create `CLAUDE.md`.
+- Do not merge PRs, publish packages or change credentials without an explicit user request.
+
+### Standard tasks
 
 | Command                           | Result                                          |
 | --------------------------------- | ----------------------------------------------- |
+| `nix develop`                     | Enter the pinned development environment        |
 | `vp install --frozen-lockfile`    | Install locked dependencies                     |
 | `vp run fix`                      | Format and apply supported lint fixes           |
 | `vp run check`                    | Check formatting, lint and source types         |
@@ -40,20 +42,9 @@ Create `tmp/` before packing an archive.
 Validate workflows with `actionlint .github/workflows/ci.yml .github/workflows/publish.yml.disabled` when actionlint is available.
 Do not enable publication to validate a workflow.
 
-## Build and types
+## Architecture
 
-- Use Vite+ for formatting, lint, tests and packaging. Keep tasks in `vite.config.ts`.
-- Keep `dist/` out of formatting and lint inputs.
-- Track build inputs automatically, excluding `dist/**`. Keep `cache.output: ['dist/**']` for cache restoration.
-- Package inspection depends on build. Do not bypass that dependency with `--parallel`.
-- Keep no semicolons, single quotes, width 120 and unwrapped Markdown.
-- Keep the strictest preset before node-ts in `tsconfig.json`.
-- Use default TypeScript file discovery. Remove temporary TypeScript consumers before whole-project checks.
-- Keep the global Nix CLI pin independent of the local Vite+ dependency.
-- Export only a development shell from Nix. Do not add package or CLI outputs.
-- Keep shared GitHub Actions on `@main` and use their existing Nix environment loading.
-
-## Public API checks
+### Public library boundary
 
 The package is ESM-only.
 Keep export conditions aligned with built files, with `types` before `import`.
@@ -62,8 +53,6 @@ Compile imports by package name with strict NodeNext resolution.
 Check accepted and rejected calls, then run the built exports.
 Source type checks alone do not validate the distributed declarations.
 Keep required notices and the divergence record in the package's `files` list.
-
-## Incorporated sources
 
 Read [upstream differences](./docs/upstream-differences.md) before changing incorporated code.
 Update sources, tests, MIT notices and comparison revisions together.
@@ -76,15 +65,27 @@ Keep the three native conflict adjustments common to both preset groups.
 Do not add React, JavaScript-plugin, type-aware or formatter layers implicitly.
 Validate both preset orders with an installed archive after preset changes.
 
-## Publication
+## Development tools
 
-Keep publication aligned with the library template and its shared `publish-npm@main` action.
-Do not add custom triggers, version checks or direct publication commands.
-The owner controls workflow enablement, registry linking and permissions.
-Do not change `.github/workflows/publish.yml.disabled` without an explicit request.
+- **Vite+**: Keep tasks in `vite.config.ts`. Keep `dist/` out of formatting and lint inputs.
+- **Task caching**: Track build inputs automatically, excluding `dist/**`. Keep `cache.output: ['dist/**']` for cache restoration. Package inspection depends on build. Do not bypass that dependency with `--parallel`.
+- **TypeScript**: Keep the strictest preset before node-ts in `tsconfig.json`. Use default file discovery. Remove temporary TypeScript consumers before whole-project checks.
+- **Nix flakes**: Keep the global CLI pin independent of the local Vite+ dependency. Export only a development shell. Do not add package or CLI outputs.
+- **GitHub Actions**: Keep shared actions on `@main` and use their existing Nix environment loading.
 
-## References
+## Package-specific rules
 
-- [Vite+ tasks](https://viteplus.dev/config/run) and [input tracking](https://viteplus.dev/guide/automatic-data-tracking)
-- [Vite+ packaging](https://viteplus.dev/guide/pack)
-- [Shared publication action](https://github.com/totto2727-org/monorepo/blob/main/.github/actions/publish-npm/action.yaml)
+- Keep README content for package users. Put maintenance instructions here.
+- Preserve the template structure of README.md and AGENTS.md. Apply clarity edits to their content, not their section layout.
+- Keep no semicolons, single quotes, width 120 and unwrapped Markdown.
+- Keep publication aligned with the library template and its shared `publish-npm@main` action.
+- Do not add custom triggers, version checks or direct publication commands.
+- The owner controls workflow enablement, registry linking and permissions.
+- Do not change `.github/workflows/publish.yml.disabled` without an explicit request.
+
+## Task-specific documentation
+
+- When changing task dependencies or cache inputs: [Vite+ tasks](https://viteplus.dev/config/run) and [input tracking](https://viteplus.dev/guide/automatic-data-tracking).
+- When changing library packaging or declarations: [Vite+ packaging](https://viteplus.dev/guide/pack).
+- When changing incorporated sources: [upstream differences](./docs/upstream-differences.md).
+- When reviewing publication behavior: [shared publication action](https://github.com/totto2727-org/monorepo/blob/main/.github/actions/publish-npm/action.yaml).
