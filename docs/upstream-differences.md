@@ -30,10 +30,10 @@ The older `no-effect-subpath-import` and `no-effect-import-as` rules remain indi
 This is an intentional change of policy, not equivalent replacement: those rules respectively required package-root imports and prohibited namespace/renamed imports, directly contradicting upstream's recommendation.
 Do not combine the old root-only policy with the new module-oriented policy unless the consumer deliberately configures narrower, non-conflicting scopes.
 
-The upstream `no-js-extension-imports` rule remains individually available but is not enabled alongside the configurable local `consistent-import-extension` rule.
-Both report relative `.js` and `.jsx` static imports/re-exports, causing duplicate diagnostics; upstream's TypeScript fixes also conflict with local `mode: 'js'`.
-They are not semantically identical or fully substitutable.
-Upstream additionally converts relative `.mjs` to `.mts` and `.cjs` to `.cts`, while the local configurable rule only normalizes `.js`, `.jsx`, `.ts`, and `.tsx`.
+The upstream `no-js-extension-imports` rule remains individually available but is explicitly `off` in every preset, including either group composition order.
+Its relative `.js`, `.jsx`, `.mjs`, and `.cjs` static conversions are also covered by local `consistent-import-extension`, so enabling both would duplicate diagnostics; upstream's TypeScript fixes additionally conflict with local `mode: 'js'`.
+The local rule now normalizes all eight code extensions while preserving the explicit module family: `.js` / `.jsx` / `.ts` / `.tsx` become `.js` in JavaScript mode or `.ts` / `.tsx` in TypeScript mode, `.mjs` / `.mts` become `.mjs` or `.mts`, and `.cjs` / `.cts` become `.cjs` or `.cts`.
+This does not modify the fixed upstream source; it broadens the local replacement and keeps ESM/CommonJS semantics explicit.
 The local rule additionally covers hash aliases, literal dynamic imports, preserved query/hash suffixes, and selectable JavaScript output mode.
 Upstream ignores dynamic imports, hash aliases, and paths ending in query/hash suffixes.
 The local `require-import-extension` reports missing extensions separately and never guesses an unsafe resolution fix.

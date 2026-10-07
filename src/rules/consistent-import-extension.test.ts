@@ -1,8 +1,34 @@
 import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
 import rule from './consistent-import-extension.ts'
 
+const moduleFamilies = [
+  ['mjs', 'mts'],
+  ['cjs', 'cts'],
+] as const
+const statements = [
+  (specifier: string) => `import '${specifier}'`,
+  (specifier: string) => `export * from '${specifier}'`,
+  (specifier: string) => `export { value } from '${specifier}'`,
+  (specifier: string) => `import('${specifier}')`,
+]
+
 runRuleTest('consistent-import-extension', rule, {
   invalid: [
+    ...moduleFamilies.flatMap(([javascript, typescript]) =>
+      statements.flatMap((statement) => [
+        {
+          code: statement(`../nested/module.${javascript}?raw#part`),
+          errors: 1,
+          output: statement(`../nested/module.${typescript}?raw#part`),
+        },
+        {
+          code: statement(`#@/module.${typescript}#part?raw`),
+          errors: 1,
+          options: [{ mode: 'js' }],
+          output: statement(`#@/module.${javascript}#part?raw`),
+        },
+      ]),
+    ),
     { code: "import './foo.js'", errors: 1, output: "import './foo.ts'" },
     { code: "import './foo.jsx'", errors: 1, output: "import './foo.tsx'" },
     { code: "export { foo } from '../foo.js?raw#part'", errors: 1, output: "export { foo } from '../foo.ts?raw#part'" },
@@ -23,6 +49,12 @@ runRuleTest('consistent-import-extension', rule, {
     { code: 'import("./it\\\"s.js")', errors: 1, output: 'import("./it\\\"s.ts")' },
   ],
   valid: [
+    ...moduleFamilies.flatMap(([javascript, typescript]) =>
+      statements.flatMap((statement) => [
+        statement(`./module.${typescript}?raw#part`),
+        { code: statement(`#@/module.${javascript}?raw#part`), options: [{ mode: 'js' }] },
+      ]),
+    ),
     "import './foo.ts'",
     "import './foo.tsx?raw#part'",
     { code: "import './foo.js?raw'", options: [{ mode: 'js' }] },
@@ -30,9 +62,11 @@ runRuleTest('consistent-import-extension', rule, {
     "import './foo/'",
     "import './asset.svg?name=foo.js'",
     "import './data.json'",
-    "import './foo.mjs'",
-    "import './foo.cjs'",
     "import './foo.mts'",
+    "import './foo.cts'",
+    "import 'package/file.mjs'",
+    "import '##storybook/foo.cjs'",
+    "import './asset.css?name=foo.mjs'",
     "import 'package/file.js'",
     "import '##storybook/foo.js'",
     "import '/absolute/foo.js'",

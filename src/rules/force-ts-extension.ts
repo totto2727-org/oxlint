@@ -59,13 +59,28 @@ export const importExtensionSchema = [
 export const getImportExtensionMode = (option: unknown): ImportExtensionMode =>
   typeof option === 'object' && option !== null && 'mode' in option && option.mode === 'js' ? 'js' : 'ts'
 
-/** Normalize only the four supported code extensions, never asset extensions. */
+const extensionTargets: Readonly<Record<string, Readonly<Record<ImportExtensionMode, string>>>> = {
+  '.js': { js: '.js', ts: '.ts' },
+  '.jsx': { js: '.js', ts: '.tsx' },
+  '.ts': { js: '.js', ts: '.ts' },
+  '.tsx': { js: '.js', ts: '.tsx' },
+  '.mjs': { js: '.mjs', ts: '.mts' },
+  '.mts': { js: '.mjs', ts: '.mts' },
+  '.cjs': { js: '.cjs', ts: '.cts' },
+  '.cts': { js: '.cjs', ts: '.cts' },
+}
+
+/** Preserve explicit ESM/CommonJS families while normalizing code extensions. */
 export const normalizeImportExtension = (value: string, mode: ImportExtensionMode): string | null => {
   const match = matchImportPath(value)
-  if (match === null || !['.js', '.jsx', '.ts', '.tsx'].includes(match.extension)) {
+  if (match === null) {
     return null
   }
-  const extension = mode === 'js' ? '.js' : match.extension.endsWith('x') ? '.tsx' : '.ts'
+  const targets = extensionTargets[match.extension]
+  if (targets === undefined) {
+    return null
+  }
+  const extension = targets[mode]
   if (extension === match.extension) {
     return null
   }
@@ -131,8 +146,8 @@ const rule: Rule = {
         return normalizeImportExtension(value, mode)
       },
       mode === 'js'
-        ? 'Use an explicit .js import extension for code modules'
-        : 'Use an explicit TypeScript import extension (.ts or .tsx) for code modules',
+        ? 'Use explicit JavaScript import extensions (.js, .mjs or .cjs) for code modules'
+        : 'Use explicit TypeScript import extensions (.ts, .tsx, .mts or .cts) for code modules',
     )
   },
   meta: {
