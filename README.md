@@ -22,8 +22,8 @@ Vite Plus is used only for development and package management.
 ### TypeScript rules
 
 ```ts
-import { defineConfig } from 'oxlint'
 import typescript from '@totto2727/oxlint/typescript'
+import { defineConfig } from 'oxlint'
 
 export default defineConfig({ extends: [typescript] })
 ```
@@ -31,9 +31,9 @@ export default defineConfig({ extends: [typescript] })
 ### Effect rules
 
 ```ts
-import { defineConfig } from 'oxlint'
-import typescript from '@totto2727/oxlint/typescript'
 import effect from '@totto2727/oxlint/effect'
+import typescript from '@totto2727/oxlint/typescript'
+import { defineConfig } from 'oxlint'
 
 export default defineConfig({ extends: [typescript, effect] })
 ```
