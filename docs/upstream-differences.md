@@ -1,80 +1,84 @@
-# Upstream Oxlint source integrations
+# Incorporated sources and differences
 
-## Provenance
+The package incorporates fixed MIT-licensed sources from Effect and Ultracite.
+It does not change the upstream Effect runtime.
+Licenses are in [third-party notices](../THIRD-PARTY-NOTICES.md).
 
-The five rules in `src/upstream/effect/` derive from [Effect-TS/effect's Oxlint sources](https://github.com/Effect-TS/effect/tree/b1d200c40a1dad69def51ebdbf0a1a612a12b8ac/packages/tools/oxc/src/oxlint/rules) at fixed revision `b1d200c40a1dad69def51ebdbf0a1a612a12b8ac`.
-The upstream [MIT license](https://github.com/Effect-TS/effect/blob/b1d200c40a1dad69def51ebdbf0a1a612a12b8ac/LICENSE) is reproduced in [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md), including its original copyright holder.
-The vendored files are `no-bigint-literals.ts`, `no-import-from-barrel-package.ts`, `no-js-extension-imports.ts`, `no-opaque-instance-fields.ts`, and `no-unused-internal.ts`.
-Vendoring provides the rules independently of the private, unpublished upstream `@effect/oxc` package.
-This is source integration into the local lint plugin, not deployment customization and not a modification to the upstream Effect runtime library.
+## Effect
 
-## Stable runtime and tooling compatibility
+Source: [Effect Oxc rules](https://github.com/Effect-TS/effect/tree/b1d200c40a1dad69def51ebdbf0a1a612a12b8ac/packages/tools/oxc/src/oxlint/rules).
+Comparison revision: `b1d200c40a1dad69def51ebdbf0a1a612a12b8ac`.
+Affected files: the five rules under `src/upstream/effect/`.
+The upstream `@effect/oxc` package is private and unpublished, so these rules are incorporated into this plugin.
 
-The runtime dependency uses the stable Effect `^4.0.1` range, and development tooling uses Vite Plus `^1.1.0`.
-Vite Plus task inputs and outputs are nested under `cache` as documented in its [run configuration](https://viteplus.dev/config/run), retaining [automatic input tracking](https://viteplus.dev/guide/automatic-data-tracking) and built-artifact restoration.
-The development-only Nix overlay is pinned at `af16f6183aec0717d8975ee858c910ab43babee6` for the stable Vite Plus `1.0.0` global CLI, independently of the local `^1.1.0` toolchain.
-The fixed upstream source comparison revisions below are unchanged, and no upstream Effect runtime source is modified.
+### Source changes
 
-## Local source adjustments
+- Add source/license headers and local formatting.
+- Import TypeScript `6.0.3` through the `typescript-api` alias in `no-unused-internal`.
+  The development compiler, TypeScript `7.0.2`, does not provide `createSourceFile`.
+- Register rules under the local `rules/` namespace.
+- Test with Oxlint RuleTester instead of upstream mock visitor contexts.
+  Cross-file tests use isolated directories under ignored `tmp/` and remove their own fixtures.
 
-- Add provenance/license headers and apply the local formatter, including single quotes, trailing commas, import ordering, and equivalent control-flow presentation.
-- Import the stable TypeScript compiler API from `typescript-api`, an npm alias for TypeScript `6.0.3`, in `no-unused-internal` instead of upstream's `typescript` import.
-  The local development compiler remains TypeScript `7.0.2`, whose package does not provide `createSourceFile`; the alias is a direct runtime dependency required by the vendored analyzer.
-- Keep the upstream diagnostics, fixes, matching policy, filesystem resolution, source-discovery boundaries, and cache behavior.
-- Register rules under the existing local `rules/` plugin namespace instead of requiring a separate upstream plugin.
-- Adapt upstream examples to the actual Oxlint `RuleTester` with the local Vite+ test runner and TypeScript parsing, instead of upstream's mock visitor context.
-  Cross-file tests create isolated workspaces under ignored `tmp/`, use a unique working directory per case to respect upstream caching, and remove only their own fixtures after the suite.
+Diagnostics, fixes, matching, file discovery and process-local caches retain upstream behavior.
+The runtime uses Effect `^4.0.1`; development uses local Vite Plus `^1.1.0`.
+The Nix overlay revision `af16f6183aec0717d8975ee858c910ab43babee6` supplies the global Vite Plus `1.0.0` CLI.
+Vite+ build tasks use `cache` inputs/outputs for automatic tracking and artifact restoration.
 
-## Preset policy and duplicate handling
+### Preset choices
 
-The Effect preset intentionally adopts upstream's module-oriented import policy.
-Its `no-import-from-barrel-package` options match the Effect package barrels using `^effect$`, `^effect/(.+/)?[a-z][a-z0-9]*$`, `^@effect/[^/]+$`, and `^@effect/[^/]+/(.+/)?[a-z][a-z0-9]*$`, with `checkRelativeIndexImports: true`.
-The rule itself defaults to no package patterns and enables relative index checking unless explicitly disabled.
-It rejects named value imports from matched barrels and recommends namespace imports from specific modules, for example `import * as Effect from 'effect/Effect'`.
-Type-only imports, default imports, side-effect-only imports, and re-exports are not rejected by this upstream rule.
+The Effect preset checks package barrels and relative index imports.
+Its patterns are configured in [`src/preset-builder.ts`](../src/preset-builder.ts).
+It favors namespace imports from specific Effect modules.
+The local `no-effect-subpath-import` and `no-effect-import-as` rules impose the opposite policy and are not enabled by presets.
 
-The older `no-effect-subpath-import` and `no-effect-import-as` rules remain individually available but are excluded from the default preset.
-This is an intentional change of policy, not equivalent replacement: those rules respectively required package-root imports and prohibited namespace/renamed imports, directly contradicting upstream's recommendation.
-Do not combine the old root-only policy with the new module-oriented policy unless the consumer deliberately configures narrower, non-conflicting scopes.
+`no-js-extension-imports` remains exported but is off in every preset.
+Local `consistent-import-extension` covers its conversions and supports both `ts` and `js` output modes.
+Enabling both would duplicate reports and introduce opposite fixes in `js` mode.
+The local rule also supports slash-containing `#` paths, literal dynamic imports and query/fragment suffixes.
+Slashless aliases such as `#utils` are outside its scope.
+It preserves the `.mjs`/`.mts` and `.cjs`/`.cts` module families.
+`require-import-extension` reports missing extensions without guessing a fix.
+The combined `force-ts-extension` rule remains available but is not enabled by presets.
 
-The upstream `no-js-extension-imports` rule remains individually available but is explicitly `off` in every preset, including either group composition order.
-Its relative `.js`, `.jsx`, `.mjs`, and `.cjs` static conversions are also covered by local `consistent-import-extension`, so enabling both would duplicate diagnostics; upstream's TypeScript fixes additionally conflict with local `mode: 'js'`.
-The local rule now normalizes all eight code extensions while preserving the explicit module family: `.js` / `.jsx` / `.ts` / `.tsx` become `.js` in JavaScript mode or `.ts` / `.tsx` in TypeScript mode, `.mjs` / `.mts` become `.mjs` or `.mts`, and `.cjs` / `.cts` become `.cjs` or `.cts`.
-This does not modify the fixed upstream source; it broadens the local replacement and keeps ESM/CommonJS semantics explicit.
-The local rule additionally covers hash aliases, literal dynamic imports, preserved query/hash suffixes, and selectable JavaScript output mode.
-Upstream ignores dynamic imports, hash aliases, and paths ending in query/hash suffixes.
-The local `require-import-extension` reports missing extensions separately and never guesses an unsafe resolution fix.
-The older combined `force-ts-extension` also remains available but is not enabled together with its split replacements.
+### Retained limits
 
-## Retained upstream operational boundaries
+- `no-unused-internal` scans `.ts` files under `<cwd>/packages/**/src/`.
+  It excludes declarations and `dist`, `build` and `node_modules`.
+  It does not scan standalone `src/`, singular `package/`, or `.tsx`, `.mts` and `.cts` files.
+  Its source resolution is syntactic, not a TypeScript project type check.
+  Its cache lasts for the process lifetime. Restart long-running linters after file changes.
+- `no-import-from-barrel-package` resolves directory imports against supported `index` files.
+  Explicit index paths do not need an existing target file.
+- `no-opaque-instance-fields` checks non-static members in the two-call `Schema.Opaque(...) (...)` form.
+  It tracks imported names, not lexical scope or shadowing.
 
-`no-unused-internal` scans production `.ts` files under `<cwd>/packages/**/src/`, excluding declaration files and `dist`, `build`, and `node_modules` directories.
-It does not discover standalone `src/`, this virtual workspace's singular `package/`, or `.tsx`/`.mts`/`.cts` files.
-It performs syntactic analysis and its own workspace package/source resolution, rather than a full TypeScript project/type-checker resolution.
-It caches analysis by working directory for the process lifetime, without filesystem invalidation, so a fresh linter process is required after changes in long-running integrations.
-These constraints are retained from the comparison revision rather than silently broadened or fixed locally.
+## Ultracite
 
-`no-import-from-barrel-package` resolves relative directory barrels using filesystem `index` files with supported code extensions, and recognizes explicit index paths without requiring the target to exist.
-`no-opaque-instance-fields` recognizes imported Schema/Opaque bindings syntactically and reports non-static properties and methods, including constructors, in the upstream two-call `Schema.Opaque(...) (...)` shape.
-It does not implement lexical binding/shadowing resolution beyond upstream's import-name tracking.
+Source: [Ultracite 7.12.3 core](https://github.com/haydenbleasel/ultracite/blob/48156546701badf2c6e60f25cf1e8511f7dc44c7/packages/cli/config/oxlint/core/index.mjs).
+Comparison revision: `48156546701badf2c6e60f25cf1e8511f7dc44c7`.
+Affected files: `src/upstream/ultracite/{core,ignores}.ts`.
+Only native core settings and shared ignores are incorporated. The full CLI is not a runtime dependency.
+This avoids distributing unused CLI dependencies, including the chain covered by [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm).
 
-## Updating
+Source changes add headers, apply TypeScript formatting and point the shared-ignore import to `./ignores.ts`.
+The 537 source rule settings are unchanged and were verified with Oxlint `1.87.0`.
+The preset builder merges them into both groups and replaces upstream file overrides.
+Test files receive no exemptions. Shared generated-file ignores remain.
+TypeScript and combined presets retain the local `**/*.gen.ts` alias allowance.
 
-Compare all five rules and their upstream tests against a fixed replacement revision before updating.
-Keep the compiler alias, attribution, optional-rule coverage, policy conflicts, and retained filesystem/cache constraints synchronized with that comparison in the same change.
+| Disabled native rule             | Reason                                       |
+| -------------------------------- | -------------------------------------------- |
+| `unicorn/prefer-bigint-literals` | Conflicts with Effect `no-bigint-literals`   |
+| `preserve-caught-error`          | Conflicts with local `no-error-cause-option` |
+| `prefer-const`                   | Duplicates part of local `no-let`            |
 
-## Ultracite native configuration integration
+Both groups apply these changes, so preset order does not restore a conflict.
+React, JavaScript-plugin, type-aware and formatter layers are not included.
+Development formatting remains Vite Plus.
 
-Only the native core configuration and shared ignore patterns from Ultracite `7.12.3` are incorporated under `src/upstream/ultracite/` with MIT attribution.
-The complete CLI npm package is not a runtime dependency.
-A direct dependency trial introduced the unused CLI's `fast-glob`/`micromatch`/`braces` chain affected by [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm), with no patched dependency version available at review time.
-The static native configuration does not require that code, so fixed source integration avoids distributing the unnecessary vulnerable dependency tree.
-Its npm `gitHead` is `48156546701badf2c6e60f25cf1e8511f7dc44c7`; the [public core configuration](https://github.com/haydenbleasel/ultracite/blob/48156546701badf2c6e60f25cf1e8511f7dc44c7/packages/cli/config/oxlint/core/index.mjs) contains 537 native rule settings and is compatible with the current Oxlint `1.87.0`.
-The local preset builder flattens this configuration into both custom-rule groups, replaces upstream overrides rather than inheriting test-specific or Astro exceptions, and removes the original monorepo's test-only custom relaxations.
-It retains the existing generated alias exemption and upstream shared generated/output/cache ignores.
-It disables `unicorn/prefer-bigint-literals` and `preserve-caught-error` to avoid opposite Effect recommendations, and `prefer-const` to avoid the subset overlap with `no-let`.
-The adjustments are common to both groups so reversing their composition does not restore a conflict.
-Optional React, JavaScript-plugin, type-aware and formatter configurations are not inherited.
-Source adjustments are limited to provenance headers, TypeScript/local formatting and rewriting the shared-ignore import to `./ignores.ts`; core configuration values are unchanged before the documented preset adaptations.
-Update both source files, their MIT notice, tests and this fixed revision together.
-The package's development CLI and formatter remain Vite Plus with the existing formatter settings.
+## Updates
+
+Compare sources and tests against a fixed replacement revision.
+Update source files, tests, notices and this record together.
+Retain compiler compatibility, preset conflict checks and file/cache limits unless the change explicitly revises them.

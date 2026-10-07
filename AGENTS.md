@@ -1,89 +1,90 @@
 # @totto2727/oxlint
 
-## Repository structure
+## Boundaries
 
-```text
-src/index.ts        Public library entry point
-src/index.test.ts   Public-entry-point tests
-src/rules/          Rules and colocated Oxlint RuleTester tests
-src/rule-groups.ts  TypeScript and Effect classification
-src/{preset,typescript,effect}.ts  Built preset entry points
-vite.config.ts      Vite+ formatter, linter, tests, packaging, and tasks
-package.json        Package identity and runtime/type export map
-flake.nix           Development shells only
-.github/workflows/  CI and disabled template npm publication
-```
+- Keep README content for package users. Put maintenance instructions here.
+- Do not merge PRs, publish packages or change credentials without an explicit user request.
+- Keep temporary files under ignored `tmp/`. Do not commit them.
+- Use `AGENTS.md`. Do not create `CLAUDE.md`.
 
-## Development commands
+## Files
 
-### Execution rules
+| Path                                | Purpose                                    |
+| ----------------------------------- | ------------------------------------------ |
+| `src/index.ts`                      | Plugin and named exports                   |
+| `src/rules/`                        | Local rules and RuleTester tests           |
+| `src/upstream/`                     | Fixed Effect rules and Ultracite settings  |
+| `src/rule-groups.ts`                | TypeScript, Effect and compatibility lists |
+| `src/{preset,typescript,effect}.ts` | Preset exports                             |
+| `vite.config.ts`                    | Formatting, lint, tests, build and tasks   |
+| `package.json`                      | Dependencies, exports and package files    |
+| `flake.nix`                         | Development shell                          |
 
-- Run commands from the repository root inside `nix develop`.
-- Use Vite+ for both formatting and linting, source type checks, tests, and library packaging.
-- Keep temporary consumers and package archives under ignored `tmp/` and out of commits.
-- Keep `AGENTS.md` canonical without creating `CLAUDE.md`.
+## Tasks
 
-### Standard tasks
+Run commands from the repository root inside `nix develop`.
 
-- `nix develop`: Enter the pinned development environment.
-- `vp install --frozen-lockfile`: Install locked development dependencies.
-- `vp run fix`: Apply Vite+ formatting and supported lint fixes with `vp check --fix`.
-- `vp run check`: Verify formatting, lint rules, and inherited strictest source types through the cached `vp check` task.
-- `vp run test`: Run tests through Vite+ once with task caching.
-- `vp run build`: Build the ESM library and TypeScript declarations with `vp pack`, restoring `dist/**` on cache hits.
-- `vp run ci`: Run check, test, and build in parallel, followed by package contents validation after build.
-- `vp run --no-cache ci`: Execute the same task graph without caching when fresh validation is needed.
-- `vp run package`: Build or restore the library, then inspect npm package contents without publishing.
-- `npm pack --dry-run`: Inspect package contents after `vp pack` without publishing.
-- `npm pack --pack-destination tmp`: Create a real consumer archive after creating `tmp/` and running `vp pack`.
-- `actionlint .github/workflows/ci.yml .github/workflows/publish.yml.disabled`: Validate both workflow definitions without enabling publication. Supply actionlint separately when needed.
+| Command                           | Result                                          |
+| --------------------------------- | ----------------------------------------------- |
+| `vp install --frozen-lockfile`    | Install locked dependencies                     |
+| `vp run fix`                      | Format and apply supported lint fixes           |
+| `vp run check`                    | Check formatting, lint and source types         |
+| `vp run test`                     | Run tests                                       |
+| `vp run build`                    | Build ESM files and declarations with `vp pack` |
+| `vp run ci`                       | Run checks, tests, build and package inspection |
+| `vp run --no-cache ci`            | Run CI without task caching                     |
+| `vp run package`                  | Inspect package contents after build            |
+| `npm pack --pack-destination tmp` | Create a consumer archive                       |
 
-## Architecture
+Create `tmp/` before packing an archive.
+Validate workflows with `actionlint .github/workflows/ci.yml .github/workflows/publish.yml.disabled` when actionlint is available.
+Do not enable publication to validate a workflow.
 
-### Public library boundary
+## Build and types
 
-- Export the consumer API from `src/index.ts` and test that public entry point.
-- Keep `package.json` export conditions aligned with `dist/index.js` and `dist/index.d.ts`, with `types` before `import`.
-- This package is ESM-only. Do not imply CommonJS support without adding and validating that output.
-- `vp check` checks source types, but does not prove declarations reach consumers. For export changes, install a real npm archive into an isolated consumer under `tmp/`, compile imports by package name with strict NodeNext resolution, check rejected invalid calls, and execute the built exports.
+- Use Vite+ for formatting, lint, tests and packaging. Keep tasks in `vite.config.ts`.
+- Keep `dist/` out of formatting and lint inputs.
+- Track build inputs automatically, excluding `dist/**`. Keep `cache.output: ['dist/**']` for cache restoration.
+- Package inspection depends on build. Do not bypass that dependency with `--parallel`.
+- Keep no semicolons, single quotes, width 120 and unwrapped Markdown.
+- Keep the strictest preset before node-ts in `tsconfig.json`.
+- Use default TypeScript file discovery. Remove temporary TypeScript consumers before whole-project checks.
+- Keep the global Nix CLI pin independent of the local Vite+ dependency.
+- Export only a development shell from Nix. Do not add package or CLI outputs.
+- Keep shared GitHub Actions on `@main` and use their existing Nix environment loading.
 
-## Development tools
+## Public API checks
 
-- **Vite+**: Both formatter and linter use the configuration in `vite.config.ts` through `vp check`. Tests use `vite-plus/test`. `vp pack` delegates library builds and declaration generation to tsdown. `vp build` invokes Vite production builds and does not natively emit declarations, so the cache-aware `build` task invokes `vp pack` without a declaration plugin.
-- **Task caching**: Vite+ configuration tasks, including `fix`, cache by default. The `ci` dependency graph allows check, test, and build to run concurrently and orders package inspection after build. Build inputs use automatic tracking except `dist/**`. Explicit `cache.output: ["dist/**"]` restores JavaScript and declarations on cache hits. Vite+ automatically declines to cache a `fix` run that reads and rewrites the same input, while unchanged runs can hit cache. Keep `dist/` ignored by the formatter and linter. TypeScript default discovery can include built declarations. Do not use `--parallel` to bypass package inspection's build dependency.
-- **TypeScript**: `tsconfig.json` extends exact presets `@tsconfig/strictest` 2.0.8, then `@tsconfig/node-ts` 23.6.4. It retains strictness including `exactOptionalPropertyTypes` and `noUncheckedIndexedAccess`, and inherits import-extension rewriting, erasable syntax, and verbatim module syntax. Rewriting enables TypeScript import extensions without a duplicate local flag. Local options are only ESNext, NodeNext, no-emit source checks, and Node types. NodeNext module resolution is inferred from the module setting. Use default TypeScript file discovery without local include/exclude lists. Remove temporary TypeScript consumers before whole-project checks because discovery does not honor `.gitignore`.
-- **Nix flakes**: Pin the development shell only. The external Vite+ input overlay installs tooling, not a package/CLI overlay exported by this library. The global CLI and local vite-plus dependency are pinned independently. Bun is present for the shared npm publication action.
-- **GitHub Actions**: CI runs `setup-nix@main`, then `setup-typescript@main` with `--frozen-lockfile`, loads the environment with `eval "$(nix print-dev-env "$GITHUB_WORKSPACE#default")"`, and runs `vp run ci`. Keep shared `totto2727-org/monorepo` actions on `@main`.
+The package is ESM-only.
+Keep export conditions aligned with built files, with `types` before `import`.
+For export changes, install a real archive into a consumer under `tmp/`.
+Compile imports by package name with strict NodeNext resolution.
+Check accepted and rejected calls, then run the built exports.
+Source type checks alone do not validate the distributed declarations.
+Keep required notices and the divergence record in the package's `files` list.
 
-## Package-specific rules
+## Incorporated sources
 
-- Keep all existing formatter defaults, including no semicolons, single quotes, print width 120, and preserved Markdown wrapping.
-- Keep `files: ["dist", "THIRD-PARTY-NOTICES.md", "docs/upstream-differences.md"]` aligned with generated outputs and required attribution. Update `pnpm-lock.yaml` when dependencies change and `flake.lock` when Nix inputs change.
-- Do not introduce `package.nix`, Nix package or CLI overlay outputs, CLI installation routes, or Nix build CI.
-- Keep README usage consumer-focused, document all public exports, and use only supported dependency installation paths. Do not claim npm availability before the package exists.
-- Keep npm publication aligned with the library template, including its shared `publish-npm@main` action. Do not invent repository-specific triggers, tag validation or direct publication commands.
-- Keep `.github/workflows/publish.yml.disabled` disabled until the package owner enables publication. Registry linking, missing permissions and credential configuration are the owner's responsibility, not agent implementation work.
-- Do not change publication behavior or configure permissions without an explicit user request. Do not claim registry linking or publication is complete until verified.
+Read [upstream differences](./docs/upstream-differences.md) before changing incorporated code.
+Update sources, tests, MIT notices and comparison revisions together.
+Keep the stable `typescript-api` dependency separate from the development compiler.
+Do not combine the official Effect import policy with its conflicting local compatibility rules.
+Keep the duplicate official extension rule off in presets.
+Preserve native settings, plugins, environment and shared ignores from Ultracite.
+Exclude upstream file overrides, including test exemptions.
+Keep the three native conflict adjustments common to both preset groups.
+Do not add React, JavaScript-plugin, type-aware or formatter layers implicitly.
+Validate both preset orders with an installed archive after preset changes.
 
-## Upstream Effect rules
+## Publication
 
-- `src/upstream/effect/` incorporates the five official Effect Oxc rules at the revision documented in [upstream differences](./docs/upstream-differences.md).
-- Update source, tests, MIT notices, revision metadata, and the divergence record together. Keep upstream semantics unless a documented compatibility adaptation is necessary.
-- The unpublished `@effect/oxc` package cannot be used as a normal registry dependency. Keep the stable compiler API dependency alias independent of Vite Plus's TypeScript CLI.
-- Never enable both the official module-import policy and the opposite legacy root-import policies. Keep overlapping extension rules opt-in and test the combined preset with a real Oxlint consumer.
+Keep publication aligned with the library template and its shared `publish-npm@main` action.
+Do not add custom triggers, version checks or direct publication commands.
+The owner controls workflow enablement, registry linking and permissions.
+Do not change `.github/workflows/publish.yml.disabled` without an explicit request.
 
-## Ultracite native baseline
+## References
 
-- Keep `src/upstream/ultracite/{core,ignores}.ts` aligned with the fixed official version and its MIT notice. Update source, tests, provenance and source revision together. Do not add the full Ultracite CLI dependency tree merely to load static configuration.
-- Keep upstream file-specific overrides out of the public presets, including test-only relaxations. Preserve ordinary native rule settings, plugins, environment and shared ignores.
-- Keep the three documented conflict/deduplication adjustments common to both groups so either composition order remains valid.
-- Do not implicitly adopt optional React, JavaScript-plugin, type-aware or Oxfmt layers. Updates must validate the current Oxlint version with real packed consumers, both group orders and identical ordinary/test-file policy.
-
-## Task-specific documentation
-
-- When changing task dependencies or cache inputs/outputs: [Vite+ run configuration](https://viteplus.dev/config/run) and [automatic tracking](https://viteplus.dev/guide/automatic-data-tracking).
-- When changing library packaging or declarations: [Vite+ pack guide](https://viteplus.dev/guide/pack).
-- When comparing Vite production builds with library packaging: [Vite+ build guide](https://viteplus.dev/guide/build).
-- When enabling registry publication: [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) and [shared publish-npm action](https://github.com/totto2727-org/monorepo/blob/main/.github/actions/publish-npm/action.yaml).
-
-_This AGENTS.md was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [AGENTS template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/agents/template.md)._
+- [Vite+ tasks](https://viteplus.dev/config/run) and [input tracking](https://viteplus.dev/guide/automatic-data-tracking)
+- [Vite+ packaging](https://viteplus.dev/guide/pack)
+- [Shared publication action](https://github.com/totto2727-org/monorepo/blob/main/.github/actions/publish-npm/action.yaml)
