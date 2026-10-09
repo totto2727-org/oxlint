@@ -36,9 +36,9 @@
     "access": "public"
   },
   "dependencies": {
-    "@oxlint/plugins": "^1.87.0",
+    "@oxlint/plugins": "^1.85.0",
     "effect": "^4.0.1",
-    "oxlint": "^1.87.0",
+    "oxlint": "^1.85.0",
     "typescript-api": "npm:typescript@6.0.3"
   },
   "devDependencies": {
@@ -46,7 +46,8 @@
     "@tsconfig/strictest": "2.0.8",
     "@types/node": "24.13.4",
     "typescript": "7.0.2",
-    "vite-plus": "^1.1.0"
+    "vite-plus": "^1.0.0",
+    "vitest": "^5.0.1"
   },
   "engines": {
     "node": ">=24"
