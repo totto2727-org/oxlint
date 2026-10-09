@@ -39,13 +39,13 @@
     "@oxlint/plugins": "^1.85.0",
     "effect": "^4.0.1",
     "oxlint": "^1.85.0",
-    "typescript-api": "npm:typescript@6.0.3"
+    "typescript-api": "npm:typescript@^6.0.3"
   },
   "devDependencies": {
-    "@tsconfig/node-ts": "23.6.4",
-    "@tsconfig/strictest": "2.0.8",
-    "@types/node": "24.13.4",
-    "typescript": "7.0.2",
+    "@tsconfig/node-ts": "^23.6.4",
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "^24.13.4",
+    "typescript": "^7.0.2",
     "vite-plus": "^1.0.0",
     "vitest": "^5.0.1"
   },

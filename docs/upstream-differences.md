@@ -14,7 +14,8 @@ The upstream `@effect/oxc` package is private and unpublished, so these rules ar
 ### Source changes
 
 - Add source/license headers and local formatting.
-- Import TypeScript `6.0.3` through the `typescript-api` alias in `no-unused-internal`.
+- Import TypeScript `^6.0.3` through the `typescript-api` alias in `no-unused-internal`.
+  Runtime and development npm dependencies use caret ranges, while the lockfile preserves concrete resolutions.
   The development compiler, TypeScript `7.0.2`, does not provide `createSourceFile`.
 - Register rules under the local `rules/` namespace.
 - Test with Oxlint RuleTester instead of upstream mock visitor contexts.
