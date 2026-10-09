@@ -9,8 +9,7 @@
   },
   "files": [
     "dist",
-    "THIRD-PARTY-NOTICES.md",
-    "docs/upstream-differences.md"
+    "THIRD-PARTY-NOTICES.md"
   ],
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -33,7 +32,8 @@
     }
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
     "@oxlint/plugins": "^1.87.0",

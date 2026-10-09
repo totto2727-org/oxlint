@@ -6,7 +6,6 @@ This package contains code derived from Effect-TS/effect, packages/tools/oxc/src
 Source: https://github.com/Effect-TS/effect/tree/b1d200c40a1dad69def51ebdbf0a1a612a12b8ac/packages/tools/oxc/src/oxlint/rules
 Local files: src/upstream/effect/*.ts and their bundled output.
 Local acceptance cases also adapt examples from packages/tools/oxc/test at that revision.
-See docs/upstream-differences.md for integration and compatibility adjustments.
 
 MIT License
 

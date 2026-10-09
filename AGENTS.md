@@ -39,8 +39,8 @@
 | `npm pack --pack-destination tmp` | Create a consumer archive                       |
 
 Create `tmp/` before packing an archive.
-Validate workflows with `actionlint .github/workflows/ci.yml .github/workflows/publish.yml.disabled` when actionlint is available.
-Do not enable publication to validate a workflow.
+Validate workflows with `actionlint .github/workflows/ci.yml .github/workflows/publish.yml` when actionlint is available.
+Do not trigger publication just to validate a workflow.
 
 ## Architecture
 
@@ -52,15 +52,14 @@ For export changes, install a real archive into a consumer under `tmp/`.
 Compile imports by package name with strict NodeNext resolution.
 Check accepted and rejected calls, then run the built exports.
 Source type checks alone do not validate the distributed declarations.
-Keep required notices and the divergence record in the package's `files` list.
+Keep required notices in the package's `files` list.
 
-Read [upstream differences](./docs/upstream-differences.md) before changing incorporated code.
-Update sources, tests, MIT notices and comparison revisions together.
+Update incorporated sources, tests and MIT notices together.
 Keep the stable `typescript-api` dependency separate from the development compiler.
 Do not combine the official Effect import policy with its conflicting local compatibility rules.
 Keep the duplicate official extension rule off in presets.
 Preserve native settings, plugins, environment and shared ignores from Ultracite.
-Exclude upstream file overrides, including test exemptions.
+Exclude external file overrides, including test exemptions.
 Keep the three native conflict adjustments common to both preset groups.
 Do not add React, JavaScript-plugin, type-aware or formatter layers implicitly.
 Validate both preset orders with an installed archive after preset changes.
@@ -78,14 +77,14 @@ Validate both preset orders with an installed archive after preset changes.
 - Keep README content for package users. Put maintenance instructions here.
 - Preserve the template structure of README.md and AGENTS.md. Apply clarity edits to their content, not their section layout.
 - Keep no semicolons, single quotes, width 120 and unwrapped Markdown.
-- Keep publication aligned with the library template and its shared `publish-npm@main` action.
-- Do not add custom triggers, version checks or direct publication commands.
-- The owner controls workflow enablement, registry linking and permissions.
-- Do not change `.github/workflows/publish.yml.disabled` without an explicit request.
+- Run the publication workflow on pushes to `main`. Keep the library template's build steps and shared `publish-npm@main` action.
+- The shared action stages npm versions. Live promotion requires separate owner approval.
+- Do not add version checks or direct publication commands.
+- The owner controls registry linking and permissions. Missing owner configuration may fail the workflow.
+- Do not change publication credentials or permissions without an explicit request.
 
 ## Task-specific documentation
 
 - When changing task dependencies or cache inputs: [Vite+ tasks](https://viteplus.dev/config/run) and [input tracking](https://viteplus.dev/guide/automatic-data-tracking).
 - When changing library packaging or declarations: [Vite+ packaging](https://viteplus.dev/guide/pack).
-- When changing incorporated sources: [upstream differences](./docs/upstream-differences.md).
 - When reviewing publication behavior: [shared publication action](https://github.com/totto2727-org/monorepo/blob/main/.github/actions/publish-npm/action.yaml).

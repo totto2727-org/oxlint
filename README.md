@@ -28,10 +28,10 @@ Tests use the same rules as application files.
 
 ## Setup
 
-Install the supplied package archive:
+Install the plugin and Oxlint as development dependencies:
 
 ```sh
-npm install ./totto2727-oxlint-0.1.0.tgz
+npm install --save-dev @totto2727/oxlint oxlint
 ```
 
 Enable both rule groups in `.oxlintrc.mjs`:
