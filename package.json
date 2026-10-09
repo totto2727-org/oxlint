@@ -9,8 +9,7 @@
   },
   "files": [
     "dist",
-    "THIRD-PARTY-NOTICES.md",
-    "docs/upstream-differences.md"
+    "THIRD-PARTY-NOTICES.md"
   ],
   "type": "module",
   "types": "./dist/index.d.ts",

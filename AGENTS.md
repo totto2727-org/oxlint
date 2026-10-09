@@ -52,15 +52,14 @@ For export changes, install a real archive into a consumer under `tmp/`.
 Compile imports by package name with strict NodeNext resolution.
 Check accepted and rejected calls, then run the built exports.
 Source type checks alone do not validate the distributed declarations.
-Keep required notices and the divergence record in the package's `files` list.
+Keep required notices in the package's `files` list.
 
-Read [upstream differences](./docs/upstream-differences.md) before changing incorporated code.
-Update sources, tests, MIT notices and comparison revisions together.
+Update incorporated sources, tests and MIT notices together.
 Keep the stable `typescript-api` dependency separate from the development compiler.
 Do not combine the official Effect import policy with its conflicting local compatibility rules.
 Keep the duplicate official extension rule off in presets.
 Preserve native settings, plugins, environment and shared ignores from Ultracite.
-Exclude upstream file overrides, including test exemptions.
+Exclude external file overrides, including test exemptions.
 Keep the three native conflict adjustments common to both preset groups.
 Do not add React, JavaScript-plugin, type-aware or formatter layers implicitly.
 Validate both preset orders with an installed archive after preset changes.
@@ -87,5 +86,4 @@ Validate both preset orders with an installed archive after preset changes.
 
 - When changing task dependencies or cache inputs: [Vite+ tasks](https://viteplus.dev/config/run) and [input tracking](https://viteplus.dev/guide/automatic-data-tracking).
 - When changing library packaging or declarations: [Vite+ packaging](https://viteplus.dev/guide/pack).
-- When changing incorporated sources: [upstream differences](./docs/upstream-differences.md).
 - When reviewing publication behavior: [shared publication action](https://github.com/totto2727-org/monorepo/blob/main/.github/actions/publish-npm/action.yaml).
