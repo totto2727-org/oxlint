@@ -44,7 +44,7 @@ export default defineConfig({
         command: 'vp check --fix',
       },
       package: {
-        command: 'npm pack --dry-run',
+        command: 'bun pm pack --dry-run',
         dependsOn: ['build'],
       },
       test: {

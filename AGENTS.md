@@ -25,18 +25,18 @@
 
 ### Standard tasks
 
-| Command                           | Result                                          |
-| --------------------------------- | ----------------------------------------------- |
-| `nix develop`                     | Enter the pinned development environment        |
-| `vp install --frozen-lockfile`    | Install locked dependencies                     |
-| `vp run fix`                      | Format and apply supported lint fixes           |
-| `vp run check`                    | Check formatting, lint and source types         |
-| `vp run test`                     | Run tests                                       |
-| `vp run build`                    | Build ESM files and declarations with `vp pack` |
-| `vp run ci`                       | Run checks, tests, build and package inspection |
-| `vp run --no-cache ci`            | Run CI without task caching                     |
-| `vp run package`                  | Inspect package contents after build            |
-| `npm pack --pack-destination tmp` | Create a consumer archive                       |
+| Command                         | Result                                          |
+| ------------------------------- | ----------------------------------------------- |
+| `nix develop`                   | Enter the pinned development environment        |
+| `bun install --frozen-lockfile` | Install locked dependencies                     |
+| `vp run fix`                    | Format and apply supported lint fixes           |
+| `vp run check`                  | Check formatting, lint and source types         |
+| `vp run test`                   | Run tests                                       |
+| `vp run build`                  | Build ESM files and declarations with `vp pack` |
+| `vp run ci`                     | Run checks, tests, build and package inspection |
+| `vp run --no-cache ci`          | Run CI without task caching                     |
+| `vp run package`                | Inspect package contents after build            |
+| `bun pm pack --destination tmp` | Create a consumer archive                       |
 
 Create `tmp/` before packing an archive.
 Validate workflows with `actionlint .github/workflows/ci.yml .github/workflows/publish.yml` when actionlint is available.
@@ -66,7 +66,7 @@ Validate both preset orders with an installed archive after preset changes.
 
 ## Development tools
 
-- **Dependencies**: Use compatible caret ranges and retain pnpm's default 24-hour release age. Keep `minimumReleaseAgeStrict: true`. Do not add age exclusions or manual dependency overrides. The [official Vite+ bundled Vitest override](https://viteplus.dev/guide/local-cli#manual-installation) is the only current exception. Keep the stable TypeScript API alias separate from the development compiler.
+- **Dependencies**: Use Bun only, with compatible caret ranges and `minimumReleaseAge = 86400` in `bunfig.toml`. Do not add age exclusions or manual dependency overrides. The [official Vite+ core alias and bundled Vitest overrides](https://viteplus.dev/guide/local-cli#manual-installation) are the only exceptions and must exactly match the installed Vite+ toolchain. Keep the stable TypeScript API alias separate from the development compiler. Commit only `bun.lock` as the package-manager lockfile.
 - **Vite+**: Keep tasks in `vite.config.ts`. Keep `dist/` out of formatting and lint inputs.
 - **Task caching**: Track build inputs automatically, excluding `dist/**`. Keep `cache.output: ['dist/**']` for cache restoration. Package inspection depends on build. Do not bypass that dependency with `--parallel`.
 - **TypeScript**: Keep the strictest preset before node-ts in `tsconfig.json`. Use default file discovery. Remove temporary TypeScript consumers before whole-project checks.
