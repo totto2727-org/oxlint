@@ -1,143 +1,86 @@
 # @totto2727/oxlint
 
-Custom [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) rules for TypeScript and Effect-oriented applications.
-The plugin preserves the monorepo's 27 rules, adds two independently configurable import-extension rules, and incorporates five official Effect Oxc rules.
+[Oxlint](https://oxc.rs/docs/guide/usage/linter.html) rules and presets for TypeScript and Effect.
+
+## Usage
+
+Check your source files with the configured preset:
+
+```sh
+npx oxlint --config .oxlintrc.mjs src
+```
+
+Replace `src` with your source directory.
+The preset reports policy violations, such as `rules/no-let` for a `let` declaration.
+Tests use the same rules as application files.
+
+## Key features
+
+- Separate TypeScript and Effect presets, plus a combined preset.
+- Required import extensions and configurable TypeScript or JavaScript output extensions.
+- Shared native Ultracite settings and incorporated Effect rule implementations.
+- ESM exports with TypeScript declarations.
+
+## Prerequisites
+
+- Node.js 24 or later.
+- An ESM configuration.
 
 ## Setup
 
-Install a supplied archive as a project dependency:
+Install the supplied package archive:
 
 ```sh
 npm install ./totto2727-oxlint-0.1.0.tgz
 ```
 
-Requires Node.js 24 or newer and an ESM configuration.
-The library depends directly on `oxlint`, uses its official `@oxlint/plugins` types, and does not depend on Vite Plus at runtime.
-Vite Plus is used only for development and package management.
+Enable both rule groups in `.oxlintrc.mjs`:
 
-## Usage
-
-### TypeScript rules
-
-```ts
-import typescript from '@totto2727/oxlint/typescript'
+```js
+import preset from '@totto2727/oxlint/preset'
 import { defineConfig } from 'oxlint'
 
-export default defineConfig({ extends: [typescript] })
+export default defineConfig({ extends: [preset] })
 ```
 
-### Effect rules
+Use `/typescript` or `/effect` instead of `/preset` to select one group.
+See [Getting started](https://oxlint.totto2727.dev/en/guide/getting-started) for individual-rule configuration.
 
-```ts
-import effect from '@totto2727/oxlint/effect'
-import typescript from '@totto2727/oxlint/typescript'
-import { defineConfig } from 'oxlint'
+## API
 
-export default defineConfig({ extends: [typescript, effect] })
-```
+The default package export is the plugin: 29 local rules and five Effect rule implementations.
+All plugin rule IDs use the `rules/` prefix.
+The `/typescript`, `/effect` and `/preset` exports are Oxlint configurations.
+Named exports `typescriptRuleNames`, `effectRuleNames` and `compatibilityRuleNames` list the rules in each group.
+The four compatibility rules are available but not enabled by presets.
 
-The Effect preset can also be used alone.
-`@totto2727/oxlint/preset` enables both groups with the generated-file exception.
-Test files receive the same rules as production files; no test-only relaxation is inherited.
-All rule IDs retain the `rules/` prefix.
+- [TypeScript preset](https://oxlint.totto2727.dev/en/presets/typescript)
+- [Effect preset](https://oxlint.totto2727.dev/en/presets/effect), including external rules and disabled-rule reasons
+- [Local rules](https://oxlint.totto2727.dev/en)
 
 ### Import extensions
 
-The TypeScript preset enables `require-import-extension` and `consistent-import-extension` in TypeScript mode.
-Relative paths and `#` aliases require explicit extensions, including import declarations, re-exports, and dynamic imports.
-Bare package imports and non-code assets are left alone.
-Missing extensions are reported without guessing a `.ts`, `.tsx`, or directory-index fix.
-Known code extensions can be fixed while retaining query strings and URL fragments.
+`require-import-extension` reports missing extensions without adding a guessed extension.
+`consistent-import-extension` converts known extensions and keeps ESM and CommonJS module families separate.
+The default mode is `ts`.
 
-```ts
-import typescript from '@totto2727/oxlint/typescript'
-import { defineConfig } from 'oxlint'
+| Input          | `ts` mode | `js` mode |
+| -------------- | --------- | --------- |
+| `.js`, `.ts`   | `.ts`     | `.js`     |
+| `.jsx`, `.tsx` | `.tsx`    | `.js`     |
+| `.mjs`, `.mts` | `.mts`    | `.mjs`    |
+| `.cjs`, `.cts` | `.cts`    | `.cjs`    |
 
-export default defineConfig({
-  extends: [typescript],
-  rules: {
-    'rules/consistent-import-extension': ['error', { mode: 'js' }],
-  },
-})
-```
-
-- `mode: 'js'`: normalize `.js`, `.jsx`, `.ts`, and `.tsx` to `.js`, `.mjs` / `.mts` to `.mjs`, and `.cjs` / `.cts` to `.cjs`.
-- `mode: 'ts'` (default): normalize `.js` / `.ts` to `.ts`, `.jsx` / `.tsx` to `.tsx`, `.mjs` / `.mts` to `.mts`, and `.cjs` / `.cts` to `.cts`.
-- Preserve explicit ESM and CommonJS module families instead of collapsing them to `.js` / `.ts`.
-- `require-import-extension`: only enforce the presence of an explicit extension.
-- `force-ts-extension`: compatibility rule combining required extensions and TypeScript normalization. It accepts the same mode option, but is not enabled by presets to avoid duplicate reports.
-
-## API and groups
-
-- Default export from `@totto2727/oxlint`: the Oxlint plugin with 34 rules.
-- Named exports `typescriptRuleNames`, `effectRuleNames`, and `compatibilityRuleNames`: readonly rule-name lists.
-- Default exports from `/typescript`, `/effect`, and `/preset`: Oxlint configurations.
-
-### Ultracite baseline
-
-Both groups include the native Oxlint core configuration from Ultracite `7.12.3`, incorporated at its fixed source revision with MIT attribution.
-Only the core configuration and shared ignores are incorporated, not the Ultracite CLI or its runtime dependency tree.
-Its native rules, plugins, browser environment and shared output/cache/generated-file ignores are flattened into the public configurations.
-Upstream file-specific overrides, including test-only relaxations and Astro exceptions, are not inherited.
-Normal and test source files receive the same custom and native rules.
-The two groups remain TypeScript and Effect; Ultracite does not introduce a third group.
-
-Three native rules are explicitly disabled in the shared baseline:
-
-- `unicorn/prefer-bigint-literals` would suggest literals that the official Effect `no-bigint-literals` rule forbids.
-- `preserve-caught-error` requires the native `{ cause }` convention rejected by `no-error-cause-option`.
-- `prefer-const` overlaps the stricter custom `no-let` policy and would report some declarations twice.
-
-These choices are shared by both groups so changing their composition order does not restore the conflicts.
-The TypeScript-only preset does not ban BigInt literals.
-Other ordinary upstream `off` settings remain intact; skipping test-only relaxations does not mean enabling every disabled rule.
-React, JavaScript-plugin and type-aware Ultracite layers are not automatically enabled.
-The separate Ultracite Oxfmt preset is not adopted, so the existing Vite Plus formatter policy remains unchanged.
-See the [pinned official core configuration](https://github.com/haydenbleasel/ultracite/blob/48156546701badf2c6e60f25cf1e8511f7dc44c7/packages/cli/config/oxlint/core/index.mjs) and [official Oxlint integration documentation](https://github.com/haydenbleasel/ultracite/blob/48156546701badf2c6e60f25cf1e8511f7dc44c7/apps/docs/docs/provider/oxlint.mdx).
-
-### Locally authored TypeScript rules
-
-The plugin exports 29 locally authored rules and five definitions incorporated from Effect.
-The following local rule lists are separate from external policy layers applied by presets.
-
-`consistent-import-extension`, `no-eslint-disable-comments`, `no-jsx-script-tag`, `no-let`, `no-redundant-alias`, `no-string-style`, `require-disable-reason`, and `require-import-extension`.
-
-### Locally authored Effect-oriented rules
-
-`force-array-empty`, `force-iterable-empty`, `force-predicate`, `force-string-empty`, `no-effect-runtime-run`, `no-error-cause-option`, `no-error-property-access`, `no-fetch`, `no-instanceof-error`, `no-js-date`, `no-node-imports`, `no-option-tag-comparison`, `no-raw-hono-create-middleware`, `no-sync-decode`, `no-type-predicate`, `prefer-is-nullish`, `prefer-non-unknown-decode`, and `require-top-level-decoder`.
-
-These rules encode the original application's Effect policy, including shared Hono middleware and external-library boundaries, rather than universal recommendations for every Effect project.
-
-### Presets and external policy layers
-
-Both presets apply the pinned native Ultracite baseline described above.
-The Effect preset additionally applies four definitions from [Effect's official Oxc integration](https://github.com/Effect-TS/effect/tree/b1d200c40a1dad69def51ebdbf0a1a612a12b8ac/packages/tools/oxc/src/oxlint/rules).
-The combined preset applies both groups and their external layers.
-These are fixed MIT source integrations, not separate external npm plugins: upstream `@effect/oxc` is private and unpublished.
-The public `effectRuleNames` list includes the four enabled external definitions in addition to the local Effect-oriented rules above.
-External details remain upstream; the maintained [upstream differences](./docs/upstream-differences.md) record documents integration boundaries and [third-party notices](./THIRD-PARTY-NOTICES.md) preserve licenses.
-
-The following preset choices avoid duplicate or conflicting checks; the three local compatibility rules remain individually available:
-
-- `force-ts-extension` duplicates the independently configurable split rules. The external `no-js-extension-imports` is explicitly `off` in every preset: the local rule now covers its `.js`, `.jsx`, `.mjs` and `.cjs` conversions and avoids duplicate diagnostics or fixes opposite to JavaScript mode.
-- `require-import-extension` remains enabled in TypeScript and combined presets because conversion alone does not require missing extensions.
-- `no-effect-subpath-import` conflicts with the official preference for direct module imports.
-- `no-effect-import-as` rejects the namespace imports used by the official convention.
-
-For example, the official import policy accepts `import * as Schema from 'effect/Schema'` and rejects `import { Schema } from 'effect'`.
-The two custom legacy import policies can still be explicitly enabled by projects that retain the opposite convention.
-See [upstream differences](./docs/upstream-differences.md) and [third-party notices](./THIRD-PARTY-NOTICES.md) for source provenance and license details.
-
-## Documentation
-
-The separate [documentation site repository](https://github.com/totto2727-org/oxlint-docs) documents each rule with options and examples.
+Set `'rules/consistent-import-extension': ['error', { mode: 'js' }]` in your configuration's `rules` object for JavaScript output.
+These rules check relative paths and slash-containing `#` paths, such as `#@/utils`, in imports, re-exports and literal dynamic imports.
+They ignore slashless aliases such as `#utils`.
+They preserve query strings and fragments and ignore bare package imports and non-code assets.
 
 ## Development
 
-See [AGENTS.md](./AGENTS.md) for development commands.
+For repository maintenance instructions, see [AGENTS.md](./AGENTS.md).
 
 ## License
 
-MIT
-
-_This README was generated from the [share-artifact skill](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/SKILL.md) and [README template](https://raw.githubusercontent.com/totto2727-org/agent/refs/heads/main/plugins/totto2727-coding/skills/share-artifact/readme/template.md)._
+[MIT](./LICENSE).
+See [third-party notices](./THIRD-PARTY-NOTICES.md) for incorporated source licenses.
