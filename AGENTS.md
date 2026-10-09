@@ -66,6 +66,7 @@ Validate both preset orders with an installed archive after preset changes.
 
 ## Development tools
 
+- **Dependencies**: Use compatible caret ranges and retain pnpm's default 24-hour release age. Keep `minimumReleaseAgeStrict: true`. Do not add age exclusions or manual dependency overrides. The [official Vite+ bundled Vitest override](https://viteplus.dev/guide/local-cli#manual-installation) is the only current exception. Keep the stable TypeScript API alias separate from the development compiler.
 - **Vite+**: Keep tasks in `vite.config.ts`. Keep `dist/` out of formatting and lint inputs.
 - **Task caching**: Track build inputs automatically, excluding `dist/**`. Keep `cache.output: ['dist/**']` for cache restoration. Package inspection depends on build. Do not bypass that dependency with `--parallel`.
 - **TypeScript**: Keep the strictest preset before node-ts in `tsconfig.json`. Use default file discovery. Remove temporary TypeScript consumers before whole-project checks.
