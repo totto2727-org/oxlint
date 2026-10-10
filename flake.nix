@@ -32,7 +32,7 @@
           default = pkgs.mkShell {
             packages = [
               pkgs.nodejs_24
-              pkgs.bun
+              pkgs.pnpm
               pkgs.vite-plus
               pkgs.nixfmt
             ];
