@@ -19,8 +19,6 @@ jobs:
         with:
           dev-shell: ci
       - uses: totto2727-org/monorepo/.github/actions/setup-typescript@main
-        with:
-          frozen: 'true'
       - name: Build npm artifact
         run: |
           eval "$(nix print-dev-env "$GITHUB_WORKSPACE#ci")"
