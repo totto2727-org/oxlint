@@ -70,7 +70,7 @@ Validate both preset orders with an installed archive after preset changes.
 - **Vite+**: Keep tasks in `vite.config.ts`. Keep `dist/` out of formatting and lint inputs.
 - **Task caching**: Track build inputs automatically, excluding `dist/**`. Keep `cache.output: ['dist/**']` for cache restoration. Package inspection depends on build. Do not bypass that dependency with `--parallel`.
 - **TypeScript**: Keep the strictest preset before node-ts in `tsconfig.json`. Use default file discovery. Remove temporary TypeScript consumers before whole-project checks.
-- **Nix flakes**: Keep the global CLI pin independent of the local Vite+ dependency. The pinned nixpkgs pnpm bootstraps the exact `packageManager` version, currently `12.4.1`. Do not downgrade the project pin to the bootstrap version. Export only a development shell. Do not add package or CLI outputs.
+- **Nix flakes**: Keep JavaScript tool provisioning outside Nix. Preserve the exact `packageManager` pin, currently `pnpm@12.4.1`. Export development shells only. Keep the local `default` hook and the hook-free `ci` profile. Do not add package or CLI outputs.
 - **GitHub Actions**: Keep shared actions on `@main` and use their existing Nix environment loading.
 
 ## Package-specific rules

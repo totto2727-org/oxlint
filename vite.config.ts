@@ -1,7 +1,11 @@
+import { generateIgnorePatterns } from '@totto2727/gitignore-patterns'
 import { defineConfig } from 'vite-plus'
+
+const ignorePatterns = await generateIgnorePatterns(new URL('.', import.meta.url))
 
 export default defineConfig({
   fmt: {
+    ignorePatterns,
     arrowParens: 'always',
     experimentalSortImports: {
       ignoreCase: true,
@@ -15,7 +19,7 @@ export default defineConfig({
     semi: false,
     singleQuote: true,
   },
-  lint: { options: { typeAware: true, typeCheck: true } },
+  lint: { ignorePatterns, options: { typeAware: true, typeCheck: true } },
   test: { include: ['src/**/*.test.ts'], setupFiles: ['./src/__fixtures__/rule-tester-setup.ts'] },
   pack: {
     entry: ['src/index.ts', 'src/preset.ts', 'src/typescript.ts', 'src/effect.ts'],
