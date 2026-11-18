@@ -59,6 +59,8 @@ const preset: OxlintConfig = {
     'import/prefer-default-export': 'off',
     // Keep async/await available for rules that require it, such as promise/prefer-await-to-then.
     'oxc/no-async-await': 'off',
+    // TypeScript's require-await also recognizes directly returned promises.
+    'eslint/require-await': 'off',
     // Keep optional chaining available for typescript/prefer-optional-chain.
     'oxc/no-optional-chaining': 'off',
     // eslint/prefer-object-spread recommends the syntax this rule bans.
@@ -82,10 +84,14 @@ const preset: OxlintConfig = {
     // Effect modules use namespace imports, e.g. import * as Schema from 'effect/Schema'.
     'import/no-namespace': ['error', { ignore: ['effect/**', '@effect/**'] }],
     'react/jsx-filename-extension': ['error', { extensions: ['jsx', 'tsx'] }],
+    // Allow JSX text. The default no-literals policy requires braces that jsx-curly-brace-presence removes.
+    'react/jsx-no-literals': 'off',
     // The automatic JSX runtime does not need React in scope. Classic JSX can opt back in.
     'react/react-in-jsx-scope': 'off',
     // Vitest disables globals by default, so tests must be able to import its APIs explicitly.
     'vitest/no-importing-vitest-globals': 'off',
+    // Use the dedicated called-once matchers instead of requiring an argument of 1.
+    'vitest/prefer-called-times': 'off',
     // Keep setup local to tests rather than requiring hooks that vitest/no-hooks forbids.
     'vitest/require-hook': 'off',
   },
