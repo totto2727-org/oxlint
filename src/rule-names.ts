@@ -13,7 +13,6 @@ export const presetRuleNames = [
   'force-string-empty',
   'no-effect-runtime-run',
   'no-bigint-literals',
-  'no-import-from-barrel-package',
   'no-opaque-instance-fields',
   'no-unused-internal',
   'no-error-cause-option',
@@ -31,11 +30,11 @@ export const presetRuleNames = [
   'require-top-level-decoder',
 ] as const
 
-// Retained opt-in rules are not enabled with their replacements or policies
-// that conflict with the official Effect import convention.
+// Retained opt-in rules support alternate import policies.
 export const compatibilityRuleNames = [
   'force-ts-extension',
   'no-effect-import-as',
   'no-effect-subpath-import',
+  'no-import-from-barrel-package',
   'no-js-extension-imports',
 ] as const

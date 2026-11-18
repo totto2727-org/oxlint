@@ -18,24 +18,13 @@ describe('public plugin and standard preset', () => {
     expect(Object.keys(plugin.rules).sort()).toEqual(names.sort())
     expect(customKeys()).toEqual(keys(presetRuleNames))
     for (const name of compatibilityRuleNames) {
-      expect(preset.rules).not.toHaveProperty(`rules/${name}`)
+      expect([undefined, 'off']).toContain(preset.rules?.[`rules/${name}`])
     }
   })
 
-  test('enforces official Effect module imports with a narrow namespace exception', () => {
-    expect(preset.rules?.['rules/no-import-from-barrel-package']).toEqual([
-      'error',
-      {
-        checkPatterns: [
-          '^effect$',
-          '^effect/(.+/)?[a-z][a-z0-9]*$',
-          '^@effect/[^/]+$',
-          '^@effect/[^/]+/(.+/)?[a-z][a-z0-9]*$',
-        ],
-        checkRelativeIndexImports: true,
-      },
-    ])
-    expect(preset.rules?.['import/no-namespace']).toEqual(['error', { ignore: ['effect/**', '@effect/**'] }])
+  test('permits public barrel imports and namespace imports', () => {
+    expect(preset.rules?.['rules/no-import-from-barrel-package']).toBe('off')
+    expect(preset.rules?.['import/no-namespace']).toBe('off')
   })
 
   test('resolves the built public plugin without consumer-specific file exemptions', () => {
@@ -91,10 +80,7 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['rules/no-effect-runtime-run']).toBe('error')
     expect(preset.rules?.['rules/no-fetch']).toBe('error')
     expect(preset.rules?.['rules/no-jsx-script-tag']).toBe('error')
-    expect(preset.rules?.['rules/no-node-imports']).toEqual([
-      'error',
-      { allow: ['child_process', 'crypto', 'os', 'util'] },
-    ])
+    expect(preset.rules?.['rules/no-node-imports']).toBe('error')
   })
 
   test('supports automatic JSX and explicit Vitest APIs without conflicting hook policies', () => {
@@ -112,7 +98,23 @@ describe('public plugin and standard preset', () => {
   test('recognizes Effect tests without requiring boilerplate assertion counts and timeouts', () => {
     expect(preset.rules?.['vitest/no-standalone-expect']).toEqual([
       'error',
-      { additionalTestBlockFunctions: ['it.effect'] },
+      {
+        additionalTestBlockFunctions: expect.arrayContaining([
+          'effect',
+          'live',
+          'prop',
+          'it.effect',
+          'it.live',
+          'it.prop',
+          'effect.only',
+          'effect.skip',
+          'effect.fails',
+          'it.effect.each',
+          'it.live.skipIf',
+          'it.live.runIf',
+          'it.live.prop',
+        ]),
+      },
     ])
     expect(preset.rules?.['vitest/prefer-expect-assertions']).toEqual([
       'error',

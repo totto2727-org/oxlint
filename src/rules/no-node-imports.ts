@@ -5,7 +5,7 @@ import { getImportSource, hasProperty, isReportable } from '../helpers.ts'
 
 const NODE_PROTOCOL = 'node:'
 const NODE_IMPORT_GUIDANCE_MESSAGE =
-  'Avoid Node.js built-in imports. Prefer Effect Platform APIs from `effect` / `@effect/platform-node`; add a rule whitelist entry only for documented exceptions.'
+  'Avoid Node.js built-in imports. Prefer Effect Platform APIs from `effect` / `@effect/platform-node`. If the import is unavoidable, document the reason at that import.'
 
 export const getNodeBuiltinSpecifier = (source: string): string | null => {
   if (!source.startsWith(NODE_PROTOCOL)) {

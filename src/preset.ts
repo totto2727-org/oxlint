@@ -4,6 +4,16 @@ import type { OxlintConfig } from 'oxlint'
 
 import { presetRuleNames } from './rule-names.ts'
 
+// Effect v4 registers tests through these helpers. layer and describeWrapped only register suites.
+const effectVitestTestBlocks = [
+  ...['effect', 'live', 'it.effect', 'it.live'].flatMap((name) => [
+    name,
+    ...['skip', 'skipIf', 'runIf', 'only', 'each', 'fails', 'prop'].map((modifier) => `${name}.${modifier}`),
+  ]),
+  'prop',
+  'it.prop',
+]
+
 const preset: OxlintConfig = {
   categories: {
     correctness: 'error',
@@ -33,19 +43,8 @@ const preset: OxlintConfig = {
   ],
   rules: {
     ...Object.fromEntries(presetRuleNames.map((name) => [`rules/${name}`, 'error'] as const)),
-    'rules/no-node-imports': ['error', { allow: ['child_process', 'crypto', 'os', 'util'] }],
-    'rules/no-import-from-barrel-package': [
-      'error',
-      {
-        checkPatterns: [
-          '^effect$',
-          '^effect/(.+/)?[a-z][a-z0-9]*$',
-          '^@effect/[^/]+$',
-          '^@effect/[^/]+/(.+/)?[a-z][a-z0-9]*$',
-        ],
-        checkRelativeIndexImports: true,
-      },
-    ],
+    // A blanket ban also rejects deliberate imports from a package's public entry point.
+    'rules/no-import-from-barrel-package': 'off',
     // Effect uses anonymous generators as callbacks, where a name adds no information.
     'func-names': ['error', 'as-needed', { generators: 'never' }],
     'id-length': ['error', { checkGeneric: false, properties: 'never' }],
@@ -92,7 +91,7 @@ const preset: OxlintConfig = {
     'import/extensions': 'off',
     // These rules suggest opposite syntax. Keep the Effect policy of using BigInt().
     'unicorn/prefer-bigint-literals': 'off',
-    // The custom Effect rule provides platform guidance and a configurable allowlist.
+    // The custom rule recommends Effect Platform and reports Node.js imports without a default allowlist.
     'import/no-nodejs-modules': 'off',
     // Effect errors preserve the original failure in an error field, not native Error.cause.
     'eslint/preserve-caught-error': 'off',
@@ -102,8 +101,8 @@ const preset: OxlintConfig = {
     'unicorn/explicit-length-check': 'off',
     // Keep the Effect Predicate diagnostic rather than also suggesting a direct undefined comparison.
     'unicorn/no-typeof-undefined': 'off',
-    // Effect modules use namespace imports, e.g. import * as Schema from 'effect/Schema'.
-    'import/no-namespace': ['error', { ignore: ['effect/**', '@effect/**'] }],
+    // Namespace imports keep related APIs qualified without requiring per-package exceptions.
+    'import/no-namespace': 'off',
     'react/jsx-filename-extension': ['error', { extensions: ['jsx', 'tsx'] }],
     // Allow JSX text. The default no-literals policy requires braces that jsx-curly-brace-presence removes.
     'react/jsx-no-literals': 'off',
@@ -111,8 +110,8 @@ const preset: OxlintConfig = {
     'react/react-in-jsx-scope': 'off',
     // Vitest disables globals by default, so tests must be able to import its APIs explicitly.
     'vitest/no-importing-vitest-globals': 'off',
-    // @effect/vitest runs assertions inside it.effect test blocks.
-    'vitest/no-standalone-expect': ['error', { additionalTestBlockFunctions: ['it.effect'] }],
+    // Assertions inside @effect/vitest test blocks are not standalone.
+    'vitest/no-standalone-expect': ['error', { additionalTestBlockFunctions: effectVitestTestBlocks }],
     // Use the dedicated called-once matchers instead of requiring an argument of 1.
     'vitest/prefer-called-times': 'off',
     // Keep exact boolean assertions. Falsy and truthy matchers would accept non-boolean values.

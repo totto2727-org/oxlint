@@ -58,7 +58,7 @@ Keep required notices in the package's `files` list.
 
 Update incorporated sources, tests and MIT notices together.
 Keep the stable `typescript-api` dependency separate from the development compiler.
-Do not combine the official Effect import policy with its conflicting local compatibility rules.
+When enabling an opt-in import policy, check that it does not conflict with other import rules.
 Keep compatibility rules opt-in.
 Assume JavaScript and TypeScript projects use Effect. Keep one standard preset instead of an Effect-specific layer.
 Enable all native categories, general-purpose built-in plugins, React, React Perf, JSX A11y and Vitest.
