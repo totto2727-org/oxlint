@@ -25,6 +25,8 @@ const nativeBaseline = {
     'no-duplicate-imports': 'off',
     // unicorn/prefer-ternary can require a conditional expression instead of an if/else.
     'no-ternary': 'off',
+    // unicorn/no-null replaces null with undefined. Keep explicit undefined available where it is required.
+    'no-undefined': 'off',
     // no-default-export enforces named exports instead of the opposite policy.
     'import/no-named-export': 'off',
     // Do not turn a lone named export into a default export that no-default-export rejects.
