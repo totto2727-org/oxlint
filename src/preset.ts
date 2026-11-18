@@ -53,8 +53,11 @@ const preset: OxlintConfig = {
     // Effect uses capitalized factories such as Schema.Struct and Context.Service without new.
     'new-cap': ['error', { capIsNew: false }],
     'no-magic-numbers': ['error', { ignore: [-1, 0, 1, 2], ignoreArrayIndexes: true, ignoreDefaultValues: true }],
-    // Effect exposes _tag on discriminated unions, and the custom rule still governs Option tags.
-    'no-underscore-dangle': ['error', { allow: ['_tag'] }],
+    // Bracket access and destructuring can read the tag without triggering no-underscore-dangle.
+    'no-restricted-properties': [
+      'error',
+      { property: '_tag', message: 'Use a public predicate or matcher instead of accessing `_tag` directly.' },
+    ],
     // A standalone void documents an intentionally unawaited promise.
     'no-void': ['error', { allowAsStatement: true }],
     // Effect's synchronous interpreter is not Node.js synchronous I/O.

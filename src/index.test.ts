@@ -87,6 +87,15 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['rules/no-error-cause-option']).toBe('off')
   })
 
+  test('disallows direct tag access without changing tag declarations', () => {
+    expect(preset.rules?.['no-underscore-dangle']).toBeUndefined()
+    expect(preset.rules?.['no-restricted-properties']).toEqual([
+      'error',
+      { property: '_tag', message: 'Use a public predicate or matcher instead of accessing `_tag` directly.' },
+    ])
+    expect(preset.rules?.['rules/no-option-tag-comparison']).toBe('error')
+  })
+
   test('supports automatic JSX and explicit Vitest APIs without conflicting hook policies', () => {
     expect(preset.rules?.['react/jsx-filename-extension']).toEqual(['error', { extensions: ['jsx', 'tsx'] }])
     expect(preset.rules?.['react/jsx-no-literals']).toBe('off')
