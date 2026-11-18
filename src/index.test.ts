@@ -108,4 +108,16 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['eslint/require-await']).toBe('off')
     expect(preset.rules?.['typescript/require-await']).not.toBe('off')
   })
+
+  test('recognizes Effect tests without requiring boilerplate assertion counts and timeouts', () => {
+    expect(preset.rules?.['vitest/no-standalone-expect']).toEqual([
+      'error',
+      { additionalTestBlockFunctions: ['it.effect'] },
+    ])
+    expect(preset.rules?.['vitest/prefer-expect-assertions']).toEqual([
+      'error',
+      { onlyFunctionsWithExpectInCallback: true },
+    ])
+    expect(preset.rules?.['vitest/require-test-timeout']).toBe('off')
+  })
 })

@@ -114,10 +114,16 @@ const preset: OxlintConfig = {
     'react/react-in-jsx-scope': 'off',
     // Vitest disables globals by default, so tests must be able to import its APIs explicitly.
     'vitest/no-importing-vitest-globals': 'off',
+    // @effect/vitest runs assertions inside it.effect test blocks.
+    'vitest/no-standalone-expect': ['error', { additionalTestBlockFunctions: ['it.effect'] }],
     // Use the dedicated called-once matchers instead of requiring an argument of 1.
     'vitest/prefer-called-times': 'off',
+    // Assertion counts are useful when a callback might not run, not after direct assertions.
+    'vitest/prefer-expect-assertions': ['error', { onlyFunctionsWithExpectInCallback: true }],
     // Keep setup local to tests rather than requiring hooks that vitest/no-hooks forbids.
     'vitest/require-hook': 'off',
+    // Vitest already enforces a shared timeout. Only exceptional tests need their own value.
+    'vitest/require-test-timeout': 'off',
   },
 }
 
