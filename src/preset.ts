@@ -118,6 +118,9 @@ const preset: OxlintConfig = {
     'vitest/no-standalone-expect': ['error', { additionalTestBlockFunctions: ['it.effect'] }],
     // Use the dedicated called-once matchers instead of requiring an argument of 1.
     'vitest/prefer-called-times': 'off',
+    // Keep exact boolean assertions. Falsy and truthy matchers would accept non-boolean values.
+    'vitest/prefer-to-be-falsy': 'off',
+    'vitest/prefer-to-be-truthy': 'off',
     // Assertion counts are useful when a callback might not run, not after direct assertions.
     'vitest/prefer-expect-assertions': ['error', { onlyFunctionsWithExpectInCallback: true }],
     // Keep setup local to tests rather than requiring hooks that vitest/no-hooks forbids.

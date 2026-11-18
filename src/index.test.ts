@@ -120,4 +120,9 @@ describe('public plugin and standard preset', () => {
     ])
     expect(preset.rules?.['vitest/require-test-timeout']).toBe('off')
   })
+
+  test('preserves assertions that require an exact boolean', () => {
+    expect(preset.rules?.['vitest/prefer-to-be-falsy']).toBe('off')
+    expect(preset.rules?.['vitest/prefer-to-be-truthy']).toBe('off')
+  })
 })
