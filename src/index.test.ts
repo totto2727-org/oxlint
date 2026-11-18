@@ -86,6 +86,7 @@ describe('public plugin and standard preset', () => {
   })
 
   test('supports automatic JSX and explicit Vitest APIs without conflicting hook policies', () => {
+    expect(preset.rules?.['react/jsx-filename-extension']).toEqual(['error', { extensions: ['jsx', 'tsx'] }])
     expect(preset.rules?.['react/react-in-jsx-scope']).toBe('off')
     expect(preset.rules?.['vitest/no-importing-vitest-globals']).toBe('off')
     expect(preset.rules?.['vitest/require-hook']).toBe('off')
