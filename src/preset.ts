@@ -66,11 +66,8 @@ const preset: OxlintConfig = {
       'error',
       { allowExpressions: true, allowTypedFunctionExpressions: true },
     ],
-    // Avoid flagging inferred callback types and service methods merely for being callable.
-    'typescript/prefer-readonly-parameter-types': [
-      'error',
-      { ignoreInferredTypes: true, treatMethodsAsReadonly: true },
-    ],
+    // Requiring deeply readonly parameters adds type wrappers or allowlists at external API boundaries.
+    'typescript/prefer-readonly-parameter-types': 'off',
     // import/no-duplicates also detects imports that resolve to the same module.
     'no-duplicate-imports': 'off',
     // unicorn/prefer-ternary can require a conditional expression instead of an if/else.

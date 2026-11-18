@@ -125,4 +125,8 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['vitest/prefer-to-be-falsy']).toBe('off')
     expect(preset.rules?.['vitest/prefer-to-be-truthy']).toBe('off')
   })
+
+  test('does not require deeply readonly parameter types', () => {
+    expect(preset.rules?.['typescript/prefer-readonly-parameter-types']).toBe('off')
+  })
 })
