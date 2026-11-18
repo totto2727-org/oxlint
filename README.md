@@ -18,7 +18,7 @@ Tests use the same rules as application files.
 
 - Separate TypeScript and Effect presets, plus a combined preset.
 - Required import extensions and configurable TypeScript or JavaScript output extensions.
-- Shared native Ultracite settings and incorporated Effect rule implementations.
+- All native Oxlint rule categories, general-purpose built-in plugins, and incorporated Effect rules.
 - ESM exports with TypeScript declarations.
 
 ## Prerequisites
@@ -46,13 +46,19 @@ export default defineConfig({ extends: [preset] })
 Use `/typescript` or `/effect` instead of `/preset` to select one group.
 See [Getting started](https://oxlint.totto2727.dev/en/guide/getting-started) for individual-rule configuration.
 
+Each preset enables all seven native rule categories as errors, including nursery rules, and turns on type-aware linting.
+React, React Perf, JSX A11y, Next.js, Vue, Jest and Vitest are opt-in so projects can choose the plugins for their framework or test runner.
+If you set `plugins` in your own config, include the preset plugins as well: `plugins: [...(preset.plugins ?? []), 'vitest']`.
+Set the environment for your runtime in your own config.
+When native and custom rules conflict or report the same issue, the preset favors the custom policy unless the native rule provides better coverage.
+
 ## API
 
 The default package export is the plugin: 29 local rules and five Effect rule implementations.
 All plugin rule IDs use the `rules/` prefix.
 The `/typescript`, `/effect` and `/preset` exports are Oxlint configurations.
 Named exports `typescriptRuleNames`, `effectRuleNames` and `compatibilityRuleNames` list the rules in each group.
-The four compatibility rules are available but not enabled by presets.
+The four compatibility rules are opt-in alternatives to current import policies.
 
 - [TypeScript preset](https://oxlint.totto2727.dev/en/presets/typescript)
 - [Effect preset](https://oxlint.totto2727.dev/en/presets/effect), including external rules and disabled-rule reasons

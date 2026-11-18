@@ -4,7 +4,6 @@ import effect from './effect.ts'
 import plugin, { compatibilityRuleNames, effectRuleNames, typescriptRuleNames } from './index.ts'
 import preset from './preset.ts'
 import typescript from './typescript.ts'
-import ultraciteCore from './upstream/ultracite/core.ts'
 
 const keys = (names: readonly string[]) => names.map((name) => `rules/${name}`).sort()
 const customKeys = (config: { rules?: unknown }) =>
@@ -40,16 +39,12 @@ describe('public plugin and grouped presets', () => {
     ])
     expect(effect.rules).not.toHaveProperty('rules/no-effect-import-as')
     expect(effect.rules).not.toHaveProperty('rules/no-effect-subpath-import')
-    expect(preset.rules?.['rules/no-js-extension-imports']).toBe('off')
+    expect(preset.rules).not.toHaveProperty('rules/no-js-extension-imports')
   })
   test('combined preset enables both groups without duplicate extension diagnostics', () => {
     expect(customKeys(preset)).toEqual(keys([...typescriptRuleNames, ...effectRuleNames]))
     for (const name of compatibilityRuleNames) {
-      if (name === 'no-js-extension-imports') {
-        expect(preset.rules?.[`rules/${name}`]).toBe('off')
-      } else {
-        expect(preset.rules).not.toHaveProperty(`rules/${name}`)
-      }
+      expect(preset.rules).not.toHaveProperty(`rules/${name}`)
     }
     expect(preset.rules).toHaveProperty('rules/no-import-from-barrel-package')
   })
@@ -65,30 +60,40 @@ describe('public plugin and grouped presets', () => {
       )
     }
   })
-  test('all groups include Ultracite native rules without conflicting bigint autofixes', () => {
+  test('every group enables the same native categories and general-purpose plugins', () => {
     for (const config of [typescript, effect, preset]) {
-      expect(config.rules?.['no-debugger']).toBe('error')
-      expect(config.rules?.['no-empty-function']).toBe('error')
-      expect(config.rules?.['unicorn/prefer-bigint-literals']).toBe('off')
-      expect(config.rules?.['preserve-caught-error']).toBe('off')
-      expect(config.rules?.['prefer-const']).toBe('off')
-      expect(config.rules?.['rules/no-js-extension-imports']).toBe('off')
-      expect(config.plugins).toContain('unicorn')
+      expect(config.categories).toEqual({
+        correctness: 'error',
+        nursery: 'error',
+        pedantic: 'error',
+        perf: 'error',
+        restriction: 'error',
+        style: 'error',
+        suspicious: 'error',
+      })
+      expect(config.plugins).toEqual(['eslint', 'import', 'jsdoc', 'node', 'oxc', 'promise', 'typescript', 'unicorn'])
+      expect(config.options?.typeAware).toBe(true)
     }
-    expect(typescript.rules).not.toHaveProperty('rules/no-bigint-literals')
-    expect(effect.rules?.['rules/no-bigint-literals']).toBe('error')
   })
-  test('all native core settings are retained except the three documented adjustments', () => {
-    const adjusted = new Set(['unicorn/prefer-bigint-literals', 'preserve-caught-error', 'prefer-const'])
-    expect(Object.keys(ultraciteCore.rules ?? {})).toHaveLength(537)
-    for (const config of [typescript, effect, preset]) {
-      expect(config.env).toEqual(ultraciteCore.env)
-      expect(config.plugins).toEqual(ultraciteCore.plugins)
-      expect(config.ignorePatterns).toEqual(ultraciteCore.ignorePatterns)
-      for (const [name, setting] of Object.entries(ultraciteCore.rules ?? {})) {
-        expect(config.rules?.[name]).toEqual(adjusted.has(name) ? 'off' : setting)
-      }
-      expect(config.overrides?.some((override) => override.files.includes('**/*.astro'))).toBe(false)
+
+  test('custom policies suppress their competing native rule only in the relevant preset', () => {
+    for (const rule of ['import/extensions', 'eslint/prefer-const']) {
+      expect(typescript.rules?.[rule]).toBe('off')
+      expect(preset.rules?.[rule]).toBe('off')
+      expect(effect.rules).not.toHaveProperty(rule)
+    }
+    for (const rule of [
+      'eslint/preserve-caught-error',
+      'import/no-namespace',
+      'import/no-nodejs-modules',
+      'unicorn/explicit-length-check',
+      'unicorn/no-typeof-undefined',
+      'unicorn/prefer-bigint-literals',
+      'unicorn/prefer-date-now',
+    ]) {
+      expect(effect.rules?.[rule]).toBe('off')
+      expect(preset.rules?.[rule]).toBe('off')
+      expect(typescript.rules).not.toHaveProperty(rule)
     }
   })
 })

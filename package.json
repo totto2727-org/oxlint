@@ -1,6 +1,6 @@
 {
   "name": "@totto2727/oxlint",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Custom Oxlint rules and preset for Effect-oriented TypeScript projects",
   "license": "MIT",
   "repository": {

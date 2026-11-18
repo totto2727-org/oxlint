@@ -6,7 +6,7 @@
 | ----------------------------------- | ------------------------------------------ |
 | `src/index.ts`                      | Plugin and named exports                   |
 | `src/rules/`                        | Local rules and RuleTester tests           |
-| `src/upstream/`                     | Fixed Effect rules and Ultracite settings  |
+| `src/upstream/`                     | Fixed Effect rules                         |
 | `src/rule-groups.ts`                | TypeScript, Effect and compatibility lists |
 | `src/{preset,typescript,effect}.ts` | Preset exports                             |
 | `vite.config.ts`                    | Formatting, lint, tests, build and tasks   |
@@ -57,11 +57,11 @@ Keep required notices in the package's `files` list.
 Update incorporated sources, tests and MIT notices together.
 Keep the stable `typescript-api` dependency separate from the development compiler.
 Do not combine the official Effect import policy with its conflicting local compatibility rules.
-Keep the duplicate official extension rule off in presets.
-Preserve native settings, plugins, environment and shared ignores from Ultracite.
-Exclude external file overrides, including test exemptions.
-Keep the three native conflict adjustments common to both preset groups.
-Do not add React, JavaScript-plugin, type-aware or formatter layers implicitly.
+Keep compatibility rules opt-in.
+Enable all native categories and all general-purpose built-in plugins.
+Keep framework, JSX and test runner plugins opt-in.
+Prefer existing custom rules over overlapping native rules unless the native rule has demonstrably better coverage.
+Document every disabled rule next to its setting and keep consumer-specific exceptions in the consumer.
 Validate both preset orders with an installed archive after preset changes.
 
 ## Development tools
