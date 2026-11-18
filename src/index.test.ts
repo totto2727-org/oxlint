@@ -53,11 +53,9 @@ describe('public plugin and grouped presets', () => {
     expect(effect.jsPlugins).toEqual(typescript.jsPlugins)
     expect(preset.jsPlugins?.[0]).toMatch(/index\.js$/)
   })
-  test('test files do not receive relaxed custom rules', () => {
+  test('presets do not include consumer-specific file exemptions', () => {
     for (const config of [typescript, effect, preset]) {
-      expect(config.overrides?.some((override) => override.files.some((pattern) => /test|spec/.test(pattern)))).toBe(
-        false,
-      )
+      expect(config.overrides).toBeUndefined()
     }
   })
   test('every group enables the same native categories and general-purpose plugins', () => {
@@ -84,7 +82,6 @@ describe('public plugin and grouped presets', () => {
     }
     for (const rule of [
       'eslint/preserve-caught-error',
-      'import/no-namespace',
       'import/no-nodejs-modules',
       'unicorn/explicit-length-check',
       'unicorn/no-typeof-undefined',
@@ -95,5 +92,12 @@ describe('public plugin and grouped presets', () => {
       expect(preset.rules?.[rule]).toBe('off')
       expect(typescript.rules).not.toHaveProperty(rule)
     }
+  })
+
+  test('the namespace import exception is limited to Effect module specifiers', () => {
+    const setting = ['error', { ignore: ['effect/**', '@effect/**'] }]
+    expect(effect.rules?.['import/no-namespace']).toEqual(setting)
+    expect(preset.rules?.['import/no-namespace']).toEqual(setting)
+    expect(typescript.rules).not.toHaveProperty('import/no-namespace')
   })
 })

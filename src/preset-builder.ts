@@ -77,7 +77,7 @@ export const createPreset = (names: readonly RuleName[]): OxlintConfig => ({
     }),
     ...(names.includes('no-import-from-barrel-package') && {
       // Effect modules use namespace imports, e.g. import * as Schema from 'effect/Schema'.
-      'import/no-namespace': 'off',
+      'import/no-namespace': ['error', { ignore: ['effect/**', '@effect/**'] }],
     }),
     ...Object.fromEntries(
       names.map((name) => [
@@ -101,15 +101,4 @@ export const createPreset = (names: readonly RuleName[]): OxlintConfig => ({
       ]),
     ),
   },
-  overrides: names.includes('no-redundant-alias')
-    ? [
-        {
-          files: ['**/*.gen.ts'],
-          rules: {
-            // Generators intentionally emit aliases to preserve their public type names.
-            'rules/no-redundant-alias': 'off',
-          },
-        },
-      ]
-    : [],
 })
