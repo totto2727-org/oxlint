@@ -20,12 +20,15 @@ export const presetRuleNames = [
   'no-instanceof-error',
   'no-js-date',
   'no-node-imports',
+  'no-optional-error-cause',
   'no-option-tag-comparison',
   'no-raw-hono-create-middleware',
   'no-sync-decode',
   'no-type-predicate',
   'prefer-is-nullish',
   'prefer-non-unknown-decode',
+  'prefer-schema-format-validation',
+  'require-tagged-error',
   'require-top-level-decoder',
 ] as const
 

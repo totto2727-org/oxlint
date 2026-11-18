@@ -17,6 +17,7 @@ import noJsxScriptTag from './rules/no-jsx-script-tag.ts'
 import noLet from './rules/no-let.ts'
 import noNodeImports from './rules/no-node-imports.ts'
 import noOptionTagComparison from './rules/no-option-tag-comparison.ts'
+import noOptionalErrorCause from './rules/no-optional-error-cause.ts'
 import noRawHonoCreateMiddleware from './rules/no-raw-hono-create-middleware.ts'
 import noRedundantAlias from './rules/no-redundant-alias.ts'
 import noStringStyle from './rules/no-string-style.ts'
@@ -24,8 +25,10 @@ import noSyncDecode from './rules/no-sync-decode.ts'
 import noTypePredicate from './rules/no-type-predicate.ts'
 import preferIsNullish from './rules/prefer-is-nullish.ts'
 import preferNonUnknownDecode from './rules/prefer-non-unknown-decode.ts'
+import preferSchemaFormatValidation from './rules/prefer-schema-format-validation.ts'
 import requireDisableReason from './rules/require-disable-reason.ts'
 import requireImportExtension from './rules/require-import-extension.ts'
+import requireTaggedError from './rules/require-tagged-error.ts'
 import requireTopLevelDecoder from './rules/require-top-level-decoder.ts'
 import noBigintLiterals from './upstream/effect/no-bigint-literals.ts'
 import noImportFromBarrelPackage from './upstream/effect/no-import-from-barrel-package.ts'
@@ -60,6 +63,7 @@ const plugin = {
     'no-jsx-script-tag': noJsxScriptTag,
     'no-let': noLet,
     'no-node-imports': noNodeImports,
+    'no-optional-error-cause': noOptionalErrorCause,
     'no-option-tag-comparison': noOptionTagComparison,
     'no-raw-hono-create-middleware': noRawHonoCreateMiddleware,
     'no-redundant-alias': noRedundantAlias,
@@ -68,7 +72,9 @@ const plugin = {
     'no-type-predicate': noTypePredicate,
     'prefer-is-nullish': preferIsNullish,
     'prefer-non-unknown-decode': preferNonUnknownDecode,
+    'prefer-schema-format-validation': preferSchemaFormatValidation,
     'require-disable-reason': requireDisableReason,
+    'require-tagged-error': requireTaggedError,
     'require-top-level-decoder': requireTopLevelDecoder,
   },
 }

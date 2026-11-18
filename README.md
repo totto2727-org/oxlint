@@ -55,11 +55,11 @@ When native and custom rules conflict or report the same issue, the preset favor
 
 ## API
 
-The default package export is the plugin: 29 local rules and five Effect rule implementations.
+The default package export is the plugin.
 All plugin rule IDs use the `rules/` prefix.
 The `/preset` export is the standard Oxlint configuration.
 The named exports `presetRuleNames` and `compatibilityRuleNames` list enabled and opt-in custom rules, respectively.
-The four compatibility rules are opt-in alternatives to current import policies.
+Compatibility rules are opt-in.
 
 See [the preset source](https://github.com/totto2727-org/oxlint/blob/main/src/preset.ts) for conflict resolutions and their reasons.
 
@@ -80,6 +80,19 @@ Set `'rules/consistent-import-extension': ['error', { mode: 'js' }]` in your con
 These rules check relative paths and slash-containing `#` paths, such as `#@/utils`, in imports, re-exports and literal dynamic imports.
 They ignore slashless aliases such as `#utils`.
 They preserve query strings and fragments and ignore bare package imports and non-code assets.
+
+### Effect errors and validation
+
+`require-tagged-error` reports direct construction and subclassing of native errors and untagged `Data.Error`.
+Use `Data.TaggedError` or `Schema.TaggedErrorClass` for application errors whether or not they have a `cause`.
+If an error wraps a previous failure, retain the original value in a required `cause` field.
+Use a separate tagged error for failures with no cause.
+`no-optional-error-cause` reports inline optional fields in tagged error definitions, including `Schema.optional` and `Schema.optionalKey`.
+`no-error-property-access` checks JavaScript catch bindings and direct `Effect.try` or `Effect.tryPromise` callbacks, not typed failures that happen to be named `error`.
+If an external API requires a native constructor, use a line-level suppression with the interoperability reason. `eslint/preserve-caught-error` still checks native rethrows.
+
+`prefer-schema-format-validation` reports inline regex tests that reject input by throwing or yielding a newly constructed failure.
+Define a named Schema for the format and its length or range constraints. This rule does not report ordinary regex classification or infer the domain of numeric comparisons.
 
 ## Development
 

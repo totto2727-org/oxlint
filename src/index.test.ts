@@ -14,7 +14,7 @@ const customKeys = () =>
 describe('public plugin and standard preset', () => {
   test('all plugin rules are either enabled by default or opt-in compatibility rules', () => {
     const names = [...presetRuleNames, ...compatibilityRuleNames]
-    expect(new Set(names).size).toBe(34)
+    expect(new Set(names).size).toBe(names.length)
     expect(Object.keys(plugin.rules).sort()).toEqual(names.sort())
     expect(customKeys()).toEqual(keys(presetRuleNames))
     for (const name of compatibilityRuleNames) {
