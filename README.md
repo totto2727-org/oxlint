@@ -28,10 +28,10 @@ Tests use the same rules as application files.
 
 ## Setup
 
-Install the plugin and Oxlint as development dependencies:
+Install the plugin, Oxlint and its type-aware checker as development dependencies:
 
 ```sh
-npm install --save-dev @totto2727/oxlint oxlint
+npm install --save-dev @totto2727/oxlint oxlint oxlint-tsgolint
 ```
 
 Enable both rule groups in `.oxlintrc.mjs`:
