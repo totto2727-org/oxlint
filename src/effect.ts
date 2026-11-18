@@ -1,4 +1,3 @@
-import { createPreset } from './preset-builder.ts'
-import { effectRuleNames } from './rule-groups.ts'
+import { createPreset, effectRules } from './preset-builder.ts'
 
-export default createPreset(effectRuleNames)
+export default createPreset(effectRules)
