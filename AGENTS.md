@@ -1,5 +1,7 @@
 # @totto2727/oxlint
 
+Resolve repeated conflicts with normal Effect or framework usage in the standard preset. Keep custom rules that require an explicit reason for intentional exceptions enabled. An explained exception at an Effect runtime boundary is intentional policy, not a preset conflict.
+
 ## Repository structure
 
 | Path                | Purpose                                  |

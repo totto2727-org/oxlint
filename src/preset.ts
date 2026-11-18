@@ -46,7 +46,31 @@ const preset: OxlintConfig = {
         checkRelativeIndexImports: true,
       },
     ],
+    // Effect uses anonymous generators as callbacks, where a name adds no information.
+    'func-names': ['error', 'as-needed', { generators: 'never' }],
+    'id-length': ['error', { checkGeneric: false, properties: 'never' }],
+    // Effect uses capitalized factories such as Schema.Struct and Context.Service without new.
+    'new-cap': ['error', { capIsNew: false }],
+    'no-magic-numbers': ['error', { ignore: [-1, 0, 1, 2], ignoreArrayIndexes: true, ignoreDefaultValues: true }],
+    // Effect exposes _tag on discriminated unions, and the custom rule still governs Option tags.
+    'no-underscore-dangle': ['error', { allow: ['_tag'] }],
+    // A standalone void documents an intentionally unawaited promise.
+    'no-void': ['error', { allowAsStatement: true }],
+    // Effect's synchronous interpreter is not Node.js synchronous I/O.
+    'node/no-sync': ['error', { ignores: ['runSync'] }],
     'one-var': ['error', 'never'],
+    // Allow formatters to sort import declarations by module path. Still validate named member ordering.
+    'sort-imports': ['error', { ignoreCase: true, ignoreDeclarationSort: true }],
+    // Contextually typed callbacks already have return types at their boundaries.
+    'typescript/explicit-function-return-type': [
+      'error',
+      { allowExpressions: true, allowTypedFunctionExpressions: true },
+    ],
+    // Avoid flagging inferred callback types and service methods merely for being callable.
+    'typescript/prefer-readonly-parameter-types': [
+      'error',
+      { ignoreInferredTypes: true, treatMethodsAsReadonly: true },
+    ],
     // import/no-duplicates also detects imports that resolve to the same module.
     'no-duplicate-imports': 'off',
     // unicorn/prefer-ternary can require a conditional expression instead of an if/else.

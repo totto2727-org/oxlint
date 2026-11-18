@@ -71,6 +71,7 @@ describe('public plugin and standard preset', () => {
   })
 
   test('gives custom policies priority over competing native rules', () => {
+    expect(preset.rules?.['sort-imports']).toEqual(['error', { ignoreCase: true, ignoreDeclarationSort: true }])
     for (const rule of [
       'eslint/prefer-const',
       'eslint/preserve-caught-error',
@@ -83,6 +84,17 @@ describe('public plugin and standard preset', () => {
     ]) {
       expect(preset.rules?.[rule]).toBe('off')
     }
+  })
+
+  test('requires local reasons for intentional runtime, platform, and rendering exceptions', () => {
+    expect(preset.rules?.['rules/require-disable-reason']).toBe('error')
+    expect(preset.rules?.['rules/no-effect-runtime-run']).toBe('error')
+    expect(preset.rules?.['rules/no-fetch']).toBe('error')
+    expect(preset.rules?.['rules/no-jsx-script-tag']).toBe('error')
+    expect(preset.rules?.['rules/no-node-imports']).toEqual([
+      'error',
+      { allow: ['child_process', 'crypto', 'os', 'util'] },
+    ])
   })
 
   test('supports automatic JSX and explicit Vitest APIs without conflicting hook policies', () => {
