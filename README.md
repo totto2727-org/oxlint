@@ -1,6 +1,6 @@
 # @totto2727/oxlint
 
-[Oxlint](https://oxc.rs/docs/guide/usage/linter.html) rules and presets for TypeScript and Effect.
+[Oxlint](https://oxc.rs/docs/guide/usage/linter.html) rules and a standard preset for JavaScript and TypeScript projects that use Effect.
 
 ## Usage
 
@@ -16,7 +16,7 @@ Tests use the same rules as application files.
 
 ## Key features
 
-- Separate TypeScript and Effect presets, plus a combined preset.
+- One standard preset for JavaScript and TypeScript projects that use Effect.
 - Required import extensions and configurable TypeScript or JavaScript output extensions.
 - All native Oxlint rule categories, general-purpose built-in plugins, and incorporated Effect rules.
 - ESM exports with TypeScript declarations.
@@ -34,7 +34,7 @@ Install the plugin, Oxlint and its type-aware checker as development dependencie
 npm install --save-dev @totto2727/oxlint oxlint oxlint-tsgolint
 ```
 
-Enable both rule groups in `.oxlintrc.mjs`:
+Enable the standard preset in `.oxlintrc.mjs`:
 
 ```js
 import preset from '@totto2727/oxlint/preset'
@@ -43,12 +43,13 @@ import { defineConfig } from 'oxlint'
 export default defineConfig({ extends: [preset] })
 ```
 
-Use `/typescript` or `/effect` instead of `/preset` to select one group.
-See [Getting started](https://oxlint.totto2727.dev/en/guide/getting-started) for individual-rule configuration.
+If you upgrade from `0.1`, replace `/typescript` or `/effect` imports with `/preset`.
+If you used `typescriptRuleNames` or `effectRuleNames`, use the combined `presetRuleNames` list instead.
 
-Each preset enables all seven native rule categories as errors, including nursery rules, and turns on type-aware linting.
-React, React Perf, JSX A11y, Next.js, Vue, Jest and Vitest are opt-in so projects can choose the plugins for their framework or test runner.
-If you set `plugins` in your own config, include the preset plugins as well: `plugins: [...(preset.plugins ?? []), 'vitest']`.
+The preset enables all seven native rule categories as errors, including nursery rules, and turns on type-aware linting.
+React, React Perf, JSX A11y and Vitest are enabled alongside the general-purpose built-in plugins.
+Next.js, Vue and Jest are opt-in.
+If you set `plugins` in your own config, include the preset plugins as well: `plugins: [...(preset.plugins ?? []), 'nextjs']`.
 Set the environment for your runtime in your own config.
 When native and custom rules conflict or report the same issue, the preset favors the custom policy unless the native rule provides better coverage.
 
@@ -56,13 +57,11 @@ When native and custom rules conflict or report the same issue, the preset favor
 
 The default package export is the plugin: 29 local rules and five Effect rule implementations.
 All plugin rule IDs use the `rules/` prefix.
-The `/typescript`, `/effect` and `/preset` exports are Oxlint configurations.
-Named exports `typescriptRuleNames`, `effectRuleNames` and `compatibilityRuleNames` list the rules in each group.
+The `/preset` export is the standard Oxlint configuration.
+The named exports `presetRuleNames` and `compatibilityRuleNames` list enabled and opt-in custom rules, respectively.
 The four compatibility rules are opt-in alternatives to current import policies.
 
-- [TypeScript preset](https://oxlint.totto2727.dev/en/presets/typescript)
-- [Effect preset](https://oxlint.totto2727.dev/en/presets/effect), including external rules and disabled-rule reasons
-- [Local rules](https://oxlint.totto2727.dev/en)
+See [the preset source](https://github.com/totto2727-org/oxlint/blob/main/src/preset.ts) for conflict resolutions and their reasons.
 
 ### Import extensions
 

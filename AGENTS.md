@@ -2,16 +2,16 @@
 
 ## Repository structure
 
-| Path                                | Purpose                                    |
-| ----------------------------------- | ------------------------------------------ |
-| `src/index.ts`                      | Plugin and named exports                   |
-| `src/rules/`                        | Local rules and RuleTester tests           |
-| `src/upstream/`                     | Fixed Effect rules                         |
-| `src/rule-groups.ts`                | TypeScript, Effect and compatibility lists |
-| `src/{preset,typescript,effect}.ts` | Preset exports                             |
-| `vite.config.ts`                    | Formatting, lint, tests, build and tasks   |
-| `package.json`                      | Dependencies, exports and package files    |
-| `flake.nix`                         | Development shell                          |
+| Path                | Purpose                                  |
+| ------------------- | ---------------------------------------- |
+| `src/index.ts`      | Plugin and named exports                 |
+| `src/rules/`        | Local rules and RuleTester tests         |
+| `src/upstream/`     | Fixed Effect rules                       |
+| `src/rule-names.ts` | Standard and compatibility rule lists    |
+| `src/preset.ts`     | Standard preset                          |
+| `vite.config.ts`    | Formatting, lint, tests, build and tasks |
+| `package.json`      | Dependencies, exports and package files  |
+| `flake.nix`         | Development shell                        |
 
 ## Development commands
 
@@ -58,11 +58,12 @@ Update incorporated sources, tests and MIT notices together.
 Keep the stable `typescript-api` dependency separate from the development compiler.
 Do not combine the official Effect import policy with its conflicting local compatibility rules.
 Keep compatibility rules opt-in.
-Enable all native categories and all general-purpose built-in plugins.
-Keep framework, JSX and test runner plugins opt-in.
+Assume JavaScript and TypeScript projects use Effect. Keep one standard preset instead of an Effect-specific layer.
+Enable all native categories, general-purpose built-in plugins, React, React Perf, JSX A11y and Vitest.
+Keep Next.js, Vue and Jest opt-in.
 Prefer existing custom rules over overlapping native rules unless the native rule has demonstrably better coverage.
 Document every disabled rule next to its setting and keep consumer-specific exceptions in the consumer.
-Validate both preset orders with an installed archive after preset changes.
+Validate the standard preset with an installed archive after preset changes.
 
 ## Development tools
 

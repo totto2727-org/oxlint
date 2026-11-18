@@ -1,4 +1,4 @@
-export const typescriptRuleNames = [
+export const presetRuleNames = [
   'consistent-import-extension',
   'no-eslint-disable-comments',
   'no-jsx-script-tag',
@@ -7,9 +7,6 @@ export const typescriptRuleNames = [
   'no-string-style',
   'require-disable-reason',
   'require-import-extension',
-] as const
-
-export const effectRuleNames = [
   'force-array-empty',
   'force-iterable-empty',
   'force-predicate',

@@ -73,5 +73,5 @@ const plugin = {
   },
 }
 
-export { compatibilityRuleNames, effectRuleNames, typescriptRuleNames } from './rule-groups.ts'
+export { compatibilityRuleNames, presetRuleNames } from './rule-names.ts'
 export default plugin
