@@ -81,6 +81,12 @@ const preset: OxlintConfig = {
     'unicorn/no-typeof-undefined': 'off',
     // Effect modules use namespace imports, e.g. import * as Schema from 'effect/Schema'.
     'import/no-namespace': ['error', { ignore: ['effect/**', '@effect/**'] }],
+    // The automatic JSX runtime does not need React in scope. Classic JSX can opt back in.
+    'react/react-in-jsx-scope': 'off',
+    // Vitest disables globals by default, so tests must be able to import its APIs explicitly.
+    'vitest/no-importing-vitest-globals': 'off',
+    // Keep setup local to tests rather than requiring hooks that vitest/no-hooks forbids.
+    'vitest/require-hook': 'off',
   },
 }
 

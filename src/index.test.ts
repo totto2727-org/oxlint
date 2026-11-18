@@ -84,4 +84,11 @@ describe('public plugin and standard preset', () => {
       expect(preset.rules?.[rule]).toBe('off')
     }
   })
+
+  test('supports automatic JSX and explicit Vitest APIs without conflicting hook policies', () => {
+    expect(preset.rules?.['react/react-in-jsx-scope']).toBe('off')
+    expect(preset.rules?.['vitest/no-importing-vitest-globals']).toBe('off')
+    expect(preset.rules?.['vitest/require-hook']).toBe('off')
+    expect(preset.rules?.['vitest/no-hooks']).not.toBe('off')
+  })
 })
