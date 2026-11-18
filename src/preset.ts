@@ -43,7 +43,7 @@ const preset: OxlintConfig = {
   ],
   rules: {
     ...Object.fromEntries(presetRuleNames.map((name) => [`rules/${name}`, 'error'] as const)),
-    // Native Error ignores an `error` option. Use the standard `cause` to retain the original failure.
+    // Native Error recognizes `cause`, not `error`. Tagged errors have a separate rule against optional causes.
     'rules/no-error-cause-option': 'off',
     // A blanket ban also rejects deliberate imports from a package's public entry point.
     'rules/no-import-from-barrel-package': 'off',

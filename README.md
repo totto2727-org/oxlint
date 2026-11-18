@@ -84,10 +84,11 @@ They preserve query strings and fragments and ignore bare package imports and no
 ### Effect errors and validation
 
 `require-tagged-error` reports direct construction and subclassing of native errors and untagged `Data.Error`.
-Use `Data.TaggedError` or `Schema.TaggedErrorClass` for application errors whether or not they have a `cause`.
+Use `Data.TaggedError` or `Schema.TaggedError` for application errors whether or not they have a `cause`.
 If an error wraps a previous failure, retain the original value in a required `cause` field.
 Use a separate tagged error for failures with no cause.
-`no-optional-error-cause` reports inline optional fields in tagged error definitions, including `Schema.optional` and `Schema.optionalKey`.
+`no-optional-error-cause` reports optional `cause` declarations in tagged error definitions, including same-file type aliases, interfaces, and constant Schema field objects.
+Use `readonly cause: unknown` or `cause: Schema.Unknown` when wrapping a failure. Omit `cause` entirely when the error has no cause.
 `no-error-property-access` checks JavaScript catch bindings and direct `Effect.try` or `Effect.tryPromise` callbacks, not typed failures that happen to be named `error`.
 If an external API requires a native constructor, use a line-level suppression with the interoperability reason. `eslint/preserve-caught-error` still checks native rethrows.
 

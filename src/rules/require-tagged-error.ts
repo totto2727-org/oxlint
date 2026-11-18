@@ -45,7 +45,7 @@ const rule: Rule = {
       ) {
         context.report({
           message:
-            'Define application errors with Data.TaggedError or Schema.TaggedErrorClass instead of an untagged error constructor.',
+            'Define application errors with Data.TaggedError or Schema.TaggedError instead of an untagged error constructor.',
           node: expression,
         })
       }
