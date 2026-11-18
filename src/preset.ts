@@ -43,6 +43,8 @@ const preset: OxlintConfig = {
   ],
   rules: {
     ...Object.fromEntries(presetRuleNames.map((name) => [`rules/${name}`, 'error'] as const)),
+    // Native Error ignores an `error` option. Use the standard `cause` to retain the original failure.
+    'rules/no-error-cause-option': 'off',
     // A blanket ban also rejects deliberate imports from a package's public entry point.
     'rules/no-import-from-barrel-package': 'off',
     // Effect uses anonymous generators as callbacks, where a name adds no information.
@@ -93,8 +95,8 @@ const preset: OxlintConfig = {
     'unicorn/prefer-bigint-literals': 'off',
     // The custom rule recommends Effect Platform and reports Node.js imports without a default allowlist.
     'import/no-nodejs-modules': 'off',
-    // Effect errors preserve the original failure in an error field, not native Error.cause.
-    'eslint/preserve-caught-error': 'off',
+    // Require the caught value as the cause when wrapping it in a native error.
+    'eslint/preserve-caught-error': 'error',
     // Its automatic replacement, Date.now(), is forbidden by the custom Temporal policy.
     'unicorn/prefer-date-now': 'off',
     // The native rule expands truthiness into length comparisons that the custom Effect rule rejects.

@@ -63,7 +63,6 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['sort-imports']).toEqual(['error', { ignoreCase: true, ignoreDeclarationSort: true }])
     for (const rule of [
       'eslint/prefer-const',
-      'eslint/preserve-caught-error',
       'import/extensions',
       'import/no-nodejs-modules',
       'unicorn/explicit-length-check',
@@ -81,6 +80,11 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['rules/no-fetch']).toBe('error')
     expect(preset.rules?.['rules/no-jsx-script-tag']).toBe('error')
     expect(preset.rules?.['rules/no-node-imports']).toBe('error')
+  })
+
+  test('preserves the original failure when rethrowing a native error', () => {
+    expect(preset.rules?.['eslint/preserve-caught-error']).toBe('error')
+    expect(preset.rules?.['rules/no-error-cause-option']).toBe('off')
   })
 
   test('supports automatic JSX and explicit Vitest APIs without conflicting hook policies', () => {

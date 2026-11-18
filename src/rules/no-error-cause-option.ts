@@ -3,7 +3,8 @@ import { Predicate } from 'effect'
 
 import { hasProperty, isReportable } from '../helpers.ts'
 
-const NO_ERROR_CAUSE_OPTION_MESSAGE = 'Do not pass `{ cause }` to `new Error`. Use `{ error }` instead.'
+const NO_ERROR_CAUSE_OPTION_MESSAGE =
+  'Do not pass `{ cause }` to `new Error` under this policy. If wrapping a failure, use a typed error with an explicit original-error field instead.'
 
 const getIdentifierName = (node: unknown): string | null =>
   Predicate.isObject(node) && node['type'] === 'Identifier' && Predicate.isString(node['name']) ? node['name'] : null
