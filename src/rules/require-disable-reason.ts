@@ -1,4 +1,5 @@
 import type { Rule } from '@oxlint/plugins'
+import { Array } from 'effect'
 
 const OXLINT_DISABLE_DIRECTIVE_RE = /\boxlint-disable\b/u
 const DISABLE_REASON_RE = /\s--\s+\S/u
@@ -12,7 +13,7 @@ const rule: Rule = {
     return {
       'Program:exit'() {
         const comments = context.sourceCode.getAllComments()
-        for (const comment of comments) {
+        Array.forEach(comments, (comment) => {
           const { value } = comment
           if (isOxlintDisableDirective(value) && !hasDisableReason(value)) {
             context.report({
@@ -20,7 +21,7 @@ const rule: Rule = {
               node: comment,
             })
           }
-        }
+        })
       },
     }
   },

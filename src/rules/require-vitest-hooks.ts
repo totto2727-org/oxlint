@@ -60,17 +60,17 @@ const vitestCallName = (source: SourceCode, callee: ESTree.Expression): string |
   }
   const { root } = path
   const binding = findBinding(source.getScope(root), root.name)
-  for (const { node, parent } of binding?.defs ?? []) {
-    if (
+  const definition = binding?.defs.find(
+    ({ node, parent }) =>
       parent?.type === 'ImportDeclaration' &&
       parent.importKind !== 'type' &&
       testModules.has(parent.source.value) &&
-      (node.type === 'ImportNamespaceSpecifier' || (node.type === 'ImportSpecifier' && node.importKind !== 'type'))
-    ) {
-      return importedApiName(path, node)
-    }
-  }
-  return undefined
+      (node.type === 'ImportNamespaceSpecifier' || (node.type === 'ImportSpecifier' && node.importKind !== 'type')),
+  )
+  const node = definition?.node
+  return node?.type === 'ImportNamespaceSpecifier' || node?.type === 'ImportSpecifier'
+    ? importedApiName(path, node)
+    : undefined
 }
 
 const callName = (source: SourceCode, statement: ESTree.Node): string | undefined =>
@@ -122,17 +122,16 @@ const rule: Rule = {
           return
         }
         const scopedTests = name === 'describeWrapped' || name === 'layer' ? callback.params[0] : undefined
-        for (const statement of callback.body?.type === 'BlockStatement' ? callback.body.body : []) {
+        const statements = callback.body?.type === 'BlockStatement' ? callback.body.body : []
+        Array.forEach(statements, (statement) => {
           if (!isEffectSuiteTest(statement, scopedTests)) {
             check(statement)
           }
-        }
+        })
       },
       Program(node) {
         if (node.body.some((statement) => registersTests(callName(sourceCode, statement)))) {
-          for (const statement of node.body) {
-            check(statement)
-          }
+          Array.forEach(node.body, check)
         }
       },
     }

@@ -12,6 +12,7 @@ import { noEffectSubpathImport } from './rules/no-effect-subpath-import.ts'
 import { noErrorPropertyAccess } from './rules/no-error-property-access.ts'
 import { noEslintDisableComments } from './rules/no-eslint-disable-comments.ts'
 import { noFetch } from './rules/no-fetch.ts'
+import { noForLoops } from './rules/no-for-loops.ts'
 import { noIndexFilename } from './rules/no-index-filename.ts'
 import { noInstanceofError } from './rules/no-instanceof-error.ts'
 import { noJsDate } from './rules/no-js-date.ts'
@@ -55,6 +56,7 @@ const plugin = {
     'no-error-property-access': noErrorPropertyAccess,
     'no-eslint-disable-comments': noEslintDisableComments,
     'no-fetch': noFetch,
+    'no-for-loops': noForLoops,
     'no-import-from-barrel-package': noImportFromBarrelPackage,
     'no-index-filename': noIndexFilename,
     'no-instanceof-error': noInstanceofError,

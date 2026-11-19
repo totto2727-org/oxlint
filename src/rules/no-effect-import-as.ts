@@ -56,11 +56,7 @@ const rule: Rule = {
         if (!Array.isArray(specifiers)) {
           return
         }
-        for (const spec of specifiers) {
-          if (Predicate.isObject(spec) && checkSpecifierForAs(spec, context, node)) {
-            return
-          }
-        }
+        specifiers.some((spec) => Predicate.isObject(spec) && checkSpecifierForAs(spec, context, node))
       },
     }
   },

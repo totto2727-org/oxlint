@@ -7,7 +7,7 @@ import { rm } from 'node:fs/promises'
 // oxlint-disable-next-line rules/no-node-imports -- RuleTester receives absolute filesystem paths.
 import path from 'node:path'
 
-import { Data, Predicate } from 'effect'
+import { Array, Data, Predicate } from 'effect'
 import { RuleTester } from 'oxlint/plugins-dev'
 import { afterAll, describe } from 'vite-plus/test'
 
@@ -34,9 +34,9 @@ const fixture = (files: Record<string, string>, file: string): { code: string; c
   // oxlint-disable-next-line node/no-sync -- Register an isolated root before collecting its cases.
   const cwd = mkdtempSync(path.join(parent, 'effect-rule-'))
   roots.push(cwd)
-  for (const [name, code] of Object.entries(files)) {
+  Array.forEach(Object.entries(files), ([name, code]) => {
     writeFixtureFile(path.join(cwd, name), code)
-  }
+  })
   const code = files[file]
   if (Predicate.isNullish(code)) {
     throw new MissingFixtureFile({ file })

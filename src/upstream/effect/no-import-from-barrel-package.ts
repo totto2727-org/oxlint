@@ -6,7 +6,7 @@ import path from 'node:path'
 // Vendored from Effect-TS/effect at b1d200c40a1dad69def51ebdbf0a1a612a12b8ac.
 // MIT, Copyright (c) 2023 Effectful Technologies Inc. See THIRD-PARTY-NOTICES.md.
 import type { CreateRule, ESTree } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import { Array, Predicate } from 'effect'
 
 interface RuleOptions {
   checkRelativeIndexImports: boolean
@@ -73,17 +73,23 @@ export const noImportFromBarrelPackage: CreateRule = {
         if (node.importKind === 'type' || !matchesBarrel(importSource, currentFile, options)) {
           return
         }
-        for (const specifier of node.specifiers.filter((item) => item.type === 'ImportNamespaceSpecifier')) {
-          context.report({
-            message: `Do not use namespace import from barrel file "${importSource}", import from specific modules instead`,
-            node: specifier,
-          })
-        }
-        for (const specifier of node.specifiers.filter((item) => item.type === 'ImportSpecifier')) {
-          if (specifier.importKind !== 'type') {
-            context.report({ message: namedImportMessage(specifier, importSource), node: specifier })
-          }
-        }
+        Array.forEach(
+          node.specifiers.filter((item) => item.type === 'ImportNamespaceSpecifier'),
+          (specifier) => {
+            context.report({
+              message: `Do not use namespace import from barrel file "${importSource}", import from specific modules instead`,
+              node: specifier,
+            })
+          },
+        )
+        Array.forEach(
+          node.specifiers.filter((item) => item.type === 'ImportSpecifier'),
+          (specifier) => {
+            if (specifier.importKind !== 'type') {
+              context.report({ message: namedImportMessage(specifier, importSource), node: specifier })
+            }
+          },
+        )
       },
     }
   },

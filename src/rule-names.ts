@@ -22,6 +22,7 @@ const presetRuleNames = [
   'no-unused-internal',
   'no-error-property-access',
   'no-fetch',
+  'no-for-loops',
   'no-import-from-barrel-package',
   'no-instanceof-error',
   'no-js-date',

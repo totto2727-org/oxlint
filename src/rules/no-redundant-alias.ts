@@ -1,5 +1,5 @@
 import type { Context, Rule } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import { Array, Predicate } from 'effect'
 
 import { hasProperty, isReportable } from '#src/helpers.ts'
 
@@ -53,14 +53,14 @@ const rule: Rule = {
           return
         }
         const declarationItems: unknown[] = declaration.declarations
-        for (const declarator of declarationItems) {
+        Array.forEach(declarationItems, (declarator) => {
           if (isReportable(declarator) && isIdentifierInitDeclarator(declarator)) {
             context.report({
               message: REDUNDANT_VALUE_ALIAS_MESSAGE,
               node: declarator,
             })
           }
-        }
+        })
       },
       TSTypeAliasDeclaration(node: unknown) {
         if (!isReportable(node)) {

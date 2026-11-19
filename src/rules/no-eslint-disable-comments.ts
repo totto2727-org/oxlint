@@ -1,4 +1,5 @@
 import type { Rule } from '@oxlint/plugins'
+import { Array } from 'effect'
 
 const ESLINT_DISABLE_RE = /^\s*eslint-disable(?:-next-line|-line)?\b/gmu
 
@@ -10,7 +11,7 @@ const rule: Rule = {
     return {
       'Program:exit'() {
         const comments = context.sourceCode.getAllComments()
-        for (const comment of comments) {
+        Array.forEach(comments, (comment) => {
           const { value } = comment
           ESLINT_DISABLE_RE.lastIndex = 0
           if (ESLINT_DISABLE_RE.test(value)) {
@@ -26,7 +27,7 @@ const rule: Rule = {
               node: comment,
             })
           }
-        }
+        })
       },
     }
   },

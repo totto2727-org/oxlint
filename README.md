@@ -12,6 +12,9 @@ npx oxlint --config .oxlintrc.mjs src
 
 Replace `src` with your source directory.
 The preset reports policy violations, such as `rules/no-let` for a `let` declaration.
+`rules/no-for-loops` reports `for`, `for...of`, `for...in`, and `for await...of`.
+Use collection combinators, `Effect.forEach`, or `Stream.runForEach` when they express the same behavior.
+If a loop is necessary, add `oxlint-disable-next-line rules/no-for-loops -- <reason>` above it.
 Tests use the same general rules as application files, plus Vitest rules for `*.test.ts` and `*.test.tsx`.
 
 ## Key features

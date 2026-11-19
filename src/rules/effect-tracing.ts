@@ -1,4 +1,5 @@
 import type { ESTree, Rule } from '@oxlint/plugins'
+import { Predicate } from 'effect'
 
 import { isEffectMethod } from '#src/effect-method.ts'
 
@@ -25,18 +26,22 @@ const rule: Rule = {
     const activePolicies = mode === 'library' ? Object.entries(library) : policies
     return {
       CallExpression(node: ESTree.CallExpression) {
-        for (const [method, message] of activePolicies) {
-          if (isEffectMethod(sourceCode, node.callee, { module: 'Effect', name: method })) {
-            context.report({ message, node: node.callee })
-            return
-          }
+        const policy = activePolicies.find(([method]) =>
+          isEffectMethod(sourceCode, node.callee, { module: 'Effect', name: method }),
+        )
+        if (Predicate.isNotNullish(policy)) {
+          const [, message] = policy
+          context.report({ message, node: node.callee })
+          return
         }
         const [generator, boundGenerator] = node.arguments
         const callback = boundGenerator ?? generator
-        if (callback?.type !== 'FunctionExpression' || !callback.generator || !callback.id) {
-          return
-        }
-        if (isEffectMethod(sourceCode, node.callee, { module: 'Effect', name: 'gen' })) {
+        if (
+          callback?.type === 'FunctionExpression' &&
+          callback.generator &&
+          callback.id &&
+          isEffectMethod(sourceCode, node.callee, { module: 'Effect', name: 'gen' })
+        ) {
           context.report({
             message:
               mode === 'library'

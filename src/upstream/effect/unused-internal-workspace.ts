@@ -5,7 +5,7 @@ import * as fs from 'node:fs'
 // oxlint-disable-next-line rules/no-node-imports -- Workspace and module resolution use host filesystem paths.
 import path from 'node:path'
 
-import { Predicate } from 'effect'
+import { Array, Predicate } from 'effect'
 
 const normalizePathName = (filename: string): string => path.resolve(filename).split(path.sep).join('/')
 
@@ -28,14 +28,14 @@ const findSourceFiles = (cwd: string): string[] => {
   }
   const files: string[] = []
   const visit = (directory: string): void => {
-    for (const entry of readDirectory(directory)) {
+    Array.forEach(readDirectory(directory), (entry) => {
       const entryPath = path.join(directory, entry.name)
       if (isWorkspaceDirectory(entry)) {
         visit(entryPath)
       } else if (entry.isFile() && isSourceFile(entryPath) && normalizePathName(entryPath).includes('/src/')) {
         files.push(entryPath)
       }
-    }
+    })
   }
   visit(packagesDir)
   return files
@@ -60,11 +60,11 @@ const findWorkspacePackages = (cwd: string): Map<string, string> => {
       }
       return
     }
-    for (const entry of readDirectory(directory)) {
+    Array.forEach(readDirectory(directory), (entry) => {
       if (isWorkspaceDirectory(entry)) {
         visit(path.join(directory, entry.name))
       }
-    }
+    })
   }
   visit(packagesDir)
   return packages
@@ -73,12 +73,8 @@ const findWorkspacePackages = (cwd: string): Map<string, string> => {
 const resolveSourceFile = (basePath: string): string | undefined => {
   const candidates =
     path.extname(basePath) === '.ts' ? [basePath] : [basePath, `${basePath}.ts`, path.join(basePath, 'index.ts')]
-  for (const candidate of candidates) {
-    if (pathExists(candidate) && isSourceFile(candidate)) {
-      return normalizePathName(candidate)
-    }
-  }
-  return undefined
+  const candidate = candidates.find((filename) => pathExists(filename) && isSourceFile(filename))
+  return Predicate.isNullish(candidate) ? undefined : normalizePathName(candidate)
 }
 
 const longestPackageMatch = (source: string, packages: ReadonlyMap<string, string>): string | undefined =>

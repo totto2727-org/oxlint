@@ -1,6 +1,6 @@
 // Vendored from Effect-TS/effect at b1d200c40a1dad69def51ebdbf0a1a612a12b8ac.
 // MIT, Copyright (c) 2023 Effectful Technologies Inc. See THIRD-PARTY-NOTICES.md.
-import { Predicate } from 'effect'
+import { Array, Predicate } from 'effect'
 import ts from 'typescript-api'
 
 const hasModifier = (node: ts.Node, kind: ts.SyntaxKind): boolean =>
@@ -32,11 +32,11 @@ const collectBindingNames = (name: ts.BindingName, out: ts.Identifier[]): void =
     out.push(name)
     return
   }
-  for (const element of name.elements) {
+  Array.forEach(name.elements, (element) => {
     if (ts.isBindingElement(element)) {
       collectBindingNames(element.name, out)
     }
-  }
+  })
 }
 
 const getTopLevelDeclarationNameNodes = (node: ts.Node): ts.Identifier[] => {
@@ -54,9 +54,9 @@ const getTopLevelDeclarationNameNodes = (node: ts.Node): ts.Identifier[] => {
   }
   if (ts.isVariableStatement(node)) {
     const names: ts.Identifier[] = []
-    for (const declaration of node.declarationList.declarations) {
+    Array.forEach(node.declarationList.declarations, (declaration) => {
       collectBindingNames(declaration.name, names)
-    }
+    })
     return names
   }
   return []

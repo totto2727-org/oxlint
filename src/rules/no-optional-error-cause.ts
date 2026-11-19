@@ -6,16 +6,16 @@ import { fieldName, findBinding, isEffectMethod } from '#src/effect-method.ts'
 type CauseField = ESTree.TSPropertySignature | true | undefined
 
 const findCauseField = (members: ESTree.TSSignature[]): CauseField => {
-  for (const member of members) {
-    if (
-      member.type === 'TSPropertySignature' &&
-      (!member.computed || member.key.type === 'Literal') &&
-      fieldName(member.key) === 'cause'
-    ) {
-      return member.optional ? member : true
-    }
+  const member = members.find(
+    (field) =>
+      field.type === 'TSPropertySignature' &&
+      (!field.computed || field.key.type === 'Literal') &&
+      fieldName(field.key) === 'cause',
+  )
+  if (member?.type !== 'TSPropertySignature') {
+    return undefined
   }
-  return undefined
+  return member.optional ? member : true
 }
 
 const mergeFields = (fields: CauseField[]): CauseField =>
@@ -104,11 +104,11 @@ const reportMatchingFields = <Field extends ESTree.Node>(
   matches: (field: Field) => boolean,
   report: (node: ESTree.Node) => void,
 ): void => {
-  for (const field of fields) {
+  Array.forEach(fields, (field) => {
     if (matches(field)) {
       report(field)
     }
-  }
+  })
 }
 
 const isOptionalInstanceCause = (field: ESTree.ClassElement): boolean =>

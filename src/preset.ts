@@ -127,12 +127,18 @@ const preset: OxlintConfig = {
       'error',
       { allowExpressions: true, allowTypedFunctionExpressions: true },
     ],
+    // The custom no-for-loops rule uses combinators instead of converting indexed loops to for...of.
+    'typescript/prefer-for-of': 'off',
     // This rule recommends the manual modifier that rules/no-readonly prohibits.
     'typescript/prefer-readonly': 'off',
     // Infer immutable data types from Effect Schema. Deep readonly parameter checks add wrappers at external boundaries.
     'typescript/prefer-readonly-parameter-types': 'off',
     // The native rule expands truthiness into length comparisons that the custom Effect rule rejects.
     'unicorn/explicit-length-check': 'off',
+    // This rule recommends for...of instead of synchronous iteration combinators.
+    'unicorn/no-array-for-each': 'off',
+    // Oxlint treats the second arguments of Effect Array.forEach and Iterable.forEach as thisArg.
+    'unicorn/no-array-method-this-argument': 'off',
     // Keep the Effect Predicate diagnostic rather than also suggesting a direct undefined comparison.
     'unicorn/no-typeof-undefined': 'off',
     // These rules suggest opposite syntax. Keep the Effect policy of using BigInt().

@@ -1,6 +1,6 @@
 // Vendored from Effect-TS/effect at b1d200c40a1dad69def51ebdbf0a1a612a12b8ac.
 // MIT, Copyright (c) 2023 Effectful Technologies Inc. See THIRD-PARTY-NOTICES.md.
-import { Predicate } from 'effect'
+import { Array, Predicate } from 'effect'
 import ts from 'typescript-api'
 
 import {
@@ -85,11 +85,11 @@ const getReExportedInternals = (
 }
 
 const markUsed = (exports: Readonly<InternalExport[]>, node: ts.Node): void => {
-  for (const internal of exports) {
+  Array.forEach(exports, (internal) => {
     if (!isInside(node, internal.declaration)) {
       internal.used = true
     }
-  }
+  })
 }
 
 const addInternalExport = (fileInfo: FileInfo, internal: InternalExport): void => {
@@ -102,10 +102,10 @@ const collectNamedImports = (fileInfo: FileInfo, importedFile: string, bindings:
   if (ts.isNamespaceImport(bindings)) {
     fileInfo.namespaceImports.set(bindings.name.text, importedFile)
   } else {
-    for (const specifier of bindings.elements) {
+    Array.forEach(bindings.elements, (specifier) => {
       const importedName = (specifier.propertyName ?? specifier.name).text
       fileInfo.imports.set(specifier.name.text, { fileName: importedFile, importedName })
-    }
+    })
   }
 }
 
@@ -132,7 +132,7 @@ const collectImports = (
 
 const collectExportNames = (fileInfo: FileInfo, publicDeclarations: Set<ts.Node>, statement: ts.Statement): void => {
   const statementIsInternal = hasInternalApiJSDoc(statement)
-  for (const name of getTopLevelDeclarationNameNodes(statement)) {
+  Array.forEach(getTopLevelDeclarationNameNodes(statement), (name) => {
     const declaration = getDeclarationForName(statement, name)
     if (statementIsInternal || hasInternalApiJSDoc(declaration)) {
       addInternalExport(fileInfo, {
@@ -145,7 +145,7 @@ const collectExportNames = (fileInfo: FileInfo, publicDeclarations: Set<ts.Node>
     } else if (!isInternalPath(fileInfo.fileName)) {
       publicDeclarations.add(statement)
     }
-  }
+  })
 }
 
 const collectFileInfo = (sourceFile: ts.SourceFile, packages: ReadonlyMap<string, string>): FileInfo => {
@@ -158,7 +158,7 @@ const collectFileInfo = (sourceFile: ts.SourceFile, packages: ReadonlyMap<string
     sourceFile,
   }
   const publicDeclarations = new Set<ts.Node>()
-  for (const statement of sourceFile.statements) {
+  Array.forEach(sourceFile.statements, (statement) => {
     if (ts.isImportDeclaration(statement)) {
       collectImports(fileInfo, statement, packages)
     } else if (
@@ -172,7 +172,7 @@ const collectFileInfo = (sourceFile: ts.SourceFile, packages: ReadonlyMap<string
     } else if (hasExportModifier(statement)) {
       collectExportNames(fileInfo, publicDeclarations, statement)
     }
-  }
+  })
   fileInfo.publicDeclarations.push(...publicDeclarations)
   return fileInfo
 }
@@ -202,11 +202,11 @@ const scanUsage = (graph: WorkspaceGraph, fileInfo: FileInfo): void => {
 const collectWorkspace = (cwd: string): WorkspaceGraph => {
   const workspacePackages = findWorkspacePackages(cwd)
   const fileInfos = new Map<string, FileInfo>()
-  for (const fileName of findSourceFiles(cwd)) {
+  Array.forEach(findSourceFiles(cwd), (fileName) => {
     const sourceFile = ts.createSourceFile(fileName, readText(fileName), ts.ScriptTarget.Latest, true)
     const fileInfo = collectFileInfo(sourceFile, workspacePackages)
     fileInfos.set(fileInfo.fileName, fileInfo)
-  }
+  })
   return { files: fileInfos, packages: workspacePackages }
 }
 

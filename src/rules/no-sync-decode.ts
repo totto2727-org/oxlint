@@ -10,14 +10,8 @@ const BANNED_DECODE_METHODS: Record<string, string> = {
   decodeUnknownSync: 'decodeUnknownEffect',
 }
 
-const isSchemaBannedDecodeCall = (node: unknown): string | undefined => {
-  for (const method of Object.keys(BANNED_DECODE_METHODS)) {
-    if (isSchemaMethodCall(node, method)) {
-      return method
-    }
-  }
-  return undefined
-}
+const isSchemaBannedDecodeCall = (node: unknown): string | undefined =>
+  Object.keys(BANNED_DECODE_METHODS).find((method) => isSchemaMethodCall(node, method))
 
 const rule: Rule = {
   create(context: Context) {

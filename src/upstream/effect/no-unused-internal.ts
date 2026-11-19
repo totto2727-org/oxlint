@@ -1,7 +1,7 @@
 // Vendored from Effect-TS/effect at b1d200c40a1dad69def51ebdbf0a1a612a12b8ac.
 // MIT, Copyright (c) 2023 Effectful Technologies Inc. See THIRD-PARTY-NOTICES.md.
 import type { CreateRule } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import { Array, Iterable, Predicate } from 'effect'
 import ts from 'typescript-api'
 
 import type { FileInfo, InternalExport, WorkspaceGraph } from './unused-internal-graph.ts'
@@ -32,13 +32,13 @@ interface SignatureScan {
 
 const findInternalReferences = ({ diagnostics, fileInfo, graph }: SignatureScan, node: ts.Node): void => {
   const reportReferences = (references: Readonly<InternalExport[]>, name: ts.Node): void => {
-    for (const internal of references) {
+    Array.forEach(references, (internal) => {
       diagnostics.push({
         fileName: fileInfo.fileName,
         message: `Do not reference @internal export "${internal.name}" in a public exported type signature`,
         range: [name.getStart(), name.getEnd()],
       })
-    }
+    })
   }
   const visit = (current: ts.Node): void => {
     if (ts.isPropertyAccessExpression(current) && ts.isIdentifier(current.expression)) {
@@ -65,22 +65,22 @@ const scanTypeParameters = (
   if (Predicate.isNullish(typeParameters)) {
     return
   }
-  for (const typeParameter of typeParameters) {
+  Array.forEach(typeParameters, (typeParameter) => {
     if (Predicate.isNotNullish(typeParameter.constraint)) {
       findInternalReferences(scan, typeParameter.constraint)
     }
     if (Predicate.isNotNullish(typeParameter.default)) {
       findInternalReferences(scan, typeParameter.default)
     }
-  }
+  })
 }
 
 const scanParameterTypes = (scan: SignatureScan, parameters: ts.NodeArray<ts.ParameterDeclaration>): void => {
-  for (const parameter of parameters) {
+  Array.forEach(parameters, (parameter) => {
     if (Predicate.isNotNullish(parameter.type)) {
       findInternalReferences(scan, parameter.type)
     }
-  }
+  })
 }
 
 const scanFunctionLikeSignature = (scan: SignatureScan, node: ts.SignatureDeclarationBase): void => {
@@ -124,46 +124,46 @@ const scanInterfaceMemberSignature = (scan: SignatureScan, member: ts.TypeElemen
 }
 
 const scanVariableTypes = (scan: SignatureScan, node: ts.VariableStatement): void => {
-  for (const declaration of node.declarationList.declarations) {
+  Array.forEach(node.declarationList.declarations, (declaration) => {
     if (Predicate.isNotNullish(declaration.type)) {
       findInternalReferences(scan, declaration.type)
     }
-  }
+  })
 }
 
 const scanHeritage = (scan: SignatureScan, node: ts.ClassDeclaration | ts.InterfaceDeclaration): void => {
   scanTypeParameters(scan, node.typeParameters)
-  for (const heritage of node.heritageClauses ?? []) {
-    for (const type of heritage.types) {
+  Array.forEach(node.heritageClauses ?? [], (heritage) => {
+    Array.forEach(heritage.types, (type) => {
       findInternalReferences(scan, type)
-    }
-  }
+    })
+  })
 }
 
 const scanMembers = (scan: SignatureScan, node: ts.ClassDeclaration | ts.InterfaceDeclaration): void => {
   scanHeritage(scan, node)
   if (ts.isClassDeclaration(node)) {
-    for (const member of node.members) {
+    Array.forEach(node.members, (member) => {
       scanClassMemberSignature(scan, member)
-    }
+    })
   } else {
-    for (const member of node.members) {
+    Array.forEach(node.members, (member) => {
       scanInterfaceMemberSignature(scan, member)
-    }
+    })
   }
 }
 
 const reportReExports = ({ diagnostics, fileInfo, graph }: SignatureScan, node: ts.NamedExports): void => {
-  for (const specifier of node.elements) {
-    for (const internal of getReExportedInternals(graph, fileInfo, specifier)) {
+  Array.forEach(node.elements, (specifier) => {
+    Array.forEach(getReExportedInternals(graph, fileInfo, specifier), (internal) => {
       const name = specifier.propertyName ?? specifier.name
       diagnostics.push({
         fileName: fileInfo.fileName,
         message: `Do not re-export @internal export "${internal.name}" from a public module`,
         range: [name.getStart(), name.getEnd()],
       })
-    }
-  }
+    })
+  })
 }
 
 const scanPublicSignature = (scan: SignatureScan, node: ts.Node): void => {
@@ -194,11 +194,11 @@ const addFileDiagnostic = (diagnosticsByFile: Map<string, Diagnostic[]>, diagnos
 
 const collectFileDiagnostics = (graph: WorkspaceGraph, fileInfo: FileInfo): Diagnostic[] => {
   const diagnostics: Diagnostic[] = []
-  for (const declaration of fileInfo.publicDeclarations) {
+  Array.forEach(fileInfo.publicDeclarations, (declaration) => {
     scanPublicSignature({ diagnostics, fileInfo, graph }, declaration)
-  }
-  for (const exportsForName of fileInfo.internalExports.values()) {
-    for (const internal of exportsForName) {
+  })
+  Iterable.forEach(fileInfo.internalExports.values(), (exportsForName) => {
+    Array.forEach(exportsForName, (internal) => {
       if (!internal.used) {
         diagnostics.push({
           fileName: internal.fileName,
@@ -206,24 +206,24 @@ const collectFileDiagnostics = (graph: WorkspaceGraph, fileInfo: FileInfo): Diag
           range: internal.range,
         })
       }
-    }
-  }
+    })
+  })
   return diagnostics
 }
 
 const analyzeWorkspace = (graph: WorkspaceGraph): Analysis => {
-  for (const fileInfo of graph.files.values()) {
+  Iterable.forEach(graph.files.values(), (fileInfo) => {
     scanUsage(graph, fileInfo)
-  }
+  })
   const diagnosticsByFile = new Map<string, Diagnostic[]>()
-  for (const fileInfo of graph.files.values()) {
-    for (const diagnostic of collectFileDiagnostics(graph, fileInfo)) {
+  Iterable.forEach(graph.files.values(), (fileInfo) => {
+    Array.forEach(collectFileDiagnostics(graph, fileInfo), (diagnostic) => {
       addFileDiagnostic(diagnosticsByFile, diagnostic)
-    }
-  }
-  for (const diagnostics of diagnosticsByFile.values()) {
+    })
+  })
+  Iterable.forEach(diagnosticsByFile.values(), (diagnostics) => {
     diagnostics.sort((self, that) => self.range[0] - that.range[0])
-  }
+  })
   return { diagnosticsByFile }
 }
 
@@ -244,12 +244,9 @@ export const noUnusedInternal: CreateRule = {
     const diagnostics = analysis.diagnosticsByFile.get(normalizePathName(context.filename)) ?? []
     return {
       Program() {
-        for (const {
-          message,
-          range: [start, end],
-        } of diagnostics) {
+        Array.forEach(diagnostics, ({ message, range: [start, end] }) => {
           context.report({ message, node: { range: [start, end] } })
-        }
+        })
       },
     }
   },
