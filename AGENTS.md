@@ -41,7 +41,7 @@ Resolve repeated conflicts with normal Effect or framework usage in the standard
 | `npm pack --pack-destination tmp` | Create a consumer archive                       |
 
 Create `tmp/` before packing an archive.
-The check task builds the local plugin before loading it with the library preset.
+The check task loads the local TypeScript plugin with the library preset without building it. The package task still builds the distributed JavaScript and declarations.
 The warning lists in `vite.config.ts` apply only to this repository during migration. Fix the findings for each rule, then remove that rule from the list.
 During migration, the fix task only formats files because lint autofixes also rewrite warnings and can leave unresolved test imports.
 Validate workflows with `actionlint .github/workflows/ci.yml .github/workflows/publish.yml` when actionlint is available.

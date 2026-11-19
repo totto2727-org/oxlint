@@ -113,7 +113,7 @@ export default defineConfig({
     ...libraryPreset,
     env: { node: true },
     ignorePatterns,
-    jsPlugins: [fileURLToPath(new URL('./dist/plugin.js', import.meta.url))],
+    jsPlugins: [fileURLToPath(new URL('./src/plugin.ts', import.meta.url))],
     options: { ...libraryPreset.options, typeCheck: true },
     rules: { ...libraryPreset.rules, ...asWarnings(migrationRules, libraryPreset.rules) },
     overrides:
@@ -140,7 +140,6 @@ export default defineConfig({
       },
       check: {
         command: 'vp check',
-        dependsOn: ['build'],
       },
       ci: {
         command: '',
