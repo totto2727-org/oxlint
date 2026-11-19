@@ -32,6 +32,7 @@ export const presetRuleNames = [
   'prefer-is-nullish',
   'prefer-non-unknown-decode',
   'prefer-schema-format-validation',
+  'prefer-span-over-gen-name',
   'require-tagged-data',
   'require-tagged-error',
   'require-top-level-decoder',

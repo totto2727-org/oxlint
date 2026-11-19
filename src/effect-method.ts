@@ -28,6 +28,7 @@ export const isEffectMethod = (
     }
     return (
       callee.type === 'MemberExpression' &&
+      (!callee.computed || callee.property.type === 'Literal') &&
       fieldName(callee.property) === method &&
       ((path === `effect/${module}` && node.type === 'ImportNamespaceSpecifier') ||
         (path === 'effect' && node.type === 'ImportSpecifier' && fieldName(node.imported) === module))

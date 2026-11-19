@@ -99,6 +99,11 @@ Set the rule's `checkPatterns` option to match specific package paths if those p
 Use `import { Effect, Schema } from 'effect'` and `import { HttpClient } from 'effect/http'` instead of namespace imports or individual module subpaths.
 The documented Schema JIT side-effect entry and legacy v4 beta category paths remain allowed.
 
+`prefer-span-over-gen-name` reports named generator callbacks written inline in `Effect.gen`.
+Keep the callback anonymous. If you need a trace name, use `Effect.gen(function* () { … }).pipe(Effect.withSpan('loadUser'))`.
+The span can identify the operation in Effect failure traces. A generator name only names its JavaScript stack frame.
+Anonymous callbacks do not need a span.
+
 ### Effect errors and validation
 
 `require-tagged-error` reports direct construction and subclassing of native errors and untagged `Data.Error`.

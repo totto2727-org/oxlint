@@ -101,6 +101,11 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['eslint/preserve-caught-error']).toBe('error')
   })
 
+  test('keeps the native generator naming policy and adds Effect-specific span guidance', () => {
+    expect(preset.rules?.['func-names']).toEqual(['error', 'as-needed', { generators: 'never' }])
+    expect(preset.rules?.['rules/prefer-span-over-gen-name']).toBe('error')
+  })
+
   test('uses dedicated rules for tag access and handwritten tag definitions', () => {
     expect(preset.rules?.['rules/no-direct-tag-access']).toBe('error')
     expect(preset.rules?.['rules/require-tagged-data']).toBe('error')
