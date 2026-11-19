@@ -12,7 +12,9 @@ export const presetRuleNames = [
   'force-iterable-empty',
   'force-predicate',
   'force-string-empty',
+  'no-effect-import-as',
   'no-effect-runtime-run',
+  'no-effect-subpath-import',
   'no-bigint-literals',
   'no-direct-tag-access',
   'no-opaque-instance-fields',
@@ -36,5 +38,5 @@ export const presetRuleNames = [
   'require-vitest-hooks',
 ] as const
 
-// Retained opt-in rules support alternate import policies.
-export const compatibilityRuleNames = ['no-effect-import-as', 'no-effect-subpath-import'] as const
+// Keep the public export for consumers of earlier presets.
+export const compatibilityRuleNames = [] as const

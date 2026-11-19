@@ -63,8 +63,8 @@ When native and custom rules conflict or report the same issue, the preset favor
 The default package export is the plugin.
 All plugin rule IDs use the `rules/` prefix.
 The `/preset` export is the standard Oxlint configuration.
-The named exports `presetRuleNames` and `compatibilityRuleNames` list enabled and opt-in custom rules, respectively.
-Compatibility rules are opt-in.
+The named export `presetRuleNames` lists enabled custom rules.
+The `compatibilityRuleNames` export is empty.
 
 See [the preset source](https://github.com/totto2727-org/oxlint/blob/main/src/preset.ts) for conflict resolutions and their reasons.
 
@@ -94,6 +94,10 @@ The rule does not rename files automatically.
 Import directly from the module that defines the value.
 The standard preset does not guess which external package paths are barrels.
 Set the rule's `checkPatterns` option to match specific package paths if those paths have suitable module subpaths.
+
+`no-effect-import-as` and `no-effect-subpath-import` require unaliased named imports from Effect package roots and public category entry points.
+Use `import { Effect, Schema } from 'effect'` and `import { HttpClient } from 'effect/http'` instead of namespace imports or individual module subpaths.
+The documented Schema JIT side-effect entry and legacy v4 beta category paths remain allowed.
 
 ### Effect errors and validation
 

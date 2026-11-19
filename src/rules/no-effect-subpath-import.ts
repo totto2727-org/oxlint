@@ -5,8 +5,36 @@ import { hasProperty, isReportable } from '../helpers.ts'
 
 const EFFECT_ECOSYSTEM_RE = /^@?effect(?:\/|$)/u
 
+// Public category entry points in Effect 4's package.json exports, not individual modules under them.
+const categoryEntries = new Set([
+  'ai',
+  'cli',
+  'cluster',
+  'devtools',
+  'encoding',
+  'eventlog',
+  'http',
+  'http-api',
+  'net',
+  'observability',
+  'persistence',
+  'process',
+  'reactivity',
+  'rpc',
+  'schema',
+  'socket',
+  'sql',
+  'testing',
+  'workers',
+  'workflow',
+])
+
 export const isAllowedEffectImport = (source: string): boolean => {
-  if (source === 'effect') {
+  if (source === 'effect' || (source.startsWith('effect/') && categoryEntries.has(source.slice('effect/'.length)))) {
+    return true
+  }
+  // Effect documents this side-effect entry for enabling Schema JIT globally.
+  if (source === 'effect/schema/SchemaJITCompiler/enable') {
     return true
   }
   if (/^@effect\/[^/]+$/u.test(source)) {
@@ -48,7 +76,8 @@ const rule: Rule = {
           return
         }
         context.report({
-          message: `Avoid subpath imports from the effect ecosystem. Import from the package root instead (e.g. \`@effect/platform-node\` not \`@effect/platform-node/NodeRuntime\`).`,
+          message:
+            'Import from the Effect package root or a public category entry, not an individual module (for example, use `effect/http` instead of `effect/http/HttpClient`).',
           node,
         })
       },

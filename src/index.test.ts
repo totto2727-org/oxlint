@@ -15,19 +15,22 @@ const customKeys = () =>
     .sort()
 
 describe('public plugin and standard preset', () => {
-  test('all plugin rules are either enabled by default or opt-in compatibility rules', () => {
-    const names = [...presetRuleNames, ...compatibilityRuleNames]
+  test('all plugin rules are enabled by default', () => {
+    const names = [...presetRuleNames]
     expect(new Set(names).size).toBe(names.length)
     expect(Object.keys(plugin.rules).sort()).toEqual(names.sort())
     expect(customKeys()).toEqual(keys(presetRuleNames))
-    for (const name of compatibilityRuleNames) {
-      expect([undefined, 'off']).toContain(preset.rules?.[`rules/${name}`])
-    }
+    expect(compatibilityRuleNames).toEqual([])
   })
 
   test('checks relative barrel imports without banning namespace imports in general', () => {
     expect(preset.rules?.['rules/no-import-from-barrel-package']).toBe('error')
     expect(preset.rules?.['import/no-namespace']).toBe('off')
+  })
+
+  test('requires unaliased named imports from Effect roots and public category entries', () => {
+    expect(preset.rules?.['rules/no-effect-import-as']).toBe('error')
+    expect(preset.rules?.['rules/no-effect-subpath-import']).toBe('error')
   })
 
   test('uses Schema for immutable types instead of recommending readonly modifiers', () => {

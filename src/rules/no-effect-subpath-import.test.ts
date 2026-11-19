@@ -20,6 +20,13 @@ describe('isAllowedEffectImport', () => {
     test('effect/unstable/HttpClient (single segment under unstable/)', () => {
       expect(isAllowedEffectImport('effect/unstable/HttpClient')).toBe(true)
     })
+
+    test.each(['effect/http', 'effect/cli', 'effect/reactivity', 'effect/http-api', 'effect/testing', 'effect/schema'])(
+      '%s is a public v4 category',
+      (source) => {
+        expect(isAllowedEffectImport(source)).toBe(true)
+      },
+    )
   })
 
   describe('disallowed subpath imports', () => {
@@ -49,9 +56,17 @@ runRuleTest('no-effect-subpath-import', rule, {
       errors: 1,
       name: 'subpath under @effect scope is reported',
     },
+    {
+      code: "import type { HttpServerResponse } from 'effect/http/HttpServerResponse'",
+      errors: 1,
+      filename: 'http-types.ts',
+      name: 'individual modules under a public category are reported',
+    },
   ],
   valid: [
     { code: "import { Schema } from 'effect'", name: 'effect root import is allowed' },
+    { code: "import { HttpServerResponse } from 'effect/http'", name: 'public Effect v4 category is allowed' },
+    { code: "import 'effect/schema/SchemaJITCompiler/enable'", name: 'documented side-effect entry is allowed' },
     {
       code: "import { NodeRuntime } from '@effect/platform-node'",
       name: '@effect package root import is allowed',
