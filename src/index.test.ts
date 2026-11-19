@@ -22,8 +22,8 @@ describe('public plugin and standard preset', () => {
     }
   })
 
-  test('permits public barrel imports and namespace imports', () => {
-    expect(preset.rules?.['rules/no-import-from-barrel-package']).toBe('off')
+  test('checks relative barrel imports without banning namespace imports in general', () => {
+    expect(preset.rules?.['rules/no-import-from-barrel-package']).toBe('error')
     expect(preset.rules?.['import/no-namespace']).toBe('off')
   })
 

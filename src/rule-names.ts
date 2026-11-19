@@ -19,6 +19,7 @@ export const presetRuleNames = [
   'no-unused-internal',
   'no-error-property-access',
   'no-fetch',
+  'no-import-from-barrel-package',
   'no-instanceof-error',
   'no-js-date',
   'no-node-imports',
@@ -38,6 +39,5 @@ export const compatibilityRuleNames = [
   'force-ts-extension',
   'no-effect-import-as',
   'no-effect-subpath-import',
-  'no-import-from-barrel-package',
   'no-js-extension-imports',
 ] as const

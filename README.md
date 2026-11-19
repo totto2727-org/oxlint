@@ -85,6 +85,11 @@ They preserve query strings and fragments and ignore bare package imports and no
 Name the file for its purpose, such as `routes.ts` or `dashboard.tsx`, and update its import paths or package export targets.
 The rule does not rename files automatically.
 
+`no-import-from-barrel-package` reports named value imports and namespace imports from relative `index` files, including directory imports with an index file.
+Import directly from the module that defines the value.
+The standard preset does not guess which external package paths are barrels.
+Set the rule's `checkPatterns` option to match specific package paths if those paths have suitable module subpaths.
+
 ### Effect errors and validation
 
 `require-tagged-error` reports direct construction and subclassing of native errors and untagged `Data.Error`.

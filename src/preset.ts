@@ -43,8 +43,6 @@ const preset: OxlintConfig = {
   ],
   rules: {
     ...Object.fromEntries(presetRuleNames.map((name) => [`rules/${name}`, 'error'] as const)),
-    // A blanket ban also rejects deliberate imports from a package's public entry point.
-    'rules/no-import-from-barrel-package': 'off',
     // Effect uses anonymous generators as callbacks, where a name adds no information.
     'func-names': ['error', 'as-needed', { generators: 'never' }],
     'id-length': ['error', { checkGeneric: false, properties: 'never' }],
