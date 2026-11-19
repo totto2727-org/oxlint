@@ -5,7 +5,7 @@ import {
   getImportExtensionMode,
   importExtensionSchema,
   normalizeImportExtension,
-} from './force-ts-extension.ts'
+} from '../import-extensions.ts'
 
 const rule: Rule = {
   create(context) {

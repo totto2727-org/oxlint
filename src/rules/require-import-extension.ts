@@ -1,6 +1,6 @@
 import type { Rule } from '@oxlint/plugins'
 
-import { createImportExtensionListeners, matchImportPath } from './force-ts-extension.ts'
+import { createImportExtensionListeners, matchImportPath } from '../import-extensions.ts'
 
 const rule: Rule = {
   create: (context) =>

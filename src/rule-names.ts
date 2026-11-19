@@ -36,9 +36,4 @@ export const presetRuleNames = [
 ] as const
 
 // Retained opt-in rules support alternate import policies.
-export const compatibilityRuleNames = [
-  'force-ts-extension',
-  'no-effect-import-as',
-  'no-effect-subpath-import',
-  'no-js-extension-imports',
-] as const
+export const compatibilityRuleNames = ['no-effect-import-as', 'no-effect-subpath-import'] as const

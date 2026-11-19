@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable } from '../helpers.ts'
+import { isReportable } from './helpers.ts'
 
 export interface ImportPath {
   start: string
@@ -30,19 +30,6 @@ export const matchImportPath = (value: string): ImportPath | null => {
     suffix,
     extension: dot > 0 ? basename.slice(dot) : '',
     directory: basename === '' || basename === '.' || basename === '..',
-  }
-}
-
-/** Retained for callers of the original compatibility helper. */
-export const matchJsImport = (value: string): { path: string; start: string; x: string } | null => {
-  const match = matchImportPath(value)
-  if (match === null || (match.extension !== '.js' && match.extension !== '.jsx')) {
-    return null
-  }
-  return {
-    path: match.path.slice(0, -match.extension.length),
-    start: match.start,
-    x: match.extension === '.jsx' ? 'x' : '',
   }
 }
 
@@ -132,29 +119,3 @@ export const createImportExtensionListeners = (
     ImportExpression: check,
   }
 }
-
-const rule: Rule = {
-  create(context) {
-    const mode = getImportExtensionMode(context.options[0])
-    return createImportExtensionListeners(
-      context,
-      (value) => {
-        const match = matchImportPath(value)
-        if (match !== null && (match.extension === '' || match.directory)) {
-          return value
-        }
-        return normalizeImportExtension(value, mode)
-      },
-      mode === 'js'
-        ? 'Use explicit JavaScript import extensions (.js, .mjs or .cjs) for code modules'
-        : 'Use explicit TypeScript import extensions (.ts, .tsx, .mts or .cts) for code modules',
-    )
-  },
-  meta: {
-    fixable: 'code',
-    schema: importExtensionSchema,
-    type: 'problem',
-  },
-}
-
-export default rule

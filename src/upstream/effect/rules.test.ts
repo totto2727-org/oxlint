@@ -8,7 +8,6 @@ import { afterAll } from 'vite-plus/test'
 
 import noBigintLiterals from './no-bigint-literals.ts'
 import noImportFromBarrelPackage from './no-import-from-barrel-package.ts'
-import noJsExtensionImports from './no-js-extension-imports.ts'
 import noOpaqueInstanceFields from './no-opaque-instance-fields.ts'
 import noUnusedInternal from './no-unused-internal.ts'
 
@@ -82,26 +81,6 @@ tester.run('no-import-from-barrel-package', noImportFromBarrelPackage, {
     { code: "import { a } from './index.ts'", options: [{ checkRelativeIndexImports: false }] },
     "import { a } from './module.ts'",
     "export { Effect } from 'effect'",
-  ],
-})
-
-tester.run('no-js-extension-imports', noJsExtensionImports, {
-  invalid: [
-    { code: "import { a } from './a.js'", errors: 1, output: 'import { a } from "./a.ts"' },
-    { code: "import './a.jsx'", errors: 1, output: 'import "./a.tsx"' },
-    { code: "export * from '../a.mjs'", errors: 1, output: 'export * from "../a.mts"' },
-    { code: "export { a } from './a.cjs'", errors: 1, output: 'export { a } from "./a.cts"' },
-  ],
-  valid: [
-    "import './a.ts'",
-    "import './a.tsx'",
-    "import './a.mts'",
-    "import './a.cts'",
-    "import 'package/a.js'",
-    "import '#@/a.js'",
-    "import './a.js?raw'",
-    "import('./a.js')",
-    'export const a = 1',
   ],
 })
 

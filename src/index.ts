@@ -3,7 +3,6 @@ import forceArrayEmpty from './rules/force-array-empty.ts'
 import forceIterableEmpty from './rules/force-iterable-empty.ts'
 import forcePredicate from './rules/force-predicate.ts'
 import forceStringEmpty from './rules/force-string-empty.ts'
-import forceTsExtension from './rules/force-ts-extension.ts'
 import noDirectTagAccess from './rules/no-direct-tag-access.ts'
 import noEffectImportAs from './rules/no-effect-import-as.ts'
 import noEffectRuntimeRun from './rules/no-effect-runtime-run.ts'
@@ -33,7 +32,6 @@ import requireTaggedError from './rules/require-tagged-error.ts'
 import requireTopLevelDecoder from './rules/require-top-level-decoder.ts'
 import noBigintLiterals from './upstream/effect/no-bigint-literals.ts'
 import noImportFromBarrelPackage from './upstream/effect/no-import-from-barrel-package.ts'
-import noJsExtensionImports from './upstream/effect/no-js-extension-imports.ts'
 import noOpaqueInstanceFields from './upstream/effect/no-opaque-instance-fields.ts'
 import noUnusedInternal from './upstream/effect/no-unused-internal.ts'
 
@@ -42,7 +40,6 @@ const plugin = {
   rules: {
     'no-bigint-literals': noBigintLiterals,
     'no-import-from-barrel-package': noImportFromBarrelPackage,
-    'no-js-extension-imports': noJsExtensionImports,
     'no-opaque-instance-fields': noOpaqueInstanceFields,
     'no-unused-internal': noUnusedInternal,
     'consistent-import-extension': consistentImportExtension,
@@ -51,7 +48,6 @@ const plugin = {
     'force-iterable-empty': forceIterableEmpty,
     'force-predicate': forcePredicate,
     'force-string-empty': forceStringEmpty,
-    'force-ts-extension': forceTsExtension,
     'no-effect-import-as': noEffectImportAs,
     'no-direct-tag-access': noDirectTagAccess,
     'no-effect-runtime-run': noEffectRuntimeRun,

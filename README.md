@@ -45,6 +45,7 @@ export default defineConfig({ extends: [preset] })
 
 If you upgrade from `0.1`, replace `/typescript` or `/effect` imports with `/preset`.
 If you used `typescriptRuleNames` or `effectRuleNames`, use the combined `presetRuleNames` list instead.
+Remove explicit `rules/force-ts-extension` and `rules/no-js-extension-imports` entries. The standard preset uses `require-import-extension` and `consistent-import-extension` instead.
 
 The preset enables all seven native rule categories as errors, including nursery rules, and turns on type-aware linting.
 React, React Perf, JSX A11y and Vitest are enabled alongside the general-purpose built-in plugins.
