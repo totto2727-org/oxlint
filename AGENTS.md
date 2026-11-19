@@ -31,7 +31,7 @@ Resolve repeated conflicts with normal Effect or framework usage in the standard
 | --------------------------------- | ----------------------------------------------- |
 | `nix develop`                     | Enter the pinned development environment        |
 | `vp install --frozen-lockfile`    | Install locked dependencies                     |
-| `vp run fix`                      | Format project files                            |
+| `vp run fix`                      | Format and apply supported lint fixes           |
 | `vp run check`                    | Check formatting, lint and source types         |
 | `vp run test`                     | Run tests                                       |
 | `vp run build`                    | Build ESM files and declarations with `vp pack` |
@@ -43,7 +43,6 @@ Resolve repeated conflicts with normal Effect or framework usage in the standard
 Create `tmp/` before packing an archive.
 The check task loads the local TypeScript plugin with the library preset without building it. The package task still builds the distributed JavaScript and declarations.
 The warning lists in `vite.config.ts` apply only to this repository during migration. Fix the findings for each rule, then remove that rule from the list.
-During migration, the fix task only formats files because lint autofixes also rewrite warnings and can leave unresolved test imports.
 Validate workflows with `actionlint .github/workflows/ci.yml .github/workflows/publish.yml` when actionlint is available.
 Do not trigger publication just to validate a workflow.
 

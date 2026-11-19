@@ -1,5 +1,3 @@
-import { fileURLToPath } from 'node:url'
-
 import { generateIgnorePatterns } from '@totto2727/gitignore-patterns'
 import type { OxlintConfig } from 'oxlint'
 import { defineConfig } from 'vite-plus'
@@ -71,18 +69,6 @@ const migrationRules = [
   'unicorn/switch-case-braces',
 ]
 
-const testMigrationRules = [
-  'rules/require-vitest-hooks',
-  'vitest/consistent-test-it',
-  'vitest/max-expects',
-  'vitest/no-conditional-in-test',
-  'vitest/prefer-describe-function-title',
-  'vitest/prefer-lowercase-title',
-  'vitest/prefer-strict-equal',
-  'vitest/prefer-to-be',
-  'vitest/require-top-level-describe',
-]
-
 type RuleMap = NonNullable<OxlintConfig['rules']>
 
 const asWarnings = (names: string[], rules: OxlintConfig['rules']): RuleMap =>
@@ -113,13 +99,25 @@ export default defineConfig({
     ...libraryPreset,
     env: { node: true },
     ignorePatterns,
-    jsPlugins: [fileURLToPath(new URL('./src/plugin.ts', import.meta.url))],
+    jsPlugins: ['./src/plugin.ts'],
     options: { ...libraryPreset.options, typeCheck: true },
     rules: { ...libraryPreset.rules, ...asWarnings(migrationRules, libraryPreset.rules) },
     overrides:
       libraryPreset.overrides?.map((override) => ({
         ...override,
-        rules: { ...override.rules, ...asWarnings(testMigrationRules, override.rules) },
+        rules: {
+          ...override.rules,
+          // Match the suite's explicit imports: the autofix renames calls, not imports.
+          'vitest/consistent-test-it': ['error', { fn: 'test' }],
+          'rules/require-vitest-hooks': 'warn',
+          'vitest/max-expects': 'warn',
+          'vitest/no-conditional-in-test': 'warn',
+          'vitest/prefer-describe-function-title': 'warn',
+          'vitest/prefer-lowercase-title': 'warn',
+          'vitest/prefer-strict-equal': 'warn',
+          'vitest/prefer-to-be': 'warn',
+          'vitest/require-top-level-describe': 'warn',
+        },
       })) ?? [],
   },
   pack: {
@@ -146,7 +144,7 @@ export default defineConfig({
         dependsOn: ['check', 'test', 'package'],
       },
       fix: {
-        command: 'vp fmt',
+        command: 'vp check --fix',
       },
       package: {
         command: 'npm pack --dry-run',
@@ -157,5 +155,5 @@ export default defineConfig({
       },
     },
   },
-  test: { include: ['src/**/*.test.ts'], setupFiles: ['./src/__fixtures__/rule-tester-setup.ts'] },
+  test: { dir: 'src', setupFiles: ['./src/__fixtures__/rule-tester-setup.ts'] },
 })
