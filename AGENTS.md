@@ -58,7 +58,8 @@ Check accepted and rejected calls, then run the built exports.
 Source type checks alone do not validate the distributed declarations.
 Keep required notices in the package's `files` list.
 
-Update incorporated sources, tests and MIT notices together.
+Keep the Effect rules used by this preset in version control under `src/upstream/effect/`. Do not replace these files with an external plugin dependency.
+When updating these rules, update their tests and record the exact upstream revision in `THIRD-PARTY-NOTICES.md`. Keep the MIT notice.
 Keep the stable `typescript-api` dependency separate from the development compiler.
 When enabling an opt-in import policy, check that it does not conflict with other import rules.
 Keep compatibility rules opt-in.
