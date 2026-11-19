@@ -100,7 +100,8 @@ Set the rule's `checkPatterns` option to match specific package paths if those p
 
 `no-effect-import-as` and `no-effect-subpath-import` require unaliased named imports from Effect package roots and public category entry points.
 Use `import { Effect, Schema } from 'effect'` and `import { HttpClient } from 'effect/http'` instead of namespace imports or individual module subpaths.
-The documented Schema JIT side-effect entry and legacy v4 beta category paths remain allowed.
+The rule treats a single segment that does not start with an uppercase letter as a category without checking the installed package's export map.
+This convention also applies to legacy `effect/unstable/<category>` paths. The documented Schema JIT side-effect entry remains allowed.
 
 ### Effect errors and validation
 

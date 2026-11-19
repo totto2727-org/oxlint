@@ -17,12 +17,19 @@ describe('isAllowedEffectImport', () => {
       expect(isAllowedEffectImport('@effect/platform-node')).toBe(true)
     })
 
-    test('effect/unstable/HttpClient (single segment under unstable/)', () => {
-      expect(isAllowedEffectImport('effect/unstable/HttpClient')).toBe(true)
+    test('legacy category path effect/unstable/http', () => {
+      expect(isAllowedEffectImport('effect/unstable/http')).toBe(true)
     })
 
     test.each(['effect/http', 'effect/cli', 'effect/reactivity', 'effect/http-api', 'effect/testing', 'effect/schema'])(
       '%s is a public v4 category',
+      (source) => {
+        expect(isAllowedEffectImport(source)).toBe(true)
+      },
+    )
+
+    test.each(['effect/new-category', 'effect/newCategory', 'effect/unstable/new-category'])(
+      '%s does not require a hardcoded entry',
       (source) => {
         expect(isAllowedEffectImport(source)).toBe(true)
       },
@@ -36,6 +43,14 @@ describe('isAllowedEffectImport', () => {
 
     test('effect/Stream subpath', () => {
       expect(isAllowedEffectImport('effect/Stream')).toBe(false)
+    })
+
+    test('effect/unstable/HttpClient is an individual module', () => {
+      expect(isAllowedEffectImport('effect/unstable/HttpClient')).toBe(false)
+    })
+
+    test('effect/http/client is a nested path even though it has no uppercase segment', () => {
+      expect(isAllowedEffectImport('effect/http/client')).toBe(false)
     })
 
     test('effect/unstable/foo/bar (double segment under unstable/)', () => {
@@ -66,6 +81,7 @@ runRuleTest('no-effect-subpath-import', rule, {
   valid: [
     { code: "import { Schema } from 'effect'", name: 'effect root import is allowed' },
     { code: "import { HttpServerResponse } from 'effect/http'", name: 'public Effect v4 category is allowed' },
+    { code: "import { Feature } from 'effect/new-category'", name: 'new category names are allowed' },
     { code: "import 'effect/schema/SchemaJITCompiler/enable'", name: 'documented side-effect entry is allowed' },
     {
       code: "import { NodeRuntime } from '@effect/platform-node'",

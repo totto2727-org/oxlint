@@ -5,32 +5,10 @@ import { hasProperty, isReportable } from '../helpers.ts'
 
 const EFFECT_ECOSYSTEM_RE = /^@?effect(?:\/|$)/u
 
-// Public category entry points in Effect 4's package.json exports, not individual modules under them.
-const categoryEntries = new Set([
-  'ai',
-  'cli',
-  'cluster',
-  'devtools',
-  'encoding',
-  'eventlog',
-  'http',
-  'http-api',
-  'net',
-  'observability',
-  'persistence',
-  'process',
-  'reactivity',
-  'rpc',
-  'schema',
-  'socket',
-  'sql',
-  'testing',
-  'workers',
-  'workflow',
-])
+const CATEGORY_ENTRY_RE = /^effect\/(?:unstable\/)?[^A-Z/][^/]*$/u
 
 export const isAllowedEffectImport = (source: string): boolean => {
-  if (source === 'effect' || (source.startsWith('effect/') && categoryEntries.has(source.slice('effect/'.length)))) {
+  if (source === 'effect' || CATEGORY_ENTRY_RE.test(source)) {
     return true
   }
   // Effect documents this side-effect entry for enabling Schema JIT globally.
@@ -38,9 +16,6 @@ export const isAllowedEffectImport = (source: string): boolean => {
     return true
   }
   if (/^@effect\/[^/]+$/u.test(source)) {
-    return true
-  }
-  if (/^effect\/unstable\/[^/]+$/u.test(source)) {
     return true
   }
   return false
