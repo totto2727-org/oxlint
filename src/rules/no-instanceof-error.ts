@@ -1,13 +1,15 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable } from '../helpers.ts'
+import { isReportable } from '#src/helpers.ts'
 
 const NO_INSTANCEOF_ERROR_MESSAGE =
   'Do not use `instanceof Error`. Preserve caught errors as `error` and handle narrowing only in the shared fp error helper with an explicit disable comment.'
 
-const getIdentifierName = (node: unknown): string | null =>
-  Predicate.isObject(node) && node['type'] === 'Identifier' && Predicate.isString(node['name']) ? node['name'] : null
+const getIdentifierName = (node: unknown): string | undefined =>
+  Predicate.isObject(node) && node['type'] === 'Identifier' && Predicate.isString(node['name'])
+    ? node['name']
+    : undefined
 
 export const isInstanceofError = (node: unknown): boolean =>
   Predicate.isObject(node) &&
@@ -15,7 +17,7 @@ export const isInstanceofError = (node: unknown): boolean =>
   node['operator'] === 'instanceof' &&
   getIdentifierName(node['right']) === 'Error'
 
-const rule: Rule = {
+export const noInstanceofError: Rule = {
   create(context: Context) {
     return {
       BinaryExpression(node: unknown) {
@@ -30,5 +32,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

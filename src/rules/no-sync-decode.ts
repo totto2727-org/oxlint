@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable, isSchemaMethodCall } from '../helpers.ts'
+import { isReportable, isSchemaMethodCall } from '#src/helpers.ts'
 
 const BANNED_DECODE_METHODS: Record<string, string> = {
   decodePromise: 'decodeEffect',
@@ -10,16 +10,10 @@ const BANNED_DECODE_METHODS: Record<string, string> = {
   decodeUnknownSync: 'decodeUnknownEffect',
 }
 
-export const isSchemaBannedDecodeCall = (node: unknown): string | null => {
-  for (const method of Object.keys(BANNED_DECODE_METHODS)) {
-    if (isSchemaMethodCall(node, method)) {
-      return method
-    }
-  }
-  return null
-}
+export const isSchemaBannedDecodeCall = (node: unknown): string | undefined =>
+  Object.keys(BANNED_DECODE_METHODS).find((method) => isSchemaMethodCall(node, method))
 
-const rule: Rule = {
+export const noSyncDecode: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
@@ -41,5 +35,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

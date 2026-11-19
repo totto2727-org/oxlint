@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isIdentifierInitDeclarator, isRedundantTypeAlias } from './no-redundant-alias.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isRedundantTypeAlias', () => {
+import { isIdentifierInitDeclarator, isRedundantTypeAlias, noRedundantAlias as rule } from './no-redundant-alias.ts'
+
+describe('redundant type alias detection', () => {
   test('plain type reference without generics returns true', () => {
     expect(
       isRedundantTypeAlias({
@@ -46,7 +47,7 @@ describe('isRedundantTypeAlias', () => {
   })
 })
 
-describe('isIdentifierInitDeclarator', () => {
+describe('identifier initializer detection', () => {
   test('const a = b declarator returns true', () => {
     expect(
       isIdentifierInitDeclarator({
@@ -87,6 +88,7 @@ describe('isIdentifierInitDeclarator', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('no-redundant-alias', rule, {
   invalid: [
     {

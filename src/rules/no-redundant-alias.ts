@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import { Array, Predicate } from 'effect'
 
-import { hasProperty, isReportable } from '../helpers.ts'
+import { hasProperty, isReportable } from '#src/helpers.ts'
 
 const REDUNDANT_TYPE_ALIAS_MESSAGE =
   'Avoid type aliases that merely rename another type (e.g. `type SentEmail = SendParams`). Inline the original, or keep the alias only inside an anti-corruption layer with a documented disable reason.'
@@ -36,7 +36,7 @@ export const isIdentifierInitDeclarator = (declarator: unknown): boolean =>
   Predicate.isObject(declarator.init) &&
   declarator.init['type'] === 'Identifier'
 
-const rule: Rule = {
+export const noRedundantAlias: Rule = {
   create(context: Context) {
     return {
       ExportNamedDeclaration(node: unknown) {
@@ -52,15 +52,15 @@ const rule: Rule = {
         ) {
           return
         }
-        const declarationItems: readonly unknown[] = declaration.declarations
-        for (const declarator of declarationItems) {
+        const declarationItems: unknown[] = declaration.declarations
+        Array.forEach(declarationItems, (declarator) => {
           if (isReportable(declarator) && isIdentifierInitDeclarator(declarator)) {
             context.report({
               message: REDUNDANT_VALUE_ALIAS_MESSAGE,
               node: declarator,
             })
           }
-        }
+        })
       },
       TSTypeAliasDeclaration(node: unknown) {
         if (!isReportable(node)) {
@@ -79,5 +79,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

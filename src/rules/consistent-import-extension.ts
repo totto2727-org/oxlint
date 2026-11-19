@@ -5,9 +5,9 @@ import {
   getImportExtensionMode,
   importExtensionSchema,
   normalizeImportExtension,
-} from './force-ts-extension.ts'
+} from '#src/import-extensions.ts'
 
-const rule: Rule = {
+export const consistentImportExtension: Rule = {
   create(context) {
     const mode = getImportExtensionMode(context.options[0])
     return createImportExtensionListeners(
@@ -24,5 +24,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

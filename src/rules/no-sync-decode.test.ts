@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isSchemaBannedDecodeCall } from './no-sync-decode.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-const makeSchemaCall = (method: string) => ({
+import { isSchemaBannedDecodeCall, noSyncDecode as rule } from './no-sync-decode.ts'
+
+const makeSchemaCall = (method: string): object => ({
   callee: {
     computed: false,
     object: { name: 'Schema', type: 'Identifier' },
@@ -13,7 +14,7 @@ const makeSchemaCall = (method: string) => ({
   type: 'CallExpression',
 })
 
-describe('isSchemaBannedDecodeCall', () => {
+describe('synchronous or promise-based schema decoder detection', () => {
   test.each(['decodeSync', 'decodePromise', 'decodeUnknownSync', 'decodeUnknownPromise'])(
     '%s returns method name',
     (method) => {
@@ -21,15 +22,15 @@ describe('isSchemaBannedDecodeCall', () => {
     },
   )
 
-  test('decodeEffect returns null (allowed method)', () => {
-    expect(isSchemaBannedDecodeCall(makeSchemaCall('decodeEffect'))).toBeNull()
+  test('allows decodeEffect', () => {
+    expect(isSchemaBannedDecodeCall(makeSchemaCall('decodeEffect'))).toBeUndefined()
   })
 
-  test('decodeExit returns null (allowed method)', () => {
-    expect(isSchemaBannedDecodeCall(makeSchemaCall('decodeExit'))).toBeNull()
+  test('allows decodeExit', () => {
+    expect(isSchemaBannedDecodeCall(makeSchemaCall('decodeExit'))).toBeUndefined()
   })
 
-  test('non-Schema object returns null', () => {
+  test('allows other namespaces', () => {
     expect(
       isSchemaBannedDecodeCall({
         callee: {
@@ -40,14 +41,15 @@ describe('isSchemaBannedDecodeCall', () => {
         },
         type: 'CallExpression',
       }),
-    ).toBeNull()
+    ).toBeUndefined()
   })
 
-  test('non-CallExpression returns null', () => {
-    expect(isSchemaBannedDecodeCall({ name: 'decodeSync', type: 'Identifier' })).toBeNull()
+  test('ignores expressions other than calls', () => {
+    expect(isSchemaBannedDecodeCall({ name: 'decodeSync', type: 'Identifier' })).toBeUndefined()
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('no-sync-decode', rule, {
   invalid: [
     { code: 'Schema.decodeSync(schema)(input)', errors: 1, name: 'decodeSync is reported' },

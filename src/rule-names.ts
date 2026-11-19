@@ -1,44 +1,45 @@
-export const typescriptRuleNames = [
+export const presetRuleNames = [
   'consistent-import-extension',
+  'effect-tracing',
   'no-eslint-disable-comments',
+  'no-index-filename',
   'no-jsx-script-tag',
   'no-let',
+  'no-local-export-list',
   'no-redundant-alias',
   'no-string-style',
   'require-disable-reason',
   'require-import-extension',
-] as const
-
-export const effectRuleNames = [
   'force-array-empty',
   'force-iterable-empty',
   'force-predicate',
   'force-string-empty',
+  'no-effect-import-as',
   'no-effect-runtime-run',
+  'no-effect-subpath-import',
   'no-bigint-literals',
-  'no-import-from-barrel-package',
+  'no-direct-tag-access',
   'no-opaque-instance-fields',
   'no-unused-internal',
-  'no-error-cause-option',
   'no-error-property-access',
   'no-fetch',
+  'no-for-loops',
+  'no-import-from-barrel-package',
   'no-instanceof-error',
   'no-js-date',
   'no-node-imports',
-  'no-option-tag-comparison',
-  'no-raw-hono-create-middleware',
+  'no-optional-error-cause',
+  'no-readonly',
   'no-sync-decode',
   'no-type-predicate',
   'prefer-is-nullish',
   'prefer-non-unknown-decode',
+  'prefer-schema-format-validation',
+  'require-tagged-data',
+  'require-tagged-error',
   'require-top-level-decoder',
+  'require-vitest-hooks',
 ] as const
 
-// Retained opt-in rules are not enabled with their replacements or policies
-// that conflict with the official Effect import convention.
-export const compatibilityRuleNames = [
-  'force-ts-extension',
-  'no-effect-import-as',
-  'no-effect-subpath-import',
-  'no-js-extension-imports',
-] as const
+// Keep the public export for consumers of earlier presets.
+export const compatibilityRuleNames = [] as const

@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isLetDeclaration } from './no-let.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isLetDeclaration', () => {
+import { isLetDeclaration, noLet as rule } from './no-let.ts'
+
+describe('let declaration detection', () => {
   test('let declaration returns true', () => {
     expect(isLetDeclaration({ kind: 'let', type: 'VariableDeclaration' })).toBe(true)
   })
@@ -17,11 +18,12 @@ describe('isLetDeclaration', () => {
   })
 
   test('non-object returns false', () => {
-    expect(isLetDeclaration(null)).toBe(false)
+    expect(isLetDeclaration(JSON.parse('null'))).toBe(false)
     expect(isLetDeclaration('let')).toBe(false)
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('no-let', rule, {
   invalid: [
     { code: 'let x = 1', errors: 1, name: 'let declaration is reported' },

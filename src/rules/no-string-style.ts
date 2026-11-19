@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable } from '../helpers.ts'
+import { isReportable } from '#src/helpers.ts'
 
 export const hasStringStyleValue = (node: unknown): boolean =>
   Predicate.isObject(node) &&
@@ -12,7 +12,7 @@ export const hasStringStyleValue = (node: unknown): boolean =>
   (node['value'] as { type?: string }).type === 'Literal' &&
   Predicate.isString((node['value'] as { value?: unknown }).value)
 
-const rule: Rule = {
+export const noStringStyle: Rule = {
   create(context: Context) {
     return {
       JSXAttribute(node: unknown) {
@@ -32,5 +32,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

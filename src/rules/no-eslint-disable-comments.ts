@@ -1,4 +1,5 @@
 import type { Rule } from '@oxlint/plugins'
+import { Array } from 'effect'
 
 const ESLINT_DISABLE_RE = /^\s*eslint-disable(?:-next-line|-line)?\b/gmu
 
@@ -6,12 +7,12 @@ const ESLINT_DISABLE_RE = /^\s*eslint-disable(?:-next-line|-line)?\b/gmu
 export const matchesEslintDisable = (value: string): boolean =>
   /^\s*eslint-disable(?:-next-line|-line)?\b/mu.test(value)
 
-const rule: Rule = {
+export const noEslintDisableComments: Rule = {
   create(context) {
     return {
       'Program:exit'() {
         const comments = context.sourceCode.getAllComments()
-        for (const comment of comments) {
+        Array.forEach(comments, (comment) => {
           const { value } = comment
           ESLINT_DISABLE_RE.lastIndex = 0
           if (ESLINT_DISABLE_RE.test(value)) {
@@ -27,7 +28,7 @@ const rule: Rule = {
               node: comment,
             })
           }
-        }
+        })
       },
     }
   },
@@ -36,5 +37,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

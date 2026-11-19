@@ -1,31 +1,22 @@
-import { describe, expect, test } from 'vite-plus/test'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isErrorPropertyAccess } from './no-error-property-access.ts'
-
-describe('isErrorPropertyAccess', () => {
-  test('detects property access on error receiver names', () => {
-    expect(
-      isErrorPropertyAccess({
-        computed: false,
-        object: { name: 'error', type: 'Identifier' },
-        property: { name: 'message', type: 'Identifier' },
-        type: 'MemberExpression',
-      }),
-    ).toBe(true)
-  })
-})
+import { noErrorPropertyAccess as rule } from './no-error-property-access.ts'
 
 runRuleTest('no-error-property-access', rule, {
   invalid: [
-    { code: 'const message = error.message', errors: 1, name: 'error.message is reported' },
-    { code: "const message = err['message']", errors: 1, name: 'err bracket access is reported' },
-    { code: 'const tag = e._tag', errors: 1, name: 'e tag access is reported' },
-    { code: 'const tag = c._tag', errors: 1, name: 'c tag access is reported' },
-    { code: 'const tag = cause._tag', errors: 1, name: 'cause tag access is reported' },
+    { code: 'try { run() } catch (failure) { log(failure.message) }', errors: 1 },
+    { code: `try { run() } catch (unexpected) { log(unexpected['message']) }`, errors: 1 },
+    { code: `import { Effect as E } from 'effect'; E.try({try: run, catch: (caught) => caught.message})`, errors: 1 },
+    {
+      code: `import * as Fx from 'effect/Effect'; Fx.tryPromise({try: run, catch(caught) { return caught.stack }})`,
+      errors: 1,
+    },
   ],
   valid: [
-    { code: 'new ConfigFileError({ error })', name: 'raw caught error is allowed' },
-    { code: 'expect(result.failure._tag).toBe("X")', name: 'non-error receiver names are allowed' },
+    'try { run() } catch (cause) { throw new ConfigFileError({ cause }) }',
+    'const error = new TaggedError({ cause }); log(error.cause)',
+    'effect.pipe(Effect.catch((error) => Effect.succeed(error.message)))',
+    'try { run() } catch (error) { use((error) => error.message) }',
+    `import { Effect } from './fake.ts'; Effect.try({try: run, catch: (error) => error.message})`,
   ],
 })

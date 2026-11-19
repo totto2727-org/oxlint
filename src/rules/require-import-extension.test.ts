@@ -1,17 +1,18 @@
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule from './require-import-extension.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { requireImportExtension as rule } from './require-import-extension.ts'
 
 runRuleTest('require-import-extension', rule, {
   invalid: [
-    { code: "import './foo'", errors: 1, output: null },
-    { code: "export { foo } from '../foo'", errors: 1, output: null },
-    { code: "export * from './foo?raw#part'", errors: 1, output: null },
-    { code: "import('#@/foo')", errors: 1, output: null },
-    { code: "import('./foo/')", errors: 1, output: null },
-    { code: "import './'", errors: 1, output: null },
-    { code: "import '../'", errors: 1, output: null },
-    { code: "import './dir.name/child'", errors: 1, output: null },
-    { code: "import './dir.name/..'", errors: 1, output: null },
+    { code: "import './foo'", errors: 1 },
+    { code: "export { foo } from '../foo'", errors: 1 },
+    { code: "export * from './foo?raw#part'", errors: 1 },
+    { code: "import('#@/foo')", errors: 1 },
+    { code: "import('./foo/')", errors: 1 },
+    { code: "import './'", errors: 1 },
+    { code: "import '../'", errors: 1 },
+    { code: "import './dir.name/child'", errors: 1 },
+    { code: "import './dir.name/..'", errors: 1 },
   ],
   valid: [
     "import './foo.js'",
@@ -28,7 +29,7 @@ runRuleTest('require-import-extension', rule, {
     "import 'node:fs'",
     "import 'https://example.com/mod'",
     'import(variable)',
-    'import(`./${name}`)',
+    `import(\`./\${name}\`)`,
     'export const foo = 1',
   ],
 })

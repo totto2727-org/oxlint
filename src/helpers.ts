@@ -16,11 +16,11 @@ export const isReportable = Schema.is(Reportable)
 export const isEqualityOperator: Predicate.Refinement<unknown, '==' | '!=' | '===' | '!=='> = (op: unknown) =>
   op === '==' || op === '!=' || op === '===' || op === '!=='
 
-export const getLiteralNumber = (node: unknown): number | null => {
+export const getLiteralNumber = (node: unknown): number | undefined => {
   if (Predicate.isObject(node) && node['type'] === 'Literal' && Predicate.isNumber(node['value'])) {
     return node['value']
   }
-  return null
+  return undefined
 }
 
 export const isSchemaMethodCall = (node: unknown, methodName: string): boolean => {
@@ -42,7 +42,7 @@ export const isSchemaMethodCall = (node: unknown, methodName: string): boolean =
   return false
 }
 
-export const getImportSource = (node: unknown): string | null => {
+export const getImportSource = (node: unknown): string | undefined => {
   if (
     Predicate.isObject(node) &&
     hasProperty(node, 'source') &&
@@ -52,5 +52,5 @@ export const getImportSource = (node: unknown): string | null => {
   ) {
     return node['source']['value']
   }
-  return null
+  return undefined
 }

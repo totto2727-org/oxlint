@@ -1,27 +1,27 @@
 import type { Context, Rule } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import { Array, Option, Predicate } from 'effect'
 
-import { getImportSource, hasProperty, isReportable } from '../helpers.ts'
+import { getImportSource, hasProperty, isReportable } from '#src/helpers.ts'
 
 const NODE_PROTOCOL = 'node:'
 const NODE_IMPORT_GUIDANCE_MESSAGE =
-  'Avoid Node.js built-in imports. Prefer Effect Platform APIs from `effect` / `@effect/platform-node`; add a rule whitelist entry only for documented exceptions.'
+  'Avoid Node.js built-in imports. Prefer Effect Platform APIs from `effect` / `@effect/platform-node`. If the import is unavoidable, document the reason at that import.'
 
-export const getNodeBuiltinSpecifier = (source: string): string | null => {
+export const getNodeBuiltinSpecifier = (source: string): string | undefined => {
   if (!source.startsWith(NODE_PROTOCOL)) {
-    return null
+    return undefined
   }
   return source.slice(NODE_PROTOCOL.length)
 }
 
-const getStringArrayProperty = (value: unknown, key: string): readonly string[] => {
+const getStringArrayProperty = (value: unknown, key: string): string[] => {
   if (!Predicate.isObject(value) || !hasProperty(value, key) || !Array.isArray(value[key])) {
     return []
   }
   return value[key].filter(Predicate.isString)
 }
 
-const getContextOptions = (context: Context): readonly unknown[] => {
+const getContextOptions = (context: Context): unknown[] => {
   if (!Predicate.isObject(context) || !hasProperty(context, 'options')) {
     return []
   }
@@ -31,9 +31,9 @@ const getContextOptions = (context: Context): readonly unknown[] => {
 
 export const getAllowedNodeBuiltins = (context: Context): ReadonlySet<string> => {
   const options = getContextOptions(context)
-  const first = options.at(0)
+  const first = Option.getOrUndefined(Array.head(options))
   if (Array.isArray(first)) {
-    return new Set(first.filter(Predicate.isString))
+    return new Set(first.filter((value) => Predicate.isString(value)))
   }
   return new Set([...getStringArrayProperty(first, 'allow'), ...getStringArrayProperty(first, 'allowed')])
 }
@@ -50,7 +50,7 @@ const reportNodeImport = (node: unknown, context: Context): void => {
   context.report({ message: NODE_IMPORT_GUIDANCE_MESSAGE, node })
 }
 
-const rule: Rule = {
+export const noNodeImports: Rule = {
   create(context: Context) {
     return {
       ExportAllDeclaration(node: unknown) {
@@ -83,5 +83,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

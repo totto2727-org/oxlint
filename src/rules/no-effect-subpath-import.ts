@@ -1,54 +1,37 @@
 import type { Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { hasProperty, isReportable } from '../helpers.ts'
+import { getImportSource, isReportable } from '#src/helpers.ts'
 
 const EFFECT_ECOSYSTEM_RE = /^@?effect(?:\/|$)/u
 
+const PACKAGE_ENTRY_RE = /^(?<entry>effect|@effect\/[^/]+)(?:\/|$)/u
+const CATEGORY_ENTRY_RE = /^(?<entry>effect\/(?:unstable\/|(?!unstable\/))[^A-Z/][^/]*)(?:\/|$)/u
+
+const findEntry = (source: string): string | undefined =>
+  CATEGORY_ENTRY_RE.exec(source)?.groups?.['entry'] ?? PACKAGE_ENTRY_RE.exec(source)?.groups?.['entry']
+
 export const isAllowedEffectImport = (source: string): boolean => {
-  if (source === 'effect') {
+  // Effect documents this side-effect entry for enabling Schema JIT globally.
+  if (source === 'effect/schema/SchemaJITCompiler/enable') {
     return true
   }
-  if (/^@effect\/[^/]+$/u.test(source)) {
-    return true
-  }
-  if (/^effect\/unstable\/[^/]+$/u.test(source)) {
-    return true
-  }
-  return false
+  return findEntry(source) === source
 }
 
-const rule: Rule = {
+export const noEffectSubpathImport: Rule = {
   create(context) {
     return {
       ImportDeclaration(node: unknown) {
         if (!isReportable(node)) {
           return
         }
-        if (!Predicate.isObject(node)) {
-          return
-        }
-        if (!hasProperty(node, 'source')) {
-          return
-        }
-        const { source } = node
-        if (!Predicate.isObject(source)) {
-          return
-        }
-        if (!hasProperty(source, 'value')) {
-          return
-        }
-        if (!Predicate.isString(source.value)) {
-          return
-        }
-        if (!EFFECT_ECOSYSTEM_RE.test(source.value)) {
-          return
-        }
-        if (isAllowedEffectImport(source.value)) {
+        const source = getImportSource(node)
+        if (!Predicate.isString(source) || !EFFECT_ECOSYSTEM_RE.test(source) || isAllowedEffectImport(source)) {
           return
         }
         context.report({
-          message: `Avoid subpath imports from the effect ecosystem. Import from the package root instead (e.g. \`@effect/platform-node\` not \`@effect/platform-node/NodeRuntime\`).`,
+          message: `Import from \`${findEntry(source) ?? 'a public Effect package entry'}\` instead of \`${source}\`.`,
           node,
         })
       },
@@ -58,5 +41,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

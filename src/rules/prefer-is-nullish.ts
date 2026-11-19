@@ -1,11 +1,11 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable } from '../helpers.ts'
+import { isReportable } from '#src/helpers.ts'
 
 const NULLISH_PREDICATE_METHODS = new Set(['isNull', 'isNotNull', 'isUndefined', 'isNotUndefined'])
 
-export const getNullishPredicateMember = (node: unknown): string | null => {
+export const getNullishPredicateMember = (node: unknown): string | undefined => {
   if (
     !Predicate.isObject(node) ||
     !Predicate.isObject(node['object']) ||
@@ -15,13 +15,13 @@ export const getNullishPredicateMember = (node: unknown): string | null => {
     node['property']['type'] !== 'Identifier' ||
     !Predicate.isString(node['property']['name'])
   ) {
-    return null
+    return undefined
   }
   const { name } = node['property']
-  return NULLISH_PREDICATE_METHODS.has(name) ? name : null
+  return NULLISH_PREDICATE_METHODS.has(name) ? name : undefined
 }
 
-const rule: Rule = {
+export const preferIsNullish: Rule = {
   create(context: Context) {
     return {
       MemberExpression(node: unknown) {
@@ -44,5 +44,3 @@ const rule: Rule = {
     type: 'suggestion',
   },
 }
-
-export default rule
