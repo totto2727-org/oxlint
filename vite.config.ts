@@ -20,7 +20,7 @@ export default defineConfig({
     singleQuote: true,
   },
   lint: { ignorePatterns, options: { typeAware: true, typeCheck: true } },
-  test: { include: ['src/**/*.test.ts'], setupFiles: ['./src/__fixtures__/rule-tester-setup.ts'] },
+  test: { dir: 'src', setupFiles: ['./src/__fixtures__/rule-tester-setup.ts'] },
   pack: {
     entry: ['src/index.ts', 'src/preset.ts', 'src/typescript.ts', 'src/effect.ts'],
     format: ['esm'],
