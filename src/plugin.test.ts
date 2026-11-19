@@ -124,6 +124,14 @@ describe('standard rule options', () => {
     expect(productionRules['typescript/require-await']).not.toBe('off')
   })
 
+  test('allows magic numbers only in test files', () => {
+    expect(productionRules['no-magic-numbers']).toStrictEqual([
+      'error',
+      { ignoreArrayIndexes: true, ignoreDefaultValues: true },
+    ])
+    expect(vitestRules?.['no-magic-numbers']).toBe('off')
+  })
+
   test('shares its rules across application and library variants', () => {
     expect(applicationPreset).toStrictEqual({
       ...preset,

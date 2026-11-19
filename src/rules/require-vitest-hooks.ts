@@ -1,5 +1,5 @@
 import type { ESTree, Rule, SourceCode } from '@oxlint/plugins'
-import { Array, Predicate } from 'effect'
+import { Array, Option, Predicate } from 'effect'
 
 import { fieldName, findBinding } from '#src/effect-method.ts'
 
@@ -43,9 +43,10 @@ const importedApiName = (
   node: ESTree.ImportSpecifier | ESTree.ImportNamespaceSpecifier,
 ): string | undefined => {
   const namespace = node.type === 'ImportNamespaceSpecifier'
-  const api = namespace ? members[0] : fieldName(node.imported)
+  const [firstMember, secondMember] = members
+  const api = namespace ? firstMember : fieldName(node.imported)
   if (api === 'vi') {
-    const method = members[namespace ? 1 : 0]
+    const method = namespace ? secondMember : firstMember
     return Predicate.isNotNullish(method) && mockRegistrations.has(method) ? 'vi' : undefined
   }
   return Predicate.isString(api) ? api : undefined
@@ -116,7 +117,7 @@ const rule: Rule = {
         if (Predicate.isNullish(name) || !suiteNames.has(name)) {
           return
         }
-        const callback = node.arguments.at(-1)
+        const callback = Option.getOrUndefined(Array.last(node.arguments))
         if (callback?.type !== 'ArrowFunctionExpression' && callback?.type !== 'FunctionExpression') {
           return
         }

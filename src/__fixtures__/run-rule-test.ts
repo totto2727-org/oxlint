@@ -1,10 +1,7 @@
 import type { Rule } from '@oxlint/plugins'
 import { RuleTester } from 'oxlint/plugins-dev'
 
-type RunArgs = Parameters<InstanceType<typeof RuleTester>['run']>
-type TesterTests = RunArgs[2]
-
-export const runRuleTest = (ruleName: string, rule: Rule, tests: TesterTests): void => {
+export const runRuleTest = (ruleName: string, rule: Rule, tests: RuleTester.TestCases): void => {
   const tester = new RuleTester()
   tester.run(ruleName, rule, tests)
 }

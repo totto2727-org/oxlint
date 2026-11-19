@@ -102,7 +102,7 @@ const resolveModule = (
   if (Predicate.isNullish(packageRoot)) {
     return undefined
   }
-  const subpath = source === packageName ? 'index.ts' : source.slice(packageName.length + 1)
+  const subpath = source === packageName ? 'index.ts' : source.slice(`${packageName}/`.length)
   return resolveSourceFile(path.join(packageRoot, 'src', subpath))
 }
 

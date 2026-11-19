@@ -31,7 +31,8 @@ const rule: Rule = {
             return
           }
         }
-        const callback = node.arguments.length === 1 ? node.arguments[0] : node.arguments[1]
+        const [generator, boundGenerator] = node.arguments
+        const callback = boundGenerator ?? generator
         if (callback?.type !== 'FunctionExpression' || !callback.generator || !callback.id) {
           return
         }

@@ -48,6 +48,8 @@ const preset: OxlintConfig = {
       files: ['**/*.test.ts', '**/*.test.tsx'],
       plugins: ['vitest'],
       rules: {
+        // Tests use literal inputs and expected values to make each case clear.
+        'no-magic-numbers': 'off',
         [`rules/${testRule}`]: 'error',
         // Shared setup and cleanup belong in hooks. Keep test data in test-local const bindings.
         'vitest/no-hooks': 'off',
@@ -97,7 +99,7 @@ const preset: OxlintConfig = {
     'new-cap': ['error', { capIsNew: false }],
     // The import/no-duplicates rule also detects imports that resolve to the same module.
     'no-duplicate-imports': 'off',
-    'no-magic-numbers': ['error', { ignore: [-1, 0, 1, 2], ignoreArrayIndexes: true, ignoreDefaultValues: true }],
+    'no-magic-numbers': ['error', { ignoreArrayIndexes: true, ignoreDefaultValues: true }],
     // The unicorn/prefer-ternary rule can require a conditional expression instead of an if/else.
     'no-ternary': 'off',
     // The unicorn/no-null rule replaces null with undefined. Keep explicit undefined available where it is required.

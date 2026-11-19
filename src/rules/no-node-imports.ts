@@ -1,5 +1,5 @@
 import type { Context, Rule } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import { Array, Option, Predicate } from 'effect'
 
 import { getImportSource, hasProperty, isReportable } from '#src/helpers.ts'
 
@@ -31,7 +31,7 @@ const getContextOptions = (context: Context): unknown[] => {
 
 const getAllowedNodeBuiltins = (context: Context): ReadonlySet<string> => {
   const options = getContextOptions(context)
-  const first = options.at(0)
+  const first = Option.getOrUndefined(Array.head(options))
   if (Array.isArray(first)) {
     return new Set(first.filter((value) => Predicate.isString(value)))
   }

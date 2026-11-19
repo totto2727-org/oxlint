@@ -1,5 +1,5 @@
 import type { ESTree, Rule, SourceCode } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import { Array, Predicate } from 'effect'
 
 import { findBinding, isEffectMethod } from '#src/effect-method.ts'
 
@@ -18,7 +18,7 @@ const nativeErrors = new Set([
 const globalObjects = new Set(['globalThis', 'global', 'window', 'self'])
 
 const isGlobalName = (source: SourceCode, node: ESTree.IdentifierReference): boolean =>
-  (findBinding(source.getScope(node), node.name)?.defs.length ?? 0) === 0
+  Array.isReadonlyArrayEmpty(findBinding(source.getScope(node), node.name)?.defs ?? [])
 
 const isNativeError = (source: SourceCode, expression: ESTree.Expression): boolean => {
   if (expression.type === 'Identifier') {

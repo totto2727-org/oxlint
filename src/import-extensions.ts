@@ -1,5 +1,5 @@
 import type { Context, Rule } from '@oxlint/plugins'
-import { Predicate, String } from 'effect'
+import { Option, Predicate, String } from 'effect'
 
 import { isReportable } from './helpers.ts'
 
@@ -12,8 +12,8 @@ interface ImportPath {
 }
 
 const splitSuffix = (path: string): { pathname: string; suffix: string } => {
-  const index = path.search(/[?#]/u)
-  return index === -1 ? { pathname: path, suffix: '' } : { pathname: path.slice(0, index), suffix: path.slice(index) }
+  const suffix = /[?#].*/su.exec(path)?.[0] ?? ''
+  return { pathname: String.takeLeft(path, path.length - suffix.length), suffix }
 }
 
 const matchImportPath = (value: string): ImportPath | undefined => {
@@ -23,11 +23,14 @@ const matchImportPath = (value: string): ImportPath | undefined => {
     return undefined
   }
   const { pathname, suffix } = splitSuffix(value.slice(start.length))
-  const basename = pathname.slice(pathname.lastIndexOf('/') + 1)
-  const dot = basename.lastIndexOf('.')
+  const separator = '/'
+  const basename = Option.match(String.lastIndexOf(separator)(pathname), {
+    onNone: () => pathname,
+    onSome: (index) => pathname.slice(index + separator.length),
+  })
   return {
     directory: String.isEmpty(basename) || basename === '.' || basename === '..',
-    extension: dot > 0 ? basename.slice(dot) : '',
+    extension: /(?<=.)\.[^.]*$/su.exec(basename)?.[0] ?? '',
     path: pathname,
     start,
     suffix,
@@ -67,14 +70,15 @@ const normalizeImportExtension = (value: string, mode: ImportExtensionMode): str
   if (Predicate.isNullish(extension) || extension === match.extension) {
     return undefined
   }
-  return `${match.start}${match.path.slice(0, -match.extension.length)}${extension}${match.suffix}`
+  const stem = String.takeLeft(match.path, match.path.length - match.extension.length)
+  return `${match.start}${stem}${extension}${match.suffix}`
 }
 
 const quoteLiteral = (value: string, quote: string): string => {
   const encoded = JSON.stringify(value)
   if (quote === "'") {
     return `'${encoded
-      .slice(1, -1)
+      .replaceAll(/^"|"$/gu, '')
       .replaceAll(globalThis.String.raw`\"`, '"')
       .replaceAll("'", globalThis.String.raw`\'`)}'`
   }

@@ -15,6 +15,9 @@ type EmptyKind = 'empty' | 'non-empty'
 
 type LiteralPosition = 'left' | 'right'
 
+const emptyLength = 0
+const minimumNonEmptyLength = 1
+
 // Normalize to the size on the left, then keep only exact empty or non-empty checks.
 const reverseOperators: ReadonlyMap<string, string> = new Map([
   ['<', '>'],
@@ -41,10 +44,10 @@ const classifyLengthComparison = (
   literal: number,
 ): EmptyKind | undefined => {
   const normalizedOperator = literalPosition === 'left' ? (reverseOperators.get(operator) ?? operator) : operator
-  if (literal === 0) {
+  if (literal === emptyLength) {
     return compareWithZero.get(normalizedOperator)
   }
-  if (literal === 1) {
+  if (literal === minimumNonEmptyLength) {
     return compareWithOne.get(normalizedOperator)
   }
   return undefined
