@@ -36,10 +36,10 @@ const matchMemberCallByPrefix = (node: unknown, namespace: string, prefix: strin
   return property.name.startsWith(prefix)
 }
 
-const isHoistableDecoderCall = (node: unknown): boolean =>
+export const isHoistableDecoderCall = (node: unknown): boolean =>
   matchMemberCallByPrefix(node, 'Schema', 'decode') || matchMemberCallByPrefix(node, 'HttpClientResponse', 'schema')
 
-const rule: Rule = {
+export const requireTopLevelDecoder: Rule = {
   create(context: Context) {
     const functionStack: true[] = []
     const enterFunction = (): void => {
@@ -72,5 +72,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isHoistableDecoderCall, rule as requireTopLevelDecoder }

@@ -1,10 +1,11 @@
-const presetRuleNames = [
+export const presetRuleNames = [
   'consistent-import-extension',
   'effect-tracing',
   'no-eslint-disable-comments',
   'no-index-filename',
   'no-jsx-script-tag',
   'no-let',
+  'no-local-export-list',
   'no-redundant-alias',
   'no-string-style',
   'require-disable-reason',
@@ -41,6 +42,4 @@ const presetRuleNames = [
 ] as const
 
 // Keep the public export for consumers of earlier presets.
-const compatibilityRuleNames = [] as const
-
-export { compatibilityRuleNames, presetRuleNames }
+export const compatibilityRuleNames = [] as const

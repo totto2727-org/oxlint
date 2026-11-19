@@ -3,9 +3,9 @@ import { Predicate } from 'effect'
 
 import { isReportable } from '#src/helpers.ts'
 
-const isLetDeclaration = (node: unknown): boolean => Predicate.isObject(node) && node['kind'] === 'let'
+export const isLetDeclaration = (node: unknown): boolean => Predicate.isObject(node) && node['kind'] === 'let'
 
-const rule: Rule = {
+export const noLet: Rule = {
   create(context: Context) {
     return {
       VariableDeclaration(node: unknown) {
@@ -25,5 +25,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isLetDeclaration, rule as noLet }

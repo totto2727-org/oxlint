@@ -3,7 +3,7 @@ import { Predicate } from 'effect'
 
 import { isReportable } from '#src/helpers.ts'
 
-const hasStringStyleValue = (node: unknown): boolean =>
+export const hasStringStyleValue = (node: unknown): boolean =>
   Predicate.isObject(node) &&
   node['type'] === 'JSXAttribute' &&
   Predicate.isObject(node['name']) &&
@@ -12,7 +12,7 @@ const hasStringStyleValue = (node: unknown): boolean =>
   (node['value'] as { type?: string }).type === 'Literal' &&
   Predicate.isString((node['value'] as { value?: unknown }).value)
 
-const rule: Rule = {
+export const noStringStyle: Rule = {
   create(context: Context) {
     return {
       JSXAttribute(node: unknown) {
@@ -32,5 +32,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { hasStringStyleValue, rule as noStringStyle }

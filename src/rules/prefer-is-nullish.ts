@@ -5,7 +5,7 @@ import { isReportable } from '#src/helpers.ts'
 
 const NULLISH_PREDICATE_METHODS = new Set(['isNull', 'isNotNull', 'isUndefined', 'isNotUndefined'])
 
-const getNullishPredicateMember = (node: unknown): string | undefined => {
+export const getNullishPredicateMember = (node: unknown): string | undefined => {
   if (
     !Predicate.isObject(node) ||
     !Predicate.isObject(node['object']) ||
@@ -21,7 +21,7 @@ const getNullishPredicateMember = (node: unknown): string | undefined => {
   return NULLISH_PREDICATE_METHODS.has(name) ? name : undefined
 }
 
-const rule: Rule = {
+export const preferIsNullish: Rule = {
   create(context: Context) {
     return {
       MemberExpression(node: unknown) {
@@ -44,5 +44,3 @@ const rule: Rule = {
     type: 'suggestion',
   },
 }
-
-export { getNullishPredicateMember, rule as preferIsNullish }

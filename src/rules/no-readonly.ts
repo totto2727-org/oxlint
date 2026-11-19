@@ -1,6 +1,6 @@
 import type { ESTree, Rule, Visitor } from '@oxlint/plugins'
 
-const rule: Rule = {
+export const noReadonly: Rule = {
   create(context): Visitor {
     const report = (node: ESTree.Node): void => {
       context.report({
@@ -32,5 +32,3 @@ const rule: Rule = {
   },
   meta: { type: 'problem' },
 }
-
-export { rule as noReadonly }

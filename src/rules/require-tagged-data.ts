@@ -2,7 +2,7 @@ import type { ESTree, Rule, Visitor } from '@oxlint/plugins'
 
 import { isTagKey } from '#src/tag-key.ts'
 
-const rule: Rule = {
+export const requireTaggedData: Rule = {
   create(context): Visitor {
     const check = (key: ESTree.Node, computed: boolean): void => {
       if (isTagKey(key, computed)) {
@@ -39,5 +39,3 @@ const rule: Rule = {
   },
   meta: { type: 'problem' },
 }
-
-export { rule as requireTaggedData }

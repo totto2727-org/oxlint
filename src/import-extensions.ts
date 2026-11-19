@@ -16,7 +16,7 @@ const splitSuffix = (path: string): { pathname: string; suffix: string } => {
   return { pathname: String.takeLeft(path, path.length - suffix.length), suffix }
 }
 
-const matchImportPath = (value: string): ImportPath | undefined => {
+export const matchImportPath = (value: string): ImportPath | undefined => {
   // Bare specifiers and absolute paths are outside the import rules' scope.
   const start = /^(?<prefix>\.+|#(?!#)[^/?#]*)(?=\/)/u.exec(value)?.groups?.['prefix']
   if (Predicate.isNullish(start)) {
@@ -39,7 +39,7 @@ const matchImportPath = (value: string): ImportPath | undefined => {
 
 type ImportExtensionMode = 'js' | 'ts'
 
-const importExtensionSchema = [
+export const importExtensionSchema = [
   {
     additionalProperties: false,
     properties: { mode: { enum: ['js', 'ts'], type: 'string' } },
@@ -47,7 +47,7 @@ const importExtensionSchema = [
   },
 ]
 
-const getImportExtensionMode = (option: unknown): ImportExtensionMode =>
+export const getImportExtensionMode = (option: unknown): ImportExtensionMode =>
   Predicate.isObject(option) && option['mode'] === 'js' ? 'js' : 'ts'
 
 const extensionTargets: Readonly<Record<string, Readonly<Record<ImportExtensionMode, string>>>> = {
@@ -61,7 +61,7 @@ const extensionTargets: Readonly<Record<string, Readonly<Record<ImportExtensionM
   '.tsx': { js: '.js', ts: '.tsx' },
 }
 
-const normalizeImportExtension = (value: string, mode: ImportExtensionMode): string | undefined => {
+export const normalizeImportExtension = (value: string, mode: ImportExtensionMode): string | undefined => {
   const match = matchImportPath(value)
   if (Predicate.isNullish(match)) {
     return undefined
@@ -85,7 +85,7 @@ const quoteLiteral = (value: string, quote: string): string => {
   return encoded
 }
 
-const createImportExtensionListeners = (
+export const createImportExtensionListeners = (
   context: Context,
   replacement: (value: string) => string | undefined,
   message: string,
@@ -120,12 +120,4 @@ const createImportExtensionListeners = (
     ImportDeclaration: check,
     ImportExpression: check,
   }
-}
-
-export {
-  createImportExtensionListeners,
-  getImportExtensionMode,
-  importExtensionSchema,
-  matchImportPath,
-  normalizeImportExtension,
 }

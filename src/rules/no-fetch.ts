@@ -7,10 +7,10 @@ const FETCH_GLOBALS: ReadonlySet<string> = new Set(['globalThis', 'self', 'windo
 const FETCH_GUIDANCE_MESSAGE =
   'Use Effect `HttpClient` (provide the `FetchHttpClient` layer) instead of the global `fetch`. Bypass only at external-library anti-corruption layers with a documented disable reason.'
 
-const isFetchIdentifier = (node: unknown): boolean =>
+export const isFetchIdentifier = (node: unknown): boolean =>
   Predicate.isObject(node) && node['type'] === 'Identifier' && hasProperty(node, 'name') && node['name'] === 'fetch'
 
-const isFetchOnGlobal = (node: unknown): boolean => {
+export const isFetchOnGlobal = (node: unknown): boolean => {
   if (!Predicate.isObject(node) || node['type'] !== 'MemberExpression' || node['computed'] === true) {
     return false
   }
@@ -27,7 +27,7 @@ const isFetchOnGlobal = (node: unknown): boolean => {
   )
 }
 
-const rule: Rule = {
+export const noFetch: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
@@ -48,5 +48,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isFetchIdentifier, isFetchOnGlobal, rule as noFetch }

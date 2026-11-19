@@ -25,7 +25,7 @@ const isEffectCatch = (source: SourceCode, node: ESTree.Node, name: string): boo
   return parameter?.type === 'Identifier' && parameter.name === name && isEffectCatchProperty(source, node.parent)
 }
 
-const rule: Rule = {
+export const noErrorPropertyAccess: Rule = {
   create(context) {
     const { sourceCode } = context
     return {
@@ -52,5 +52,3 @@ const rule: Rule = {
   },
   meta: { type: 'problem' },
 }
-
-export { rule as noErrorPropertyAccess }

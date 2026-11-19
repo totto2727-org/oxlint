@@ -7,21 +7,21 @@ import path from 'node:path'
 
 import { Array, Predicate } from 'effect'
 
-const normalizePathName = (filename: string): string => path.resolve(filename).split(path.sep).join('/')
+export const normalizePathName = (filename: string): string => path.resolve(filename).split(path.sep).join('/')
 
 // oxlint-disable-next-line node/no-sync -- Complete path probes before returning visitor diagnostics.
 const pathExists = (filename: string): boolean => fs.existsSync(filename)
 // oxlint-disable-next-line node/no-sync -- Complete filesystem traversal before returning visitor diagnostics.
 const readDirectory = (directory: string): fs.Dirent[] => fs.readdirSync(directory, { withFileTypes: true })
 // oxlint-disable-next-line node/no-sync -- Complete TypeScript parsing before returning visitor diagnostics.
-const readText = (filename: string): string => fs.readFileSync(filename, 'utf8')
+export const readText = (filename: string): string => fs.readFileSync(filename, 'utf8')
 
 const isSourceFile = (fileName: string): boolean => path.extname(fileName) === '.ts' && !fileName.endsWith('.d.ts')
 
 const isWorkspaceDirectory = (entry: fs.Dirent): boolean =>
   entry.isDirectory() && entry.name !== 'dist' && entry.name !== 'build' && entry.name !== 'node_modules'
 
-const findSourceFiles = (cwd: string): string[] => {
+export const findSourceFiles = (cwd: string): string[] => {
   const packagesDir = path.join(cwd, 'packages')
   if (!pathExists(packagesDir)) {
     return []
@@ -41,7 +41,7 @@ const findSourceFiles = (cwd: string): string[] => {
   return files
 }
 
-const findWorkspacePackages = (cwd: string): Map<string, string> => {
+export const findWorkspacePackages = (cwd: string): Map<string, string> => {
   const packagesDir = path.join(cwd, 'packages')
   const packages = new Map<string, string>()
   if (!pathExists(packagesDir)) {
@@ -82,7 +82,7 @@ const longestPackageMatch = (source: string, packages: ReadonlyMap<string, strin
     .filter((name) => source === name || source.startsWith(`${name}/`))
     .toSorted((first, second) => second.length - first.length)[0]
 
-const resolveModule = (
+export const resolveModule = (
   source: string,
   containingFile: string,
   workspacePackages: ReadonlyMap<string, string>,
@@ -101,5 +101,3 @@ const resolveModule = (
   const subpath = source === packageName ? 'index.ts' : source.slice(`${packageName}/`.length)
   return resolveSourceFile(path.join(packageRoot, 'src', subpath))
 }
-
-export { findSourceFiles, findWorkspacePackages, normalizePathName, readText, resolveModule }

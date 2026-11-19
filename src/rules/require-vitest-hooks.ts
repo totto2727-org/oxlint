@@ -95,7 +95,7 @@ const isEffectSuiteTest = (statement: ESTree.Node, parameter: ESTree.Node | unde
   )
 }
 
-const rule: Rule = {
+export const requireVitestHooks: Rule = {
   create({ sourceCode, report }) {
     const check = (statement: ESTree.Node): void => {
       if (statement.type !== 'ExpressionStatement' || statement.expression.type === 'Literal') {
@@ -138,5 +138,3 @@ const rule: Rule = {
   },
   meta: { type: 'problem' },
 }
-
-export { rule as requireVitestHooks }

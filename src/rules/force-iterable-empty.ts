@@ -5,7 +5,7 @@ import { isReportable } from '#src/helpers.ts'
 
 import { classifySizeComparison } from './force-array-empty.ts'
 
-const isIterableSizeCall = (node: unknown): boolean =>
+export const isIterableSizeCall = (node: unknown): boolean =>
   Predicate.isObject(node) &&
   node['type'] === 'CallExpression' &&
   Predicate.isObject(node['callee']) &&
@@ -18,7 +18,7 @@ const isIterableSizeCall = (node: unknown): boolean =>
   node['callee']['property']['type'] === 'Identifier' &&
   node['callee']['property']['name'] === 'size'
 
-const rule: Rule = {
+export const forceIterableEmpty: Rule = {
   create(context: Context) {
     return {
       BinaryExpression(node: unknown) {
@@ -44,5 +44,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isIterableSizeCall, rule as forceIterableEmpty }

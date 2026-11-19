@@ -85,8 +85,12 @@ const preset: OxlintConfig = {
     // Effect uses anonymous generators as callbacks, where a name adds no information.
     'func-names': ['error', 'as-needed', { generators: 'never' }],
     'id-length': ['error', { checkGeneric: false, properties: 'never' }],
+    // The custom no-local-export-list rule keeps named exports at their declarations.
+    'import/exports-last': 'off',
     // The local extension rules also cover # aliases and support both source and emitted extensions.
     'import/extensions': 'off',
+    // Grouping exports into a separate list conflicts with declaration-site exports.
+    'import/group-exports': 'off',
     // The no-default-export rule enforces named exports instead of the opposite policy.
     'import/no-named-export': 'off',
     // Namespace imports keep related APIs qualified without requiring per-package exceptions.

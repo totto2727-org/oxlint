@@ -2,7 +2,7 @@ import type { ESTree, Rule } from '@oxlint/plugins'
 
 import { isTagKey } from '#src/tag-key.ts'
 
-const rule: Rule = {
+export const noDirectTagAccess: Rule = {
   create(context) {
     const report = (node: ESTree.Node): void => {
       context.report({
@@ -31,5 +31,3 @@ const rule: Rule = {
   },
   meta: { type: 'problem' },
 }
-
-export { rule as noDirectTagAccess }

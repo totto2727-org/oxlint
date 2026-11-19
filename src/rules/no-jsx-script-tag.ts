@@ -3,14 +3,14 @@ import { Predicate } from 'effect'
 
 import { isReportable } from '#src/helpers.ts'
 
-const isScriptJsxElement = (node: unknown): boolean =>
+export const isScriptJsxElement = (node: unknown): boolean =>
   Predicate.isObject(node) &&
   node['type'] === 'JSXOpeningElement' &&
   Predicate.isObject(node['name']) &&
   (node['name'] as { type?: string }).type === 'JSXIdentifier' &&
   (node['name'] as { name?: string }).name === 'script'
 
-const rule: Rule = {
+export const noJsxScriptTag: Rule = {
   create(context: Context) {
     return {
       JSXOpeningElement(node: unknown) {
@@ -31,5 +31,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isScriptJsxElement, rule as noJsxScriptTag }

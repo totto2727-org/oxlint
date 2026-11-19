@@ -2,7 +2,7 @@ import type { Rule } from '@oxlint/plugins'
 
 const exception = 'If a for loop is necessary, disable this rule on the loop line and explain why.'
 
-const rule: Rule = {
+export const noForLoops: Rule = {
   create({ report }) {
     return {
       ForInStatement(node) {
@@ -24,5 +24,3 @@ const rule: Rule = {
   },
   meta: { type: 'suggestion' },
 }
-
-export { rule as noForLoops }

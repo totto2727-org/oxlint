@@ -36,7 +36,7 @@ const isNativeError = (source: SourceCode, expression: ESTree.Expression): boole
     : property.type === 'Identifier' && nativeErrors.has(property.name)
 }
 
-const rule: Rule = {
+export const requireTaggedError: Rule = {
   create(context) {
     const check = (expression: ESTree.Expression): void => {
       if (
@@ -68,5 +68,3 @@ const rule: Rule = {
   },
   meta: { type: 'problem' },
 }
-
-export { rule as requireTaggedError }

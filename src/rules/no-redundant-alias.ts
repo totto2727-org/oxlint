@@ -17,7 +17,7 @@ const hasGenericTypeParameters = (node: unknown): boolean =>
 const isPlainTypeReference = (node: unknown): boolean =>
   Predicate.isObject(node) && node['type'] === 'TSTypeReference' && !hasTypeArguments(node)
 
-const isRedundantTypeAlias = (node: unknown): boolean => {
+export const isRedundantTypeAlias = (node: unknown): boolean => {
   if (!Predicate.isObject(node) || node['type'] !== 'TSTypeAliasDeclaration') {
     return false
   }
@@ -27,7 +27,7 @@ const isRedundantTypeAlias = (node: unknown): boolean => {
   return hasProperty(node, 'typeAnnotation') && isPlainTypeReference(node['typeAnnotation'])
 }
 
-const isIdentifierInitDeclarator = (declarator: unknown): boolean =>
+export const isIdentifierInitDeclarator = (declarator: unknown): boolean =>
   Predicate.isObject(declarator) &&
   hasProperty(declarator, 'id') &&
   Predicate.isObject(declarator.id) &&
@@ -36,7 +36,7 @@ const isIdentifierInitDeclarator = (declarator: unknown): boolean =>
   Predicate.isObject(declarator.init) &&
   declarator.init['type'] === 'Identifier'
 
-const rule: Rule = {
+export const noRedundantAlias: Rule = {
   create(context: Context) {
     return {
       ExportNamedDeclaration(node: unknown) {
@@ -79,5 +79,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isIdentifierInitDeclarator, isRedundantTypeAlias, rule as noRedundantAlias }

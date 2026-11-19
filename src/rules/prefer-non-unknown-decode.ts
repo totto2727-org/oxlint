@@ -8,10 +8,10 @@ const UNKNOWN_DECODE_METHODS: Record<string, string> = {
   decodeUnknownExit: 'decodeExit',
 }
 
-const isSchemaUnknownDecodeCall = (node: unknown): string | undefined =>
+export const isSchemaUnknownDecodeCall = (node: unknown): string | undefined =>
   Object.keys(UNKNOWN_DECODE_METHODS).find((method) => isSchemaMethodCall(node, method))
 
-const rule: Rule = {
+export const preferNonUnknownDecode: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
@@ -33,5 +33,3 @@ const rule: Rule = {
     type: 'suggestion',
   },
 }
-
-export { isSchemaUnknownDecodeCall, rule as preferNonUnknownDecode }

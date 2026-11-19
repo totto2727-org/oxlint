@@ -11,13 +11,13 @@ const getIdentifierName = (node: unknown): string | undefined =>
     ? node['name']
     : undefined
 
-const isInstanceofError = (node: unknown): boolean =>
+export const isInstanceofError = (node: unknown): boolean =>
   Predicate.isObject(node) &&
   node['type'] === 'BinaryExpression' &&
   node['operator'] === 'instanceof' &&
   getIdentifierName(node['right']) === 'Error'
 
-const rule: Rule = {
+export const noInstanceofError: Rule = {
   create(context: Context) {
     return {
       BinaryExpression(node: unknown) {
@@ -32,5 +32,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isInstanceofError, rule as noInstanceofError }

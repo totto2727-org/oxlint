@@ -15,6 +15,8 @@ The preset reports policy violations, such as `rules/no-let` for a `let` declara
 `rules/no-for-loops` reports `for`, `for...of`, `for...in`, and `for await...of`.
 Use collection combinators, `Effect.forEach`, or `Stream.runForEach` when they express the same behavior.
 If a loop is necessary, add `oxlint-disable-next-line rules/no-for-loops -- <reason>` above it.
+`rules/no-local-export-list` requires named exports at their declarations, such as `export const value`, instead of a separate `export { value }`.
+Use `export { value } from './source.ts'` to re-export from another module. Empty `export {}` module markers are allowed.
 Tests use the same general rules as application files, plus Vitest rules for `*.test.ts` and `*.test.tsx`.
 
 ## Key features

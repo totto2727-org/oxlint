@@ -20,7 +20,7 @@ const isNullLiteral = (node: unknown): boolean =>
 const isUndefinedIdentifier = (node: unknown): boolean =>
   Predicate.isObject(node) && node['type'] === 'Identifier' && node['name'] === 'undefined'
 
-const getNullishSide = (node: unknown): 'null' | 'undefined' | undefined => {
+export const getNullishSide = (node: unknown): 'null' | 'undefined' | undefined => {
   if (isNullLiteral(node)) {
     return 'null'
   }
@@ -30,14 +30,14 @@ const getNullishSide = (node: unknown): 'null' | 'undefined' | undefined => {
   return undefined
 }
 
-const getTypeofType = (node: unknown): 'typeof' | undefined => {
+export const getTypeofType = (node: unknown): 'typeof' | undefined => {
   if (Predicate.isObject(node) && node['type'] === 'UnaryExpression' && node['operator'] === 'typeof') {
     return 'typeof'
   }
   return undefined
 }
 
-const getStringValue = (node: unknown): string | undefined => {
+export const getStringValue = (node: unknown): string | undefined => {
   if (Predicate.isObject(node) && node['type'] === 'Literal' && Predicate.isString(node['value'])) {
     return node['value']
   }
@@ -65,7 +65,7 @@ const comparisonMessage = (left: unknown, right: unknown): string | undefined =>
   return Predicate.isNullish(predicate) ? undefined : `Use ${predicate}() instead of typeof comparison`
 }
 
-const rule: Rule = {
+export const forcePredicate: Rule = {
   create(context: Context) {
     return {
       BinaryExpression(node: unknown) {
@@ -83,5 +83,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { getNullishSide, getStringValue, getTypeofType, rule as forcePredicate }

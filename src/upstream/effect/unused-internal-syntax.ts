@@ -6,15 +6,15 @@ import ts from 'typescript-api'
 const hasModifier = (node: ts.Node, kind: ts.SyntaxKind): boolean =>
   ts.canHaveModifiers(node) && (ts.getModifiers(node) ?? []).some((modifier) => modifier.kind === kind)
 
-const hasExportModifier = (node: ts.Node): boolean => hasModifier(node, ts.SyntaxKind.ExportKeyword)
+export const hasExportModifier = (node: ts.Node): boolean => hasModifier(node, ts.SyntaxKind.ExportKeyword)
 
-const hasPrivateOrProtectedModifier = (node: ts.Node): boolean =>
+export const hasPrivateOrProtectedModifier = (node: ts.Node): boolean =>
   hasModifier(node, ts.SyntaxKind.PrivateKeyword) || hasModifier(node, ts.SyntaxKind.ProtectedKeyword)
 
-const hasInternalJSDoc = (node: ts.Node): boolean =>
+export const hasInternalJSDoc = (node: ts.Node): boolean =>
   ts.getJSDocTags(node).some((tag) => tag.tagName.getText() === 'internal')
 
-const hasInternalApiJSDoc = (node: ts.Node): boolean => {
+export const hasInternalApiJSDoc = (node: ts.Node): boolean => {
   if (hasInternalJSDoc(node)) {
     return true
   }
@@ -39,7 +39,7 @@ const collectBindingNames = (name: ts.BindingName, out: ts.Identifier[]): void =
   })
 }
 
-const getTopLevelDeclarationNameNodes = (node: ts.Node): ts.Identifier[] => {
+export const getTopLevelDeclarationNameNodes = (node: ts.Node): ts.Identifier[] => {
   if (
     (ts.isFunctionDeclaration(node) ||
       ts.isClassDeclaration(node) ||
@@ -62,7 +62,7 @@ const getTopLevelDeclarationNameNodes = (node: ts.Node): ts.Identifier[] => {
   return []
 }
 
-const getDeclarationForName = (node: ts.Node, name: ts.Identifier): ts.Node => {
+export const getDeclarationForName = (node: ts.Node, name: ts.Identifier): ts.Node => {
   if (!ts.isVariableStatement(node)) {
     return node
   }
@@ -105,7 +105,7 @@ const isDeclarationName = (identifier: ts.Identifier): boolean => {
   )
 }
 
-const isNonReferenceName = (identifier: ts.Identifier): boolean => {
+export const isNonReferenceName = (identifier: ts.Identifier): boolean => {
   const { parent } = identifier
   return (
     isImportOrExportBinding(identifier) ||
@@ -121,20 +121,9 @@ const isNonReferenceName = (identifier: ts.Identifier): boolean => {
   )
 }
 
-const isInside = (node: ts.Node, container: ts.Node): boolean => {
+export const isInside = (node: ts.Node, container: ts.Node): boolean => {
   if (node.getSourceFile() !== container.getSourceFile()) {
     return false
   }
   return node.getStart() >= container.getStart() && node.getEnd() <= container.getEnd()
-}
-
-export {
-  getDeclarationForName,
-  getTopLevelDeclarationNameNodes,
-  hasExportModifier,
-  hasInternalApiJSDoc,
-  hasInternalJSDoc,
-  hasPrivateOrProtectedModifier,
-  isInside,
-  isNonReferenceName,
 }

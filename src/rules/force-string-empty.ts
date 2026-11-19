@@ -3,13 +3,13 @@ import { Predicate, String } from 'effect'
 
 import { isEqualityOperator, isReportable } from '#src/helpers.ts'
 
-const isEmptyStringLiteral = (node: unknown): boolean =>
+export const isEmptyStringLiteral = (node: unknown): boolean =>
   Predicate.isObject(node) &&
   node['type'] === 'Literal' &&
   Predicate.isString(node['value']) &&
   String.isEmpty(node['value'])
 
-const rule: Rule = {
+export const forceStringEmpty: Rule = {
   create(context: Context) {
     return {
       BinaryExpression(node: unknown) {
@@ -36,5 +36,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isEmptyStringLiteral, rule as forceStringEmpty }

@@ -38,7 +38,7 @@ const compareWithOne: ReadonlyMap<string, EmptyKind> = new Map([
   ['>=', 'non-empty'],
 ])
 
-const classifyLengthComparison = (
+export const classifyLengthComparison = (
   operator: string,
   literalPosition: LiteralPosition,
   literal: number,
@@ -53,7 +53,7 @@ const classifyLengthComparison = (
   return undefined
 }
 
-const classifySizeComparison = (
+export const classifySizeComparison = (
   node: Record<string, unknown>,
   isSize: (operand: unknown) => boolean,
 ): EmptyKind | undefined => {
@@ -69,7 +69,7 @@ const classifySizeComparison = (
   return Predicate.isNullish(literal) ? undefined : classifyLengthComparison(operator, literalPosition, literal)
 }
 
-const rule: Rule = {
+export const forceArrayEmpty: Rule = {
   create(context: Context) {
     return {
       BinaryExpression(node: unknown) {
@@ -95,5 +95,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { classifyLengthComparison, classifySizeComparison, rule as forceArrayEmpty }

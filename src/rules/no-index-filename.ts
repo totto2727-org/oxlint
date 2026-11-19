@@ -1,6 +1,6 @@
 import type { Rule } from '@oxlint/plugins'
 
-const rule: Rule = {
+export const noIndexFilename: Rule = {
   create(context) {
     if (!/(?:^|[/\\])index\.tsx?$/u.test(context.physicalFilename)) {
       return {}
@@ -17,5 +17,3 @@ const rule: Rule = {
   },
   meta: { type: 'suggestion' },
 }
-
-export { rule as noIndexFilename }

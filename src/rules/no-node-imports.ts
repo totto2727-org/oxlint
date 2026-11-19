@@ -7,7 +7,7 @@ const NODE_PROTOCOL = 'node:'
 const NODE_IMPORT_GUIDANCE_MESSAGE =
   'Avoid Node.js built-in imports. Prefer Effect Platform APIs from `effect` / `@effect/platform-node`. If the import is unavoidable, document the reason at that import.'
 
-const getNodeBuiltinSpecifier = (source: string): string | undefined => {
+export const getNodeBuiltinSpecifier = (source: string): string | undefined => {
   if (!source.startsWith(NODE_PROTOCOL)) {
     return undefined
   }
@@ -29,7 +29,7 @@ const getContextOptions = (context: Context): unknown[] => {
   return Array.isArray(options) ? options : []
 }
 
-const getAllowedNodeBuiltins = (context: Context): ReadonlySet<string> => {
+export const getAllowedNodeBuiltins = (context: Context): ReadonlySet<string> => {
   const options = getContextOptions(context)
   const first = Option.getOrUndefined(Array.head(options))
   if (Array.isArray(first)) {
@@ -50,7 +50,7 @@ const reportNodeImport = (node: unknown, context: Context): void => {
   context.report({ message: NODE_IMPORT_GUIDANCE_MESSAGE, node })
 }
 
-const rule: Rule = {
+export const noNodeImports: Rule = {
   create(context: Context) {
     return {
       ExportAllDeclaration(node: unknown) {
@@ -83,5 +83,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { getAllowedNodeBuiltins, getNodeBuiltinSpecifier, rule as noNodeImports }

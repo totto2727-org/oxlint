@@ -35,7 +35,7 @@ const regexTest = (expression: ESTree.Expression): ESTree.CallExpression | undef
     : undefined
 }
 
-const rule: Rule = {
+export const preferSchemaFormatValidation: Rule = {
   create(context) {
     return {
       IfStatement(node) {
@@ -52,5 +52,3 @@ const rule: Rule = {
   },
   meta: { type: 'suggestion' },
 }
-
-export { rule as preferSchemaFormatValidation }

@@ -5,10 +5,10 @@ import { isReportable } from '#src/helpers.ts'
 
 const FORBIDDEN_DATE_STATIC_METHODS: ReadonlySet<string> = new Set(['now', 'parse', 'UTC'])
 
-const isDateIdentifier = (node: unknown): boolean =>
+export const isDateIdentifier = (node: unknown): boolean =>
   Predicate.isObject(node) && node['type'] === 'Identifier' && node['name'] === 'Date'
 
-const getForbiddenDateStaticMethod = (node: unknown): string | undefined => {
+export const getForbiddenDateStaticMethod = (node: unknown): string | undefined => {
   if (
     Predicate.isObject(node) &&
     node['type'] === 'MemberExpression' &&
@@ -24,7 +24,7 @@ const getForbiddenDateStaticMethod = (node: unknown): string | undefined => {
   return undefined
 }
 
-const rule: Rule = {
+export const noJsDate: Rule = {
   create(context: Context) {
     return {
       MemberExpression(node: unknown) {
@@ -57,5 +57,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { getForbiddenDateStaticMethod, isDateIdentifier, rule as noJsDate }

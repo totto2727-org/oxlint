@@ -5,7 +5,7 @@ import { getImportSource, hasProperty, isReportable } from '#src/helpers.ts'
 
 const EFFECT_IMPORT_RE = /^@?effect(?:\/|$)/u
 
-const isEffectEcosystemImport = (sourceValue: string): boolean => EFFECT_IMPORT_RE.test(sourceValue)
+export const isEffectEcosystemImport = (sourceValue: string): boolean => EFFECT_IMPORT_RE.test(sourceValue)
 
 const readName = (node: unknown): string | undefined => {
   if (Predicate.isObject(node) && hasProperty(node, 'name') && Predicate.isString(node.name)) {
@@ -44,7 +44,7 @@ const checkSpecifierForAs = (
   return true
 }
 
-const rule: Rule = {
+export const noEffectImportAs: Rule = {
   create(context: Context) {
     return {
       ImportDeclaration(node: unknown) {
@@ -64,5 +64,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isEffectEcosystemImport, rule as noEffectImportAs }

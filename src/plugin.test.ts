@@ -82,6 +82,7 @@ describe('standard rule policy', () => {
     'rules/no-import-from-barrel-package',
     'rules/no-jsx-script-tag',
     'rules/no-let',
+    'rules/no-local-export-list',
     'rules/no-node-imports',
     'rules/no-readonly',
     'rules/require-disable-reason',
@@ -89,11 +90,15 @@ describe('standard rule policy', () => {
   ])('enables %s', (rule) => {
     expect(productionRules[rule]).toBe('error')
   })
+})
 
+describe('rules replaced by the standard policy', () => {
   test.each([
     'eslint/prefer-const',
     'eslint/require-await',
+    'import/exports-last',
     'import/extensions',
+    'import/group-exports',
     'import/no-namespace',
     'import/no-nodejs-modules',
     'react/jsx-no-literals',

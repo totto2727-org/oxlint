@@ -12,7 +12,7 @@ const RUNTIME_METHODS: ReadonlySet<string> = new Set([
   'runSync',
 ])
 
-const getRuntimeMethod = (node: unknown): string | undefined => {
+export const getRuntimeMethod = (node: unknown): string | undefined => {
   if (
     Predicate.isObject(node) &&
     node['type'] === 'MemberExpression' &&
@@ -29,7 +29,7 @@ const getRuntimeMethod = (node: unknown): string | undefined => {
 
 const isRuntimeCallee = (node: unknown): boolean => Predicate.isNotNullish(getRuntimeMethod(node))
 
-const rule: Rule = {
+export const noEffectRuntimeRun: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
@@ -51,5 +51,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { getRuntimeMethod, rule as noEffectRuntimeRun }

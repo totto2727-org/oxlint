@@ -18,6 +18,7 @@ import { noInstanceofError } from './rules/no-instanceof-error.ts'
 import { noJsDate } from './rules/no-js-date.ts'
 import { noJsxScriptTag } from './rules/no-jsx-script-tag.ts'
 import { noLet } from './rules/no-let.ts'
+import { noLocalExportList } from './rules/no-local-export-list.ts'
 import { noNodeImports } from './rules/no-node-imports.ts'
 import { noOptionalErrorCause } from './rules/no-optional-error-cause.ts'
 import { noReadonly } from './rules/no-readonly.ts'
@@ -63,6 +64,7 @@ const plugin = {
     'no-js-date': noJsDate,
     'no-jsx-script-tag': noJsxScriptTag,
     'no-let': noLet,
+    'no-local-export-list': noLocalExportList,
     'no-node-imports': noNodeImports,
     'no-opaque-instance-fields': noOpaqueInstanceFields,
     'no-optional-error-cause': noOptionalErrorCause,

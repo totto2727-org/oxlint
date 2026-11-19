@@ -11,7 +11,7 @@ const CATEGORY_ENTRY_RE = /^(?<entry>effect\/(?:unstable\/|(?!unstable\/))[^A-Z/
 const findEntry = (source: string): string | undefined =>
   CATEGORY_ENTRY_RE.exec(source)?.groups?.['entry'] ?? PACKAGE_ENTRY_RE.exec(source)?.groups?.['entry']
 
-const isAllowedEffectImport = (source: string): boolean => {
+export const isAllowedEffectImport = (source: string): boolean => {
   // Effect documents this side-effect entry for enabling Schema JIT globally.
   if (source === 'effect/schema/SchemaJITCompiler/enable') {
     return true
@@ -19,7 +19,7 @@ const isAllowedEffectImport = (source: string): boolean => {
   return findEntry(source) === source
 }
 
-const rule: Rule = {
+export const noEffectSubpathImport: Rule = {
   create(context) {
     return {
       ImportDeclaration(node: unknown) {
@@ -41,5 +41,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { isAllowedEffectImport, rule as noEffectSubpathImport }

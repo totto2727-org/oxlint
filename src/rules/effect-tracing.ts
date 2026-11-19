@@ -18,7 +18,7 @@ const library = {
   withSpanScoped: librarySpan,
 }
 
-const rule: Rule = {
+export const effectTracing: Rule = {
   create(context) {
     const { sourceCode } = context
     const [mode] = context.options
@@ -55,5 +55,3 @@ const rule: Rule = {
   },
   meta: { schema: [{ enum: ['application', 'library'], type: 'string' }], type: 'suggestion' },
 }
-
-export { rule as effectTracing }

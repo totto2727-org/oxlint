@@ -3,7 +3,7 @@ import { Predicate, String } from 'effect'
 
 import { createImportExtensionListeners, matchImportPath } from '#src/import-extensions.ts'
 
-const rule: Rule = {
+export const requireImportExtension: Rule = {
   create: (context) =>
     createImportExtensionListeners(
       context,
@@ -19,5 +19,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { rule as requireImportExtension }

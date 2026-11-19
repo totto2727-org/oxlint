@@ -164,7 +164,7 @@ const matchingTaggedErrorBase = (
   schema: isSchemaError(source, base),
 })
 
-const rule: Rule = {
+export const noOptionalErrorCause: Rule = {
   create(context): Visitor {
     const { sourceCode } = context
     const report = createReporter(context)
@@ -191,5 +191,3 @@ const rule: Rule = {
   },
   meta: { type: 'problem' },
 }
-
-export { rule as noOptionalErrorCause }

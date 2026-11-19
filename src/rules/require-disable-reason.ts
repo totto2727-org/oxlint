@@ -4,11 +4,11 @@ import { Array } from 'effect'
 const OXLINT_DISABLE_DIRECTIVE_RE = /\boxlint-disable\b/u
 const DISABLE_REASON_RE = /\s--\s+\S/u
 
-const isOxlintDisableDirective = (value: string): boolean => OXLINT_DISABLE_DIRECTIVE_RE.test(value)
+export const isOxlintDisableDirective = (value: string): boolean => OXLINT_DISABLE_DIRECTIVE_RE.test(value)
 
-const hasDisableReason = (value: string): boolean => DISABLE_REASON_RE.test(value)
+export const hasDisableReason = (value: string): boolean => DISABLE_REASON_RE.test(value)
 
-const rule: Rule = {
+export const requireDisableReason: Rule = {
   create(context) {
     return {
       'Program:exit'() {
@@ -29,5 +29,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export { hasDisableReason, isOxlintDisableDirective, rule as requireDisableReason }

@@ -1,17 +1,17 @@
 import type { ESTree, Scope, SourceCode, Variable } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-const fieldName = (node: ESTree.Node): unknown => {
+export const fieldName = (node: ESTree.Node): unknown => {
   if (node.type === 'Identifier') {
     return node.name
   }
   return node.type === 'Literal' ? node.value : undefined
 }
 
-const findBinding = (scope: Scope | null, name: string): Variable | undefined =>
+export const findBinding = (scope: Scope | null, name: string): Variable | undefined =>
   Predicate.isNullish(scope) ? undefined : (scope.set.get(name) ?? findBinding(scope.upper, name))
 
-const isEffectMethod = (
+export const isEffectMethod = (
   source: SourceCode,
   callee: ESTree.Expression,
   { module, name }: { module: string; name: string },
@@ -38,5 +38,3 @@ const isEffectMethod = (
     )
   })
 }
-
-export { fieldName, findBinding, isEffectMethod }

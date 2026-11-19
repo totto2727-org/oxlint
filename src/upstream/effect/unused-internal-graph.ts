@@ -19,7 +19,7 @@ import {
   resolveModule,
 } from './unused-internal-workspace.ts'
 
-interface InternalExport {
+export interface InternalExport {
   fileName: string
   declaration: ts.Node
   name: string
@@ -32,7 +32,7 @@ interface ImportBinding {
   importedName: string
 }
 
-interface FileInfo {
+export interface FileInfo {
   fileName: string
   sourceFile: ts.SourceFile
   imports: Map<string, ImportBinding>
@@ -41,14 +41,14 @@ interface FileInfo {
   publicDeclarations: ts.Node[]
 }
 
-interface WorkspaceGraph {
+export interface WorkspaceGraph {
   files: ReadonlyMap<string, FileInfo>
   packages: ReadonlyMap<string, string>
 }
 
 const isInternalPath = (fileName: string): boolean => /\/src\/(?:.*\/)?internal\//u.test(normalizePathName(fileName))
 
-const getExports = (
+export const getExports = (
   fileInfos: ReadonlyMap<string, FileInfo>,
   fileName: string | undefined,
   exportName: string,
@@ -59,7 +59,7 @@ const getExports = (
   return fileInfos.get(fileName)?.internalExports.get(exportName) ?? []
 }
 
-const getReExportedInternals = (
+export const getReExportedInternals = (
   graph: WorkspaceGraph,
   fileInfo: FileInfo,
   specifier: ts.ExportSpecifier,
@@ -177,7 +177,7 @@ const collectFileInfo = (sourceFile: ts.SourceFile, packages: ReadonlyMap<string
   return fileInfo
 }
 
-const scanUsage = (graph: WorkspaceGraph, fileInfo: FileInfo): void => {
+export const scanUsage = (graph: WorkspaceGraph, fileInfo: FileInfo): void => {
   const markNamespaceReference = (namespace: ts.Identifier, name: ts.Identifier): void => {
     const importedFile = fileInfo.namespaceImports.get(namespace.text)
     markUsed(getExports(graph.files, importedFile, name.text), name)
@@ -199,7 +199,7 @@ const scanUsage = (graph: WorkspaceGraph, fileInfo: FileInfo): void => {
   visit(fileInfo.sourceFile)
 }
 
-const collectWorkspace = (cwd: string): WorkspaceGraph => {
+export const collectWorkspace = (cwd: string): WorkspaceGraph => {
   const workspacePackages = findWorkspacePackages(cwd)
   const fileInfos = new Map<string, FileInfo>()
   Array.forEach(findSourceFiles(cwd), (fileName) => {
@@ -208,14 +208,4 @@ const collectWorkspace = (cwd: string): WorkspaceGraph => {
     fileInfos.set(fileInfo.fileName, fileInfo)
   })
   return { files: fileInfos, packages: workspacePackages }
-}
-
-export {
-  collectWorkspace,
-  type FileInfo,
-  getExports,
-  getReExportedInternals,
-  type InternalExport,
-  scanUsage,
-  type WorkspaceGraph,
 }
