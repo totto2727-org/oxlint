@@ -22,7 +22,7 @@ export default defineConfig({
   lint: { ignorePatterns, options: { typeAware: true, typeCheck: true } },
   test: { include: ['src/**/*.test.ts'], setupFiles: ['./src/__fixtures__/rule-tester-setup.ts'] },
   pack: {
-    entry: ['src/index.ts', 'src/preset.ts'],
+    entry: ['src/index.ts', 'src/preset.ts', 'src/application.ts', 'src/library.ts'],
     format: ['esm'],
     platform: 'neutral',
     dts: true,

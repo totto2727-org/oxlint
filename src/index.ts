@@ -1,4 +1,5 @@
 import consistentImportExtension from './rules/consistent-import-extension.ts'
+import effectTracing from './rules/effect-tracing.ts'
 import forceArrayEmpty from './rules/force-array-empty.ts'
 import forceIterableEmpty from './rules/force-iterable-empty.ts'
 import forcePredicate from './rules/force-predicate.ts'
@@ -25,7 +26,6 @@ import noTypePredicate from './rules/no-type-predicate.ts'
 import preferIsNullish from './rules/prefer-is-nullish.ts'
 import preferNonUnknownDecode from './rules/prefer-non-unknown-decode.ts'
 import preferSchemaFormatValidation from './rules/prefer-schema-format-validation.ts'
-import preferSpanOverGenName from './rules/prefer-span-over-gen-name.ts'
 import requireDisableReason from './rules/require-disable-reason.ts'
 import requireImportExtension from './rules/require-import-extension.ts'
 import requireTaggedData from './rules/require-tagged-data.ts'
@@ -45,6 +45,7 @@ const plugin = {
     'no-opaque-instance-fields': noOpaqueInstanceFields,
     'no-unused-internal': noUnusedInternal,
     'consistent-import-extension': consistentImportExtension,
+    'effect-tracing': effectTracing,
     'require-import-extension': requireImportExtension,
     'force-array-empty': forceArrayEmpty,
     'force-iterable-empty': forceIterableEmpty,
@@ -72,7 +73,6 @@ const plugin = {
     'prefer-is-nullish': preferIsNullish,
     'prefer-non-unknown-decode': preferNonUnknownDecode,
     'prefer-schema-format-validation': preferSchemaFormatValidation,
-    'prefer-span-over-gen-name': preferSpanOverGenName,
     'require-disable-reason': requireDisableReason,
     'require-tagged-data': requireTaggedData,
     'require-tagged-error': requireTaggedError,

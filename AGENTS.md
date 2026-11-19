@@ -60,7 +60,7 @@ Update incorporated sources, tests and MIT notices together.
 Keep the stable `typescript-api` dependency separate from the development compiler.
 When enabling an opt-in import policy, check that it does not conflict with other import rules.
 Keep compatibility rules opt-in.
-Assume JavaScript and TypeScript projects use Effect. Keep one standard preset instead of an Effect-specific layer.
+Assume JavaScript and TypeScript projects use Effect. Share the standard rules between the application and library presets and differ only in their tracing policy.
 Enable all native categories, general-purpose built-in plugins, React, React Perf and JSX A11y for all files.
 Enable Vitest and the custom Vitest hooks rule only for `*.test.ts` and `*.test.tsx`.
 Keep Next.js, Vue and Jest opt-in.

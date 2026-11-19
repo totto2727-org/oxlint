@@ -21,6 +21,14 @@
     "./preset": {
       "types": "./dist/preset.d.ts",
       "import": "./dist/preset.js"
+    },
+    "./preset/application": {
+      "types": "./dist/application.d.ts",
+      "import": "./dist/application.js"
+    },
+    "./preset/library": {
+      "types": "./dist/library.d.ts",
+      "import": "./dist/library.js"
     }
   },
   "publishConfig": {

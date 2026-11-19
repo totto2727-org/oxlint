@@ -1,5 +1,6 @@
 export const presetRuleNames = [
   'consistent-import-extension',
+  'effect-tracing',
   'no-eslint-disable-comments',
   'no-index-filename',
   'no-jsx-script-tag',
@@ -32,7 +33,6 @@ export const presetRuleNames = [
   'prefer-is-nullish',
   'prefer-non-unknown-decode',
   'prefer-schema-format-validation',
-  'prefer-span-over-gen-name',
   'require-tagged-data',
   'require-tagged-error',
   'require-top-level-decoder',

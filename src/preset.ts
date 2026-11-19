@@ -142,4 +142,9 @@ const preset: OxlintConfig = {
   },
 }
 
+export const withTracingPolicy = (mode: 'application' | 'library'): OxlintConfig => ({
+  ...preset,
+  rules: { ...preset.rules, 'rules/effect-tracing': ['error', mode] },
+})
+
 export default preset

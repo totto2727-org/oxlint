@@ -16,7 +16,7 @@ Tests use the same general rules as application files, plus Vitest rules for `*.
 
 ## Key features
 
-- One standard preset for JavaScript and TypeScript projects that use Effect.
+- Shared lint policies for JavaScript and TypeScript, with separate Effect tracing presets for applications and libraries.
 - Required import extensions and configurable TypeScript or JavaScript output extensions.
 - All native Oxlint rule categories, general-purpose built-in plugins, and incorporated Effect rules.
 - ESM exports with TypeScript declarations.
@@ -34,16 +34,17 @@ Install the plugin, Oxlint and its type-aware checker as development dependencie
 npm install --save-dev @totto2727/oxlint oxlint oxlint-tsgolint
 ```
 
-Enable the standard preset in `.oxlintrc.mjs`:
+Select the application preset in `.oxlintrc.mjs`:
 
 ```js
-import preset from '@totto2727/oxlint/preset'
+import preset from '@totto2727/oxlint/preset/application'
 import { defineConfig } from 'oxlint'
 
 export default defineConfig({ extends: [preset] })
 ```
 
-If you upgrade from `0.1`, replace `/typescript` or `/effect` imports with `/preset`.
+For a library, import `@totto2727/oxlint/preset/library` instead.
+If you upgrade from `0.1`, replace `/typescript` or `/effect` imports with the preset for your project.
 If you used `typescriptRuleNames` or `effectRuleNames`, use the combined `presetRuleNames` list instead.
 Remove explicit `rules/force-ts-extension` and `rules/no-js-extension-imports` entries. The standard preset uses `require-import-extension` and `consistent-import-extension` instead.
 
@@ -62,7 +63,9 @@ When native and custom rules conflict or report the same issue, the preset favor
 
 The default package export is the plugin.
 All plugin rule IDs use the `rules/` prefix.
-The `/preset` export is the standard Oxlint configuration.
+The `/preset/application` and `/preset/library` exports apply the same shared rules with different tracing policies.
+The `/preset` export applies the shared rules without assuming a project kind.
+In a workspace that contains both kinds of code, extend `/preset` and set `['error', 'application']` or `['error', 'library']` on `rules/effect-tracing` for each package scope.
 The named export `presetRuleNames` lists enabled custom rules.
 The `compatibilityRuleNames` export is empty.
 
@@ -99,11 +102,6 @@ Set the rule's `checkPatterns` option to match specific package paths if those p
 Use `import { Effect, Schema } from 'effect'` and `import { HttpClient } from 'effect/http'` instead of namespace imports or individual module subpaths.
 The documented Schema JIT side-effect entry and legacy v4 beta category paths remain allowed.
 
-`prefer-span-over-gen-name` reports named generator callbacks written inline in `Effect.gen`.
-Keep the callback anonymous. If you need a trace name, use `Effect.gen(function* () { … }).pipe(Effect.withSpan('loadUser'))`.
-The span can identify the operation in Effect failure traces. A generator name only names its JavaScript stack frame.
-Anonymous callbacks do not need a span.
-
 ### Effect errors and validation
 
 `require-tagged-error` reports direct construction and subclassing of native errors and untagged `Data.Error`.
@@ -138,6 +136,15 @@ If the schema depends on runtime input, or a factory builds and retains a decode
 // oxlint-disable-next-line rules/require-top-level-decoder -- The factory builds this decoder once from the selected schema and reuses it for every request.
 const decode = Schema.decodeUnknownEffect(selectedSchema)
 ```
+
+### Effect tracing
+
+`effect-tracing` reports named generator callbacks written inline in `Effect.gen`. Keep the callback anonymous.
+In an application, use `Effect.fn` for reusable Effect functions. Spans are optional. To name the trace of a generator, use `Effect.gen(function* () { … }).pipe(Effect.withSpan('loadUser'))`.
+In a library, use `Effect.fnUntraced` and leave `Effect.withSpan` and `Effect.withSpanScoped` to the application.
+Named `Effect.fn` records call and definition locations and creates a span. Unnamed `Effect.fn` records the locations but does not create a span.
+If an application needs an untraced function on a performance-critical path, or a library must add tracing, suppress only the call line and state the reason.
+The shared preset checks generator names without requiring either tracing policy.
 
 ### Immutable data types
 

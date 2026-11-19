@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'vite-plus/test'
 
+import applicationPreset from './application.ts'
 import plugin, { compatibilityRuleNames, presetRuleNames } from './index.ts'
+import libraryPreset from './library.ts'
 import preset from './preset.ts'
 
 const keys = (names: readonly string[]) => names.map((name) => `rules/${name}`).sort()
@@ -103,7 +105,18 @@ describe('public plugin and standard preset', () => {
 
   test('keeps the native generator naming policy and adds Effect-specific span guidance', () => {
     expect(preset.rules?.['func-names']).toEqual(['error', 'as-needed', { generators: 'never' }])
-    expect(preset.rules?.['rules/prefer-span-over-gen-name']).toBe('error')
+    expect(preset.rules?.['rules/effect-tracing']).toBe('error')
+  })
+
+  test('application and library presets extend the same settings with opposite tracing policies', () => {
+    expect(applicationPreset).toEqual({
+      ...preset,
+      rules: { ...preset.rules, 'rules/effect-tracing': ['error', 'application'] },
+    })
+    expect(libraryPreset).toEqual({
+      ...preset,
+      rules: { ...preset.rules, 'rules/effect-tracing': ['error', 'library'] },
+    })
   })
 
   test('uses dedicated rules for tag access and handwritten tag definitions', () => {
