@@ -5,20 +5,18 @@ import { hasProperty, isReportable } from '../helpers.ts'
 
 const EFFECT_ECOSYSTEM_RE = /^@?effect(?:\/|$)/u
 
-const CATEGORY_ENTRY_RE = /^effect\/(?:unstable\/)?[^A-Z/][^/]*$/u
+const PACKAGE_ENTRY_RE = /^(?<entry>effect|@effect\/[^/]+)(?:\/|$)/u
+const CATEGORY_ENTRY_RE = /^(?<entry>effect\/(?:unstable\/|(?!unstable\/))[^A-Z/][^/]*)(?:\/|$)/u
+
+const findEntry = (source: string): string | undefined =>
+  CATEGORY_ENTRY_RE.exec(source)?.groups?.['entry'] ?? PACKAGE_ENTRY_RE.exec(source)?.groups?.['entry']
 
 export const isAllowedEffectImport = (source: string): boolean => {
-  if (source === 'effect' || CATEGORY_ENTRY_RE.test(source)) {
-    return true
-  }
   // Effect documents this side-effect entry for enabling Schema JIT globally.
   if (source === 'effect/schema/SchemaJITCompiler/enable') {
     return true
   }
-  if (/^@effect\/[^/]+$/u.test(source)) {
-    return true
-  }
-  return false
+  return findEntry(source) === source
 }
 
 const rule: Rule = {
@@ -51,8 +49,7 @@ const rule: Rule = {
           return
         }
         context.report({
-          message:
-            'Import from the Effect package root or a public category entry, not an individual module (for example, use `effect/http` instead of `effect/http/HttpClient`).',
+          message: `Import from \`${findEntry(source.value) ?? 'a public Effect package entry'}\` instead of \`${source.value}\`.`,
           node,
         })
       },

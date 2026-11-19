@@ -63,19 +63,27 @@ runRuleTest('no-effect-subpath-import', rule, {
   invalid: [
     {
       code: "import { Schema } from 'effect/Schema'",
-      errors: 1,
+      errors: [{ message: 'Import from `effect` instead of `effect/Schema`.' }],
       name: 'subpath under effect root is reported',
     },
     {
       code: "import { NodeRuntime } from '@effect/platform-node/NodeRuntime'",
-      errors: 1,
+      errors: [{ message: 'Import from `@effect/platform-node` instead of `@effect/platform-node/NodeRuntime`.' }],
       name: 'subpath under @effect scope is reported',
     },
     {
       code: "import type { HttpServerResponse } from 'effect/http/HttpServerResponse'",
-      errors: 1,
+      errors: [{ message: 'Import from `effect/http` instead of `effect/http/HttpServerResponse`.' }],
       filename: 'http-types.ts',
       name: 'individual modules under a public category are reported',
+    },
+    {
+      code: "import { SqlClient } from 'effect/unstable/sql/SqlClient'",
+      errors: [{ message: 'Import from `effect/unstable/sql` instead of `effect/unstable/sql/SqlClient`.' }],
+    },
+    {
+      code: "import { HttpClient } from 'effect/unstable/HttpClient'",
+      errors: [{ message: 'Import from `effect` instead of `effect/unstable/HttpClient`.' }],
     },
   ],
   valid: [
