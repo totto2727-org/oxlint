@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { hasProperty, isReportable } from '../helpers.ts'
+import { hasProperty, isReportable } from '#src/helpers.ts'
 
 const RUNTIME_METHODS: ReadonlySet<string> = new Set([
   'runCallback',
@@ -12,7 +12,7 @@ const RUNTIME_METHODS: ReadonlySet<string> = new Set([
   'runSync',
 ])
 
-export const getRuntimeMethod = (node: unknown): string | null => {
+const getRuntimeMethod = (node: unknown): string | undefined => {
   if (
     Predicate.isObject(node) &&
     node['type'] === 'MemberExpression' &&
@@ -24,7 +24,7 @@ export const getRuntimeMethod = (node: unknown): string | null => {
   ) {
     return node['property']['name']
   }
-  return null
+  return undefined
 }
 
 const isRuntimeCallee = (node: unknown): boolean => Predicate.isNotNullish(getRuntimeMethod(node))
@@ -52,4 +52,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { getRuntimeMethod, rule as noEffectRuntimeRun }

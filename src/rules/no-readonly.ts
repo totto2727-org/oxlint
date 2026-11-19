@@ -4,14 +4,14 @@ const rule: Rule = {
   create(context): Visitor {
     const report = (node: ESTree.Node): void => {
       context.report({
-        node,
         message:
           'Do not write the TypeScript `readonly` modifier. Derive immutable data types from Effect Schema. If an external contract requires the modifier, disable this rule on that line and explain why.',
+        node,
       })
     }
 
     const checkModifier = (node: ESTree.Node): void => {
-      if ('readonly' in node && node.readonly) {
+      if ('readonly' in node && (node.readonly === true || node.readonly === '+' || node.readonly === '-')) {
         report(node)
       }
     }
@@ -33,4 +33,4 @@ const rule: Rule = {
   meta: { type: 'problem' },
 }
 
-export default rule
+export { rule as noReadonly }

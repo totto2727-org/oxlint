@@ -1,11 +1,11 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { getLiteralNumber, isReportable } from '../helpers.ts'
-import { classifyLengthComparison } from './force-array-empty.ts'
-import type { LiteralPosition } from './force-array-empty.ts'
+import { isReportable } from '#src/helpers.ts'
 
-export const isIterableSizeCall = (node: unknown): boolean =>
+import { classifySizeComparison } from './force-array-empty.ts'
+
+const isIterableSizeCall = (node: unknown): boolean =>
   Predicate.isObject(node) &&
   node['type'] === 'CallExpression' &&
   Predicate.isObject(node['callee']) &&
@@ -25,24 +25,7 @@ const rule: Rule = {
         if (!isReportable(node)) {
           return
         }
-        if (!Predicate.isObject(node)) {
-          return
-        }
-        if (!Predicate.isString(node['operator'])) {
-          return
-        }
-        const leftIsSize = isIterableSizeCall(node['left'])
-        const rightIsSize = isIterableSizeCall(node['right'])
-        if (!leftIsSize && !rightIsSize) {
-          return
-        }
-        const literalPosition: LiteralPosition = leftIsSize ? 'right' : 'left'
-        const literalSide = literalPosition === 'right' ? node['right'] : node['left']
-        const literal = getLiteralNumber(literalSide)
-        if (Predicate.isNullish(literal)) {
-          return
-        }
-        const kind = classifyLengthComparison(node['operator'], literalPosition, literal)
+        const kind = classifySizeComparison(node, isIterableSizeCall)
         if (Predicate.isNullish(kind)) {
           return
         }
@@ -62,4 +45,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { isIterableSizeCall, rule as forceIterableEmpty }

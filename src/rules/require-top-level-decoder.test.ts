@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isHoistableDecoderCall } from './require-top-level-decoder.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-const makeCall = (namespace: string, method: string) => ({
+import { isHoistableDecoderCall, requireTopLevelDecoder as rule } from './require-top-level-decoder.ts'
+
+const makeCall = (namespace: string, method: string): object => ({
   callee: {
     computed: false,
     object: { name: namespace, type: 'Identifier' },
@@ -13,27 +14,27 @@ const makeCall = (namespace: string, method: string) => ({
   type: 'CallExpression',
 })
 
-describe('isHoistableDecoderCall', () => {
-  describe('Schema.decode* variants', () => {
+describe('hoistable decoder detection', () => {
+  describe('schema decoder variants', () => {
     test.each(['decode', 'decodeEffect', 'decodeSync', 'decodeUnknownEffect', 'decodeUnknownSync'])(
-      'Schema.%s returns true',
+      'recognizes Schema.%s',
       (method) => {
         expect(isHoistableDecoderCall(makeCall('Schema', method))).toBe(true)
       },
     )
   })
 
-  describe('HttpClientResponse.schema* variants', () => {
-    test.each(['schemaJson', 'schemaBodyJson', 'schema'])('HttpClientResponse.%s returns true', (method) => {
+  describe('http client response decoder variants', () => {
+    test.each(['schemaJson', 'schemaBodyJson', 'schema'])('recognizes HttpClientResponse.%s', (method) => {
       expect(isHoistableDecoderCall(makeCall('HttpClientResponse', method))).toBe(true)
     })
   })
 
-  test('Schema.parse returns false (not a decode* method)', () => {
+  test('ignores Schema.parse', () => {
     expect(isHoistableDecoderCall(makeCall('Schema', 'parse'))).toBe(false)
   })
 
-  test('Other.decode returns false (not a known namespace)', () => {
+  test('ignores other namespaces', () => {
     expect(isHoistableDecoderCall(makeCall('Other', 'decode'))).toBe(false)
   })
 
@@ -42,6 +43,7 @@ describe('isHoistableDecoderCall', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('require-top-level-decoder', rule, {
   invalid: [
     {

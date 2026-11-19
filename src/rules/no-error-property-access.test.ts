@@ -1,5 +1,6 @@
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule from './no-error-property-access.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { noErrorPropertyAccess as rule } from './no-error-property-access.ts'
 
 runRuleTest('no-error-property-access', rule, {
   invalid: [

@@ -1,7 +1,7 @@
 import type { ESTree, Rule, SourceCode } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { findBinding, isEffectMethod } from '../effect-method.ts'
+import { findBinding, isEffectMethod } from '#src/effect-method.ts'
 
 const nativeErrors = new Set([
   'AggregateError',
@@ -38,10 +38,10 @@ const isNativeError = (source: SourceCode, expression: ESTree.Expression): boole
 
 const rule: Rule = {
   create(context) {
-    const check = (expression: ESTree.Expression) => {
+    const check = (expression: ESTree.Expression): void => {
       if (
         isNativeError(context.sourceCode, expression) ||
-        isEffectMethod(context.sourceCode, expression, 'Data', 'Error')
+        isEffectMethod(context.sourceCode, expression, { module: 'Data', name: 'Error' })
       ) {
         context.report({
           message:
@@ -50,19 +50,23 @@ const rule: Rule = {
         })
       }
     }
-    const checkClass = (node: ESTree.Class) => {
-      if (Predicate.isNotNullish(node.superClass) && !node.declare) {
+    const checkClass = (node: ESTree.Class): void => {
+      if (Predicate.isNotNullish(node.superClass) && node.declare !== true) {
         check(node.superClass)
       }
     }
     return {
-      CallExpression: (node) => check(node.callee),
-      NewExpression: (node) => check(node.callee),
+      CallExpression(node) {
+        check(node.callee)
+      },
       ClassDeclaration: checkClass,
       ClassExpression: checkClass,
+      NewExpression(node) {
+        check(node.callee)
+      },
     }
   },
   meta: { type: 'problem' },
 }
 
-export default rule
+export { rule as requireTaggedError }

@@ -1,37 +1,42 @@
 import type { ESTree, Scope, SourceCode, Variable } from '@oxlint/plugins'
-import { Array, Predicate } from 'effect'
+import { Predicate } from 'effect'
 
-export const fieldName = (node: ESTree.Node): unknown =>
-  node.type === 'Identifier' ? node.name : node.type === 'Literal' ? node.value : null
+const fieldName = (node: ESTree.Node): unknown => {
+  if (node.type === 'Identifier') {
+    return node.name
+  }
+  return node.type === 'Literal' ? node.value : undefined
+}
 
-export const findBinding = (scope: Scope | null, name: string): Variable | undefined =>
-  Predicate.isNull(scope) ? undefined : (scope.set.get(name) ?? findBinding(scope.upper, name))
+const findBinding = (scope: Scope | null, name: string): Variable | undefined =>
+  Predicate.isNullish(scope) ? undefined : (scope.set.get(name) ?? findBinding(scope.upper, name))
 
-export const isEffectMethod = (
+const isEffectMethod = (
   source: SourceCode,
   callee: ESTree.Expression,
-  module: string,
-  method: string,
+  { module, name }: { module: string; name: string },
 ): boolean => {
   const receiver = callee.type === 'MemberExpression' ? callee.object : callee
   if (receiver.type !== 'Identifier') {
     return false
   }
   const variable = findBinding(source.getScope(receiver), receiver.name)
-  return Array.some(variable?.defs ?? [], ({ node, parent }) => {
+  return (variable?.defs ?? []).some(({ node, parent }) => {
     if (parent?.type !== 'ImportDeclaration' || parent.importKind === 'type') {
       return false
     }
     const path = parent.source.value
     if (callee.type === 'Identifier') {
-      return path === `effect/${module}` && node.type === 'ImportSpecifier' && fieldName(node.imported) === method
+      return path === `effect/${module}` && node.type === 'ImportSpecifier' && fieldName(node.imported) === name
     }
     return (
       callee.type === 'MemberExpression' &&
       (!callee.computed || callee.property.type === 'Literal') &&
-      fieldName(callee.property) === method &&
+      fieldName(callee.property) === name &&
       ((path === `effect/${module}` && node.type === 'ImportNamespaceSpecifier') ||
         (path === 'effect' && node.type === 'ImportSpecifier' && fieldName(node.imported) === module))
     )
   })
 }
+
+export { fieldName, findBinding, isEffectMethod }

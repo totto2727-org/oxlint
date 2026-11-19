@@ -1,5 +1,6 @@
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule from './no-optional-error-cause.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { noOptionalErrorCause as rule } from './no-optional-error-cause.ts'
 
 runRuleTest('no-optional-error-cause', rule, {
   invalid: [
@@ -39,7 +40,7 @@ runRuleTest('no-optional-error-cause', rule, {
       code: `import { Data } from 'effect'; class Failure extends Data.TaggedError('Failure')<{ message: string }> { declare readonly cause?: unknown }`,
       errors: 1,
     },
-  ].map((testCase) => ({ ...testCase, filename: 'test.ts' })),
+  ].map(({ code, errors }) => ({ code, errors, filename: 'test.ts' })),
   valid: [
     `import { Data } from 'effect'; class Failure extends Data.TaggedError('Failure')<{ cause: unknown }> {}`,
     `import { Data } from 'effect'; class Failure extends Data.TaggedError('Failure')<{ details?: string }> {}`,

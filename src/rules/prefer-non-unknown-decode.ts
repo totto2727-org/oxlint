@@ -1,20 +1,20 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable, isSchemaMethodCall } from '../helpers.ts'
+import { isReportable, isSchemaMethodCall } from '#src/helpers.ts'
 
 const UNKNOWN_DECODE_METHODS: Record<string, string> = {
   decodeUnknownEffect: 'decodeEffect',
   decodeUnknownExit: 'decodeExit',
 }
 
-export const isSchemaUnknownDecodeCall = (node: unknown): string | null => {
+const isSchemaUnknownDecodeCall = (node: unknown): string | undefined => {
   for (const method of Object.keys(UNKNOWN_DECODE_METHODS)) {
     if (isSchemaMethodCall(node, method)) {
       return method
     }
   }
-  return null
+  return undefined
 }
 
 const rule: Rule = {
@@ -40,4 +40,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { isSchemaUnknownDecodeCall, rule as preferNonUnknownDecode }

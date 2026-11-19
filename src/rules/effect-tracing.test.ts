@@ -1,5 +1,6 @@
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule from './effect-tracing.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { effectTracing as rule } from './effect-tracing.ts'
 
 runRuleTest('effect-tracing', rule, {
   invalid: [
@@ -25,13 +26,13 @@ runRuleTest('effect-tracing', rule, {
   ],
 })
 
-const codeUsingEffect = (expression: string) => `import { Effect } from 'effect'; ${expression}`
+const codeUsingEffect = (expression: string): string => `import { Effect } from 'effect'; ${expression}`
 
 runRuleTest('effect-tracing (application)', rule, {
   invalid: [`Effect.fnUntraced(function* () {})`, `Effect.fnUntracedEager(function* () {})`].map((expression) => ({
     code: codeUsingEffect(expression),
-    options: ['application'],
     errors: [{ message: /Use `Effect\.fn`.*explain why/u }],
+    options: ['application'],
   })),
   valid: [
     `Effect.fn('loadUser')(function* () {})`,
@@ -52,8 +53,8 @@ runRuleTest('effect-tracing (library)', rule, {
     { expression: `Effect.gen(function* loadUser() {})`, message: /anonymous\. Leave span creation/u },
   ].map(({ expression, message }) => ({
     code: codeUsingEffect(expression),
-    options: ['library'],
     errors: [{ message }],
+    options: ['library'],
   })),
   valid: [
     `Effect.fnUntraced(function* () {})`,

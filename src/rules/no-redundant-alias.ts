@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { hasProperty, isReportable } from '../helpers.ts'
+import { hasProperty, isReportable } from '#src/helpers.ts'
 
 const REDUNDANT_TYPE_ALIAS_MESSAGE =
   'Avoid type aliases that merely rename another type (e.g. `type SentEmail = SendParams`). Inline the original, or keep the alias only inside an anti-corruption layer with a documented disable reason.'
@@ -17,7 +17,7 @@ const hasGenericTypeParameters = (node: unknown): boolean =>
 const isPlainTypeReference = (node: unknown): boolean =>
   Predicate.isObject(node) && node['type'] === 'TSTypeReference' && !hasTypeArguments(node)
 
-export const isRedundantTypeAlias = (node: unknown): boolean => {
+const isRedundantTypeAlias = (node: unknown): boolean => {
   if (!Predicate.isObject(node) || node['type'] !== 'TSTypeAliasDeclaration') {
     return false
   }
@@ -27,7 +27,7 @@ export const isRedundantTypeAlias = (node: unknown): boolean => {
   return hasProperty(node, 'typeAnnotation') && isPlainTypeReference(node['typeAnnotation'])
 }
 
-export const isIdentifierInitDeclarator = (declarator: unknown): boolean =>
+const isIdentifierInitDeclarator = (declarator: unknown): boolean =>
   Predicate.isObject(declarator) &&
   hasProperty(declarator, 'id') &&
   Predicate.isObject(declarator.id) &&
@@ -52,7 +52,7 @@ const rule: Rule = {
         ) {
           return
         }
-        const declarationItems: readonly unknown[] = declaration.declarations
+        const declarationItems: unknown[] = declaration.declarations
         for (const declarator of declarationItems) {
           if (isReportable(declarator) && isIdentifierInitDeclarator(declarator)) {
             context.report({
@@ -80,4 +80,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { isIdentifierInitDeclarator, isRedundantTypeAlias, rule as noRedundantAlias }

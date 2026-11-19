@@ -1,6 +1,7 @@
 import type { Rule } from '@oxlint/plugins'
+import { Predicate, String } from 'effect'
 
-import { createImportExtensionListeners, matchImportPath } from '../import-extensions.ts'
+import { createImportExtensionListeners, matchImportPath } from '#src/import-extensions.ts'
 
 const rule: Rule = {
   create: (context) =>
@@ -9,7 +10,7 @@ const rule: Rule = {
       (value) => {
         const match = matchImportPath(value)
         // Resolution is intentionally not guessed: missing paths may be .tsx or directory indexes.
-        return match !== null && (match.extension === '' || match.directory) ? value : null
+        return Predicate.isNotNullish(match) && (String.isEmpty(match.extension) || match.directory) ? value : undefined
       },
       'Use an explicit extension in relative and subpath imports',
     ),
@@ -19,4 +20,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { rule as requireImportExtension }

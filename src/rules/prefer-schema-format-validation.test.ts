@@ -1,5 +1,6 @@
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule from './prefer-schema-format-validation.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { preferSchemaFormatValidation as rule } from './prefer-schema-format-validation.ts'
 
 runRuleTest('prefer-schema-format-validation', rule, {
   invalid: [

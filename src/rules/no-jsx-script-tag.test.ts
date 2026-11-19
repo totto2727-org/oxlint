@@ -1,15 +1,15 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isScriptJsxElement } from './no-jsx-script-tag.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isScriptJsxElement', () => {
+import { isScriptJsxElement, noJsxScriptTag as rule } from './no-jsx-script-tag.ts'
+
+describe('jsx script tag detection', () => {
   describe('matches', () => {
     test('script JSXOpeningElement', () => {
       expect(
         isScriptJsxElement({
           name: { name: 'script', type: 'JSXIdentifier' },
-          range: [0, 8],
           type: 'JSXOpeningElement',
         }),
       ).toBe(true)
@@ -21,7 +21,6 @@ describe('isScriptJsxElement', () => {
       expect(
         isScriptJsxElement({
           name: { name: 'div', type: 'JSXIdentifier' },
-          range: [0, 5],
           type: 'JSXOpeningElement',
         }),
       ).toBe(false)
@@ -31,7 +30,6 @@ describe('isScriptJsxElement', () => {
       expect(
         isScriptJsxElement({
           name: { name: 'Script', type: 'JSXIdentifier' },
-          range: [0, 8],
           type: 'JSXOpeningElement',
         }),
       ).toBe(false)
@@ -41,7 +39,6 @@ describe('isScriptJsxElement', () => {
       expect(
         isScriptJsxElement({
           name: 'script',
-          range: [0, 8],
           type: 'Identifier',
         }),
       ).toBe(false)
@@ -50,7 +47,6 @@ describe('isScriptJsxElement', () => {
     test('missing name property', () => {
       expect(
         isScriptJsxElement({
-          range: [0, 8],
           type: 'JSXOpeningElement',
         }),
       ).toBe(false)
@@ -58,6 +54,7 @@ describe('isScriptJsxElement', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('no-jsx-script-tag', rule, {
   invalid: [
     {

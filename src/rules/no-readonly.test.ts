@@ -1,5 +1,6 @@
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule from './no-readonly.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { noReadonly as rule } from './no-readonly.ts'
 
 runRuleTest('no-readonly', rule, {
   invalid: [
@@ -14,7 +15,7 @@ runRuleTest('no-readonly', rule, {
     'class Person { private readonly name = "" }',
     'abstract class Person { abstract readonly name: string }',
     'class Person { constructor(public readonly name: string) {} }',
-  ].map((code) => ({ code, filename: 'test.ts', errors: 1, output: null })),
+  ].map((code) => ({ code, errors: 1, filename: 'test.ts' })),
   valid: [
     'const Person = Schema.Struct({ name: Schema.String }); type Person = typeof Person.Type',
     'const Names = Schema.Array(Schema.String); type Names = typeof Names.Type',

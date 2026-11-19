@@ -1,9 +1,9 @@
 import type { Context, Rule } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import { Predicate, String } from 'effect'
 
 import { isReportable } from './helpers.ts'
 
-export interface ImportPath {
+interface ImportPath {
   start: string
   path: string
   suffix: string
@@ -11,31 +11,32 @@ export interface ImportPath {
   directory: boolean
 }
 
-/** Bare specifiers and absolute paths are outside this rule family's scope. */
-export const matchImportPath = (value: string): ImportPath | null => {
-  const prefix = /^(\.+|#(?!#)[^/?#]*)(?=\/)/u.exec(value)
-  const start = prefix?.[1]
-  if (start === undefined) {
-    return null
+const splitSuffix = (path: string): { pathname: string; suffix: string } => {
+  const index = path.search(/[?#]/u)
+  return index === -1 ? { pathname: path, suffix: '' } : { pathname: path.slice(0, index), suffix: path.slice(index) }
+}
+
+const matchImportPath = (value: string): ImportPath | undefined => {
+  // Bare specifiers and absolute paths are outside the import rules' scope.
+  const start = /^(?<prefix>\.+|#(?!#)[^/?#]*)(?=\/)/u.exec(value)?.groups?.['prefix']
+  if (Predicate.isNullish(start)) {
+    return undefined
   }
-  const remainder = value.slice(start.length)
-  const suffixIndex = remainder.search(/[?#]/u)
-  const pathname = suffixIndex === -1 ? remainder : remainder.slice(0, suffixIndex)
-  const suffix = suffixIndex === -1 ? '' : remainder.slice(suffixIndex)
+  const { pathname, suffix } = splitSuffix(value.slice(start.length))
   const basename = pathname.slice(pathname.lastIndexOf('/') + 1)
   const dot = basename.lastIndexOf('.')
   return {
-    start,
-    path: pathname,
-    suffix,
+    directory: String.isEmpty(basename) || basename === '.' || basename === '..',
     extension: dot > 0 ? basename.slice(dot) : '',
-    directory: basename === '' || basename === '.' || basename === '..',
+    path: pathname,
+    start,
+    suffix,
   }
 }
 
-export type ImportExtensionMode = 'js' | 'ts'
+type ImportExtensionMode = 'js' | 'ts'
 
-export const importExtensionSchema = [
+const importExtensionSchema = [
   {
     additionalProperties: false,
     properties: { mode: { enum: ['js', 'ts'], type: 'string' } },
@@ -43,33 +44,28 @@ export const importExtensionSchema = [
   },
 ]
 
-export const getImportExtensionMode = (option: unknown): ImportExtensionMode =>
-  typeof option === 'object' && option !== null && 'mode' in option && option.mode === 'js' ? 'js' : 'ts'
+const getImportExtensionMode = (option: unknown): ImportExtensionMode =>
+  Predicate.isObject(option) && option['mode'] === 'js' ? 'js' : 'ts'
 
 const extensionTargets: Readonly<Record<string, Readonly<Record<ImportExtensionMode, string>>>> = {
-  '.js': { js: '.js', ts: '.ts' },
-  '.jsx': { js: '.js', ts: '.tsx' },
-  '.ts': { js: '.js', ts: '.ts' },
-  '.tsx': { js: '.js', ts: '.tsx' },
-  '.mjs': { js: '.mjs', ts: '.mts' },
-  '.mts': { js: '.mjs', ts: '.mts' },
   '.cjs': { js: '.cjs', ts: '.cts' },
   '.cts': { js: '.cjs', ts: '.cts' },
+  '.js': { js: '.js', ts: '.ts' },
+  '.jsx': { js: '.js', ts: '.tsx' },
+  '.mjs': { js: '.mjs', ts: '.mts' },
+  '.mts': { js: '.mjs', ts: '.mts' },
+  '.ts': { js: '.js', ts: '.ts' },
+  '.tsx': { js: '.js', ts: '.tsx' },
 }
 
-/** Preserve explicit ESM/CommonJS families while normalizing code extensions. */
-export const normalizeImportExtension = (value: string, mode: ImportExtensionMode): string | null => {
+const normalizeImportExtension = (value: string, mode: ImportExtensionMode): string | undefined => {
   const match = matchImportPath(value)
-  if (match === null) {
-    return null
+  if (Predicate.isNullish(match)) {
+    return undefined
   }
-  const targets = extensionTargets[match.extension]
-  if (targets === undefined) {
-    return null
-  }
-  const extension = targets[mode]
-  if (extension === match.extension) {
-    return null
+  const extension = extensionTargets[match.extension]?.[mode]
+  if (Predicate.isNullish(extension) || extension === match.extension) {
+    return undefined
   }
   return `${match.start}${match.path.slice(0, -match.extension.length)}${extension}${match.suffix}`
 }
@@ -77,32 +73,34 @@ export const normalizeImportExtension = (value: string, mode: ImportExtensionMod
 const quoteLiteral = (value: string, quote: string): string => {
   const encoded = JSON.stringify(value)
   if (quote === "'") {
-    return `'${encoded.slice(1, -1).replace(/\\"/gu, '"').replace(/'/gu, "\\'")}'`
+    return `'${encoded
+      .slice(1, -1)
+      .replaceAll(globalThis.String.raw`\"`, '"')
+      .replaceAll("'", globalThis.String.raw`\'`)}'`
   }
   return encoded
 }
 
-/** Shared import boundary: null ignores, unchanged text reports without an unsafe fix. */
-export const createImportExtensionListeners = (
+const createImportExtensionListeners = (
   context: Context,
-  replacement: (value: string) => string | null,
+  replacement: (value: string) => string | undefined,
   message: string,
 ): ReturnType<NonNullable<Rule['create']>> => {
   const check = (node: unknown): void => {
     if (!Predicate.isObject(node) || !Predicate.isObject(node['source'])) {
       return
     }
-    const source = node['source']
+    const { source } = node
     if (
       source['type'] !== 'Literal' ||
-      typeof source['value'] !== 'string' ||
-      typeof source['raw'] !== 'string' ||
+      !Predicate.isString(source['value']) ||
+      !Predicate.isString(source['raw']) ||
       !isReportable(source)
     ) {
       return
     }
     const fixed = replacement(source['value'])
-    if (fixed === null) {
+    if (Predicate.isNullish(fixed)) {
       return
     }
     const quote = source['raw'][0] ?? '"'
@@ -118,4 +116,12 @@ export const createImportExtensionListeners = (
     ImportDeclaration: check,
     ImportExpression: check,
   }
+}
+
+export {
+  createImportExtensionListeners,
+  getImportExtensionMode,
+  importExtensionSchema,
+  matchImportPath,
+  normalizeImportExtension,
 }

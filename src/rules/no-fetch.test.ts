@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isFetchIdentifier, isFetchOnGlobal } from './no-fetch.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isFetchIdentifier', () => {
+import { isFetchIdentifier, isFetchOnGlobal, noFetch as rule } from './no-fetch.ts'
+
+describe('recognition of fetch identifiers', () => {
   test('fetch identifier returns true', () => {
     expect(isFetchIdentifier({ name: 'fetch', type: 'Identifier' })).toBe(true)
   })
@@ -17,7 +18,7 @@ describe('isFetchIdentifier', () => {
   })
 })
 
-describe('isFetchOnGlobal', () => {
+describe('recognition of fetch on global objects', () => {
   test.each(['globalThis', 'window', 'self'])('%s.fetch returns true', (global) => {
     expect(
       isFetchOnGlobal({
@@ -63,6 +64,7 @@ describe('isFetchOnGlobal', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers cases synchronously during test collection.
 runRuleTest('no-fetch', rule, {
   invalid: [
     { code: "fetch('https://example.com')", errors: 1, name: 'bare fetch call is reported' },

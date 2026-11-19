@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isSchemaUnknownDecodeCall } from './prefer-non-unknown-decode.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-const makeSchemaCall = (method: string) => ({
+import { isSchemaUnknownDecodeCall, preferNonUnknownDecode as rule } from './prefer-non-unknown-decode.ts'
+
+const makeSchemaCall = (method: string): object => ({
   callee: {
     computed: false,
     object: { name: 'Schema', type: 'Identifier' },
@@ -13,20 +14,20 @@ const makeSchemaCall = (method: string) => ({
   type: 'CallExpression',
 })
 
-describe('isSchemaUnknownDecodeCall', () => {
+describe('unknown schema decoder detection', () => {
   test.each(['decodeUnknownEffect', 'decodeUnknownExit'])('%s returns method name', (method) => {
     expect(isSchemaUnknownDecodeCall(makeSchemaCall(method))).toBe(method)
   })
 
-  test('decodeEffect returns null (non-unknown variant)', () => {
-    expect(isSchemaUnknownDecodeCall(makeSchemaCall('decodeEffect'))).toBeNull()
+  test('allows decodeEffect', () => {
+    expect(isSchemaUnknownDecodeCall(makeSchemaCall('decodeEffect'))).toBeUndefined()
   })
 
-  test('decodeExit returns null (non-unknown variant)', () => {
-    expect(isSchemaUnknownDecodeCall(makeSchemaCall('decodeExit'))).toBeNull()
+  test('allows decodeExit', () => {
+    expect(isSchemaUnknownDecodeCall(makeSchemaCall('decodeExit'))).toBeUndefined()
   })
 
-  test('non-Schema object returns null', () => {
+  test('allows other namespaces', () => {
     expect(
       isSchemaUnknownDecodeCall({
         callee: {
@@ -37,10 +38,11 @@ describe('isSchemaUnknownDecodeCall', () => {
         },
         type: 'CallExpression',
       }),
-    ).toBeNull()
+    ).toBeUndefined()
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('prefer-non-unknown-decode', rule, {
   invalid: [
     {

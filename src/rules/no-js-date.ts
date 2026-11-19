@@ -1,14 +1,14 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable } from '../helpers.ts'
+import { isReportable } from '#src/helpers.ts'
 
 const FORBIDDEN_DATE_STATIC_METHODS: ReadonlySet<string> = new Set(['now', 'parse', 'UTC'])
 
-export const isDateIdentifier = (node: unknown): boolean =>
+const isDateIdentifier = (node: unknown): boolean =>
   Predicate.isObject(node) && node['type'] === 'Identifier' && node['name'] === 'Date'
 
-export const getForbiddenDateStaticMethod = (node: unknown): string | null => {
+const getForbiddenDateStaticMethod = (node: unknown): string | undefined => {
   if (
     Predicate.isObject(node) &&
     node['type'] === 'MemberExpression' &&
@@ -21,7 +21,7 @@ export const getForbiddenDateStaticMethod = (node: unknown): string | null => {
   ) {
     return node['property']['name']
   }
-  return null
+  return undefined
 }
 
 const rule: Rule = {
@@ -58,4 +58,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { getForbiddenDateStaticMethod, isDateIdentifier, rule as noJsDate }

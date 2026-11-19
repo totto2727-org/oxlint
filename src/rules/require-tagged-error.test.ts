@@ -1,5 +1,6 @@
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule from './require-tagged-error.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { requireTaggedError as rule } from './require-tagged-error.ts'
 
 runRuleTest('require-tagged-error', rule, {
   invalid: [

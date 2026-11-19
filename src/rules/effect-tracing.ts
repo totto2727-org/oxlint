@@ -1,6 +1,6 @@
 import type { ESTree, Rule } from '@oxlint/plugins'
 
-import { isEffectMethod } from '../effect-method.ts'
+import { isEffectMethod } from '#src/effect-method.ts'
 
 const application = {
   fnUntraced:
@@ -20,12 +20,13 @@ const library = {
 const rule: Rule = {
   create(context) {
     const { sourceCode } = context
-    const mode = context.options[0]
-    const policies = Object.entries(mode === 'application' ? application : mode === 'library' ? library : {})
+    const [mode] = context.options
+    const policies = mode === 'application' ? Object.entries(application) : []
+    const activePolicies = mode === 'library' ? Object.entries(library) : policies
     return {
       CallExpression(node: ESTree.CallExpression) {
-        for (const [method, message] of policies) {
-          if (isEffectMethod(sourceCode, node.callee, 'Effect', method)) {
+        for (const [method, message] of activePolicies) {
+          if (isEffectMethod(sourceCode, node.callee, { module: 'Effect', name: method })) {
             context.report({ message, node: node.callee })
             return
           }
@@ -34,7 +35,7 @@ const rule: Rule = {
         if (callback?.type !== 'FunctionExpression' || !callback.generator || !callback.id) {
           return
         }
-        if (isEffectMethod(sourceCode, node.callee, 'Effect', 'gen')) {
+        if (isEffectMethod(sourceCode, node.callee, { module: 'Effect', name: 'gen' })) {
           context.report({
             message:
               mode === 'library'
@@ -46,7 +47,7 @@ const rule: Rule = {
       },
     }
   },
-  meta: { schema: [{ type: 'string', enum: ['application', 'library'] }], type: 'suggestion' },
+  meta: { schema: [{ enum: ['application', 'library'], type: 'string' }], type: 'suggestion' },
 }
 
-export default rule
+export { rule as effectTracing }

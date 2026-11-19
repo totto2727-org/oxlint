@@ -1,3 +1,4 @@
+import { Array, Predicate } from 'effect'
 import { describe, expect, test } from 'vite-plus/test'
 
 import applicationPreset from './application.ts'
@@ -5,53 +6,36 @@ import libraryPreset from './library.ts'
 import plugin, { compatibilityRuleNames, presetRuleNames } from './plugin.ts'
 import preset from './preset.ts'
 
-const keys = (names: readonly string[]) => names.map((name) => `rules/${name}`).sort()
-
 const vitest = preset.overrides?.[0]
 const vitestRules = vitest?.rules
+const productionRules = preset.rules ?? {}
 
-const customKeys = () =>
-  Object.entries({ ...preset.rules, ...vitestRules })
+const getStandaloneExpect = (): { functions: unknown; severity: unknown } => {
+  const setting = vitestRules?.['vitest/no-standalone-expect']
+  if (!Array.isArray(setting)) {
+    return { functions: undefined, severity: setting }
+  }
+  const [severity, options] = setting
+  return { functions: Predicate.isObject(options) ? options['additionalTestBlockFunctions'] : undefined, severity }
+}
+
+const customKeys = (): string[] =>
+  Object.entries({ ...productionRules, ...vitestRules })
     .filter(([name, setting]) => name.startsWith('rules/') && setting !== 'off')
     .map(([name]) => name)
-    .sort()
+    .toSorted()
 
 describe('public plugin and standard preset', () => {
-  test('all plugin rules are enabled by default', () => {
-    const names = [...presetRuleNames]
+  test('enables all registered plugin rules by default', () => {
+    const names = Array.fromIterable(presetRuleNames)
     expect(new Set(names).size).toBe(names.length)
-    expect(Object.keys(plugin.rules).sort()).toEqual(names.sort())
-    expect(customKeys()).toEqual(keys(presetRuleNames))
-    expect(compatibilityRuleNames).toEqual([])
+    expect(Object.keys(plugin.rules).toSorted()).toStrictEqual(names.toSorted())
+    expect(customKeys()).toStrictEqual(names.map((name) => `rules/${name}`).toSorted())
+    expect(compatibilityRuleNames).toStrictEqual([])
   })
 
-  test('checks relative barrel imports without banning namespace imports in general', () => {
-    expect(preset.rules?.['rules/no-import-from-barrel-package']).toBe('error')
-    expect(preset.rules?.['import/no-namespace']).toBe('off')
-  })
-
-  test('requires unaliased named imports from Effect roots and public category entries', () => {
-    expect(preset.rules?.['rules/no-effect-import-as']).toBe('error')
-    expect(preset.rules?.['rules/no-effect-subpath-import']).toBe('error')
-  })
-
-  test('uses Schema for immutable types instead of recommending readonly modifiers', () => {
-    expect(preset.rules?.['rules/no-readonly']).toBe('error')
-    expect(preset.rules?.['typescript/prefer-readonly']).toBe('off')
-    expect(preset.rules?.['typescript/prefer-readonly-parameter-types']).toBe('off')
-  })
-
-  test('resolves the built public plugin and scopes Vitest to TypeScript test filenames', () => {
-    expect(preset.jsPlugins?.[0]).toMatch(/plugin\.js$/)
-    expect(preset.overrides).toHaveLength(1)
-    expect(vitest?.files).toEqual(['**/*.test.ts', '**/*.test.tsx'])
-    expect(vitest?.plugins).toEqual(['vitest'])
-    expect(Object.keys(preset.rules ?? {}).some((name) => name.startsWith('vitest/'))).toBe(false)
-    expect(preset.rules?.['rules/require-vitest-hooks']).toBeUndefined()
-  })
-
-  test('enables all native categories and the standard plugins without other stacks', () => {
-    expect(preset.categories).toEqual({
+  test('enables all native categories and standard plugins', () => {
+    expect(preset.categories).toStrictEqual({
       correctness: 'error',
       nursery: 'error',
       pedantic: 'error',
@@ -60,7 +44,7 @@ describe('public plugin and standard preset', () => {
       style: 'error',
       suspicious: 'error',
     })
-    expect(preset.plugins).toEqual([
+    expect(preset.plugins).toStrictEqual([
       'eslint',
       'import',
       'jsdoc',
@@ -76,105 +60,120 @@ describe('public plugin and standard preset', () => {
     expect(preset.options?.typeAware).toBe(true)
   })
 
-  test('gives custom policies priority over competing native rules', () => {
-    expect(preset.rules?.['sort-imports']).toEqual(['error', { ignoreCase: true, ignoreDeclarationSort: true }])
-    for (const rule of [
-      'eslint/prefer-const',
-      'import/extensions',
-      'import/no-nodejs-modules',
-      'unicorn/explicit-length-check',
-      'unicorn/no-typeof-undefined',
-      'unicorn/prefer-bigint-literals',
-      'unicorn/prefer-date-now',
-    ]) {
-      expect(preset.rules?.[rule]).toBe('off')
-    }
+  test('resolves the distributed plugin and scopes Vitest to test filenames', () => {
+    expect(preset.jsPlugins?.[0]).toMatch(/plugin\.js$/u)
+    expect(preset.overrides).toHaveLength(1)
+    expect(vitest?.files).toStrictEqual(['**/*.test.ts', '**/*.test.tsx'])
+    expect(vitest?.plugins).toStrictEqual(['vitest'])
+    expect(Object.keys(productionRules).some((name) => name.startsWith('vitest/'))).toBe(false)
+  })
+})
+
+describe('standard rule policy', () => {
+  test.each([
+    'eslint/preserve-caught-error',
+    'rules/effect-tracing',
+    'rules/no-direct-tag-access',
+    'rules/no-effect-import-as',
+    'rules/no-effect-runtime-run',
+    'rules/no-effect-subpath-import',
+    'rules/no-fetch',
+    'rules/no-import-from-barrel-package',
+    'rules/no-jsx-script-tag',
+    'rules/no-let',
+    'rules/no-node-imports',
+    'rules/no-readonly',
+    'rules/require-disable-reason',
+    'rules/require-tagged-data',
+  ])('enables %s', (rule) => {
+    expect(productionRules[rule]).toBe('error')
   })
 
-  test('requires local reasons for intentional runtime, platform, and rendering exceptions', () => {
-    expect(preset.rules?.['rules/require-disable-reason']).toBe('error')
-    expect(preset.rules?.['rules/no-effect-runtime-run']).toBe('error')
-    expect(preset.rules?.['rules/no-fetch']).toBe('error')
-    expect(preset.rules?.['rules/no-jsx-script-tag']).toBe('error')
-    expect(preset.rules?.['rules/no-node-imports']).toBe('error')
+  test.each([
+    'eslint/prefer-const',
+    'eslint/require-await',
+    'import/extensions',
+    'import/no-namespace',
+    'import/no-nodejs-modules',
+    'react/jsx-no-literals',
+    'react/react-in-jsx-scope',
+    'typescript/prefer-readonly',
+    'typescript/prefer-readonly-parameter-types',
+    'unicorn/explicit-length-check',
+    'unicorn/no-typeof-undefined',
+    'unicorn/prefer-bigint-literals',
+    'unicorn/prefer-date-now',
+  ])('disables conflicting rule %s', (rule) => {
+    expect(productionRules[rule]).toBe('off')
   })
 
-  test('preserves the original failure when rethrowing a native error', () => {
-    expect(preset.rules?.['eslint/preserve-caught-error']).toBe('error')
+  test.each(['no-restricted-properties', 'rules/no-option-tag-comparison', 'rules/require-vitest-hooks'])(
+    'does not set %s globally',
+    (rule) => {
+      expect(productionRules[rule]).toBeUndefined()
+    },
+  )
+})
+
+describe('standard rule options', () => {
+  test('keeps native options compatible with formatting and Effect', () => {
+    expect(productionRules['sort-imports']).toBe('off')
+    expect(productionRules['func-names']).toStrictEqual(['error', 'as-needed', { generators: 'never' }])
+    expect(productionRules['no-underscore-dangle']).toStrictEqual(['error', { allow: ['_tag'] }])
+    expect(productionRules['react/jsx-filename-extension']).toStrictEqual(['error', { extensions: ['jsx', 'tsx'] }])
+    expect(productionRules['typescript/require-await']).not.toBe('off')
   })
 
-  test('keeps the native generator naming policy and adds Effect-specific span guidance', () => {
-    expect(preset.rules?.['func-names']).toEqual(['error', 'as-needed', { generators: 'never' }])
-    expect(preset.rules?.['rules/effect-tracing']).toBe('error')
-  })
-
-  test('application and library presets extend the same settings with opposite tracing policies', () => {
-    expect(applicationPreset).toEqual({
+  test('shares its rules across application and library variants', () => {
+    expect(applicationPreset).toStrictEqual({
       ...preset,
-      rules: { ...preset.rules, 'rules/effect-tracing': ['error', 'application'] },
+      rules: { ...productionRules, 'rules/effect-tracing': ['error', 'application'] },
     })
-    expect(libraryPreset).toEqual({
+    expect(libraryPreset).toStrictEqual({
       ...preset,
-      rules: { ...preset.rules, 'rules/effect-tracing': ['error', 'library'] },
+      rules: { ...productionRules, 'rules/effect-tracing': ['error', 'library'] },
     })
   })
+})
 
-  test('uses dedicated rules for tag access and handwritten tag definitions', () => {
-    expect(preset.rules?.['rules/no-direct-tag-access']).toBe('error')
-    expect(preset.rules?.['rules/require-tagged-data']).toBe('error')
-    expect(preset.rules?.['no-underscore-dangle']).toEqual(['error', { allow: ['_tag'] }])
-    expect(preset.rules?.['no-restricted-properties']).toBeUndefined()
-    expect(preset.rules?.['rules/no-option-tag-comparison']).toBeUndefined()
+describe('vitest rule policy', () => {
+  test.each([
+    'vitest/no-hooks',
+    'vitest/no-importing-vitest-globals',
+    'vitest/prefer-called-times',
+    'vitest/prefer-to-be-falsy',
+    'vitest/prefer-to-be-truthy',
+    'vitest/require-hook',
+    'vitest/require-test-timeout',
+  ])('disables conflicting test rule %s', (rule) => {
+    expect(vitestRules?.[rule]).toBe('off')
   })
 
-  test('supports automatic JSX and explicit Vitest APIs without conflicting hook policies', () => {
-    expect(preset.rules?.['react/jsx-filename-extension']).toEqual(['error', { extensions: ['jsx', 'tsx'] }])
-    expect(preset.rules?.['react/jsx-no-literals']).toBe('off')
-    expect(preset.rules?.['react/react-in-jsx-scope']).toBe('off')
-    expect(vitestRules?.['vitest/no-importing-vitest-globals']).toBe('off')
-    expect(vitestRules?.['vitest/prefer-called-times']).toBe('off')
-    expect(vitestRules?.['vitest/require-hook']).toBe('off')
-    expect(vitestRules?.['vitest/no-hooks']).toBe('off')
+  test('uses the custom hook rule and only counts callback assertions', () => {
     expect(vitestRules?.['rules/require-vitest-hooks']).toBe('error')
-    expect(preset.rules?.['rules/no-let']).toBe('error')
-    expect(preset.rules?.['eslint/require-await']).toBe('off')
-    expect(preset.rules?.['typescript/require-await']).not.toBe('off')
-  })
-
-  test('recognizes Effect tests without requiring boilerplate assertion counts and timeouts', () => {
-    expect(vitestRules?.['vitest/no-standalone-expect']).toEqual([
-      'error',
-      {
-        additionalTestBlockFunctions: expect.arrayContaining([
-          'effect',
-          'live',
-          'prop',
-          'it.effect',
-          'it.live',
-          'it.prop',
-          'effect.only',
-          'effect.skip',
-          'effect.fails',
-          'it.effect.each',
-          'it.live.skipIf',
-          'it.live.runIf',
-          'it.live.prop',
-        ]),
-      },
-    ])
-    expect(vitestRules?.['vitest/prefer-expect-assertions']).toEqual([
+    expect(vitestRules?.['vitest/prefer-expect-assertions']).toStrictEqual([
       'error',
       { onlyFunctionsWithExpectInCallback: true },
     ])
-    expect(vitestRules?.['vitest/require-test-timeout']).toBe('off')
   })
 
-  test('preserves assertions that require an exact boolean', () => {
-    expect(vitestRules?.['vitest/prefer-to-be-falsy']).toBe('off')
-    expect(vitestRules?.['vitest/prefer-to-be-truthy']).toBe('off')
-  })
-
-  test('does not require deeply readonly parameter types', () => {
-    expect(preset.rules?.['typescript/prefer-readonly-parameter-types']).toBe('off')
+  test.each([
+    'effect',
+    'live',
+    'prop',
+    'it.effect',
+    'it.live',
+    'it.prop',
+    'effect.only',
+    'effect.skip',
+    'effect.fails',
+    'it.effect.each',
+    'it.live.skipIf',
+    'it.live.runIf',
+    'it.live.prop',
+  ])('recognizes %s as an Effect test block', (name) => {
+    const { functions, severity } = getStandaloneExpect()
+    expect(severity).toBe('error')
+    expect(functions).toContain(name)
   })
 })

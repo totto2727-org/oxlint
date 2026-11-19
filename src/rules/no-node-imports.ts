@@ -1,27 +1,27 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { getImportSource, hasProperty, isReportable } from '../helpers.ts'
+import { getImportSource, hasProperty, isReportable } from '#src/helpers.ts'
 
 const NODE_PROTOCOL = 'node:'
 const NODE_IMPORT_GUIDANCE_MESSAGE =
   'Avoid Node.js built-in imports. Prefer Effect Platform APIs from `effect` / `@effect/platform-node`. If the import is unavoidable, document the reason at that import.'
 
-export const getNodeBuiltinSpecifier = (source: string): string | null => {
+const getNodeBuiltinSpecifier = (source: string): string | undefined => {
   if (!source.startsWith(NODE_PROTOCOL)) {
-    return null
+    return undefined
   }
   return source.slice(NODE_PROTOCOL.length)
 }
 
-const getStringArrayProperty = (value: unknown, key: string): readonly string[] => {
+const getStringArrayProperty = (value: unknown, key: string): string[] => {
   if (!Predicate.isObject(value) || !hasProperty(value, key) || !Array.isArray(value[key])) {
     return []
   }
   return value[key].filter(Predicate.isString)
 }
 
-const getContextOptions = (context: Context): readonly unknown[] => {
+const getContextOptions = (context: Context): unknown[] => {
   if (!Predicate.isObject(context) || !hasProperty(context, 'options')) {
     return []
   }
@@ -29,11 +29,11 @@ const getContextOptions = (context: Context): readonly unknown[] => {
   return Array.isArray(options) ? options : []
 }
 
-export const getAllowedNodeBuiltins = (context: Context): ReadonlySet<string> => {
+const getAllowedNodeBuiltins = (context: Context): ReadonlySet<string> => {
   const options = getContextOptions(context)
   const first = options.at(0)
   if (Array.isArray(first)) {
-    return new Set(first.filter(Predicate.isString))
+    return new Set(first.filter((value) => Predicate.isString(value)))
   }
   return new Set([...getStringArrayProperty(first, 'allow'), ...getStringArrayProperty(first, 'allowed')])
 }
@@ -84,4 +84,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { getAllowedNodeBuiltins, getNodeBuiltinSpecifier, rule as noNodeImports }

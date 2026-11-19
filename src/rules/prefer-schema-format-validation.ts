@@ -1,9 +1,8 @@
 import type { ESTree, Rule } from '@oxlint/plugins'
-import { Array } from 'effect'
 
 const rejectsInput = (statement: ESTree.Statement): boolean => {
   if (statement.type === 'BlockStatement') {
-    return Array.some(statement.body, rejectsInput)
+    return statement.body.some((item) => rejectsInput(item))
   }
   if (statement.type === 'ThrowStatement') {
     return true
@@ -54,4 +53,4 @@ const rule: Rule = {
   meta: { type: 'suggestion' },
 }
 
-export default rule
+export { rule as preferSchemaFormatValidation }

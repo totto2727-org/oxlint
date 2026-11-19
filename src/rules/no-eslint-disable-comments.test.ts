@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { matchesEslintDisable } from './no-eslint-disable-comments.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('matchesEslintDisable', () => {
+import { matchesEslintDisable, noEslintDisableComments as rule } from './no-eslint-disable-comments.ts'
+
+describe('recognition of ESLint disable directives', () => {
   test('eslint-disable matches', () => {
     expect(matchesEslintDisable(' eslint-disable')).toBe(true)
   })
@@ -33,6 +34,7 @@ describe('matchesEslintDisable', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers cases synchronously during test collection.
 runRuleTest('no-eslint-disable-comments', rule, {
   invalid: [
     {

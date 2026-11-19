@@ -5,7 +5,7 @@ import {
   getImportExtensionMode,
   importExtensionSchema,
   normalizeImportExtension,
-} from '../import-extensions.ts'
+} from '#src/import-extensions.ts'
 
 const rule: Rule = {
   create(context) {
@@ -25,4 +25,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { rule as consistentImportExtension }

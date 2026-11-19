@@ -9,21 +9,21 @@ const Reportable: Schema.Schema<ReportableNode> = Schema.Struct({
   range: Schema.mutable(Schema.Tuple([Schema.Number, Schema.Number])),
 })
 
-export const { hasProperty } = Predicate
+const { hasProperty } = Predicate
 
-export const isReportable = Schema.is(Reportable)
+const isReportable = Schema.is(Reportable)
 
-export const isEqualityOperator: Predicate.Refinement<unknown, '==' | '!=' | '===' | '!=='> = (op: unknown) =>
+const isEqualityOperator: Predicate.Refinement<unknown, '==' | '!=' | '===' | '!=='> = (op: unknown) =>
   op === '==' || op === '!=' || op === '===' || op === '!=='
 
-export const getLiteralNumber = (node: unknown): number | null => {
+const getLiteralNumber = (node: unknown): number | undefined => {
   if (Predicate.isObject(node) && node['type'] === 'Literal' && Predicate.isNumber(node['value'])) {
     return node['value']
   }
-  return null
+  return undefined
 }
 
-export const isSchemaMethodCall = (node: unknown, methodName: string): boolean => {
+const isSchemaMethodCall = (node: unknown, methodName: string): boolean => {
   if (
     Predicate.isObject(node) &&
     node['type'] === 'CallExpression' &&
@@ -42,7 +42,7 @@ export const isSchemaMethodCall = (node: unknown, methodName: string): boolean =
   return false
 }
 
-export const getImportSource = (node: unknown): string | null => {
+const getImportSource = (node: unknown): string | undefined => {
   if (
     Predicate.isObject(node) &&
     hasProperty(node, 'source') &&
@@ -52,5 +52,7 @@ export const getImportSource = (node: unknown): string | null => {
   ) {
     return node['source']['value']
   }
-  return null
+  return undefined
 }
+
+export { getImportSource, getLiteralNumber, hasProperty, isEqualityOperator, isReportable, isSchemaMethodCall }

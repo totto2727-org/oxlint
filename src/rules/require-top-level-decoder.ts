@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { hasProperty, isReportable } from '../helpers.ts'
+import { hasProperty, isReportable } from '#src/helpers.ts'
 
 const TOP_LEVEL_DECODER_MESSAGE =
   'Hoist fixed schema decoder construction to module top level so it is not repeated on every call. If the schema must be built from runtime input, or a factory builds the decoder only once per instance, disable this rule on the decoder line and explain why.'
@@ -36,16 +36,16 @@ const matchMemberCallByPrefix = (node: unknown, namespace: string, prefix: strin
   return property.name.startsWith(prefix)
 }
 
-export const isHoistableDecoderCall = (node: unknown): boolean =>
+const isHoistableDecoderCall = (node: unknown): boolean =>
   matchMemberCallByPrefix(node, 'Schema', 'decode') || matchMemberCallByPrefix(node, 'HttpClientResponse', 'schema')
 
 const rule: Rule = {
   create(context: Context) {
     const functionStack: true[] = []
-    const enterFunction = () => {
+    const enterFunction = (): void => {
       functionStack.push(true)
     }
-    const exitFunction = () => {
+    const exitFunction = (): void => {
       functionStack.pop()
     }
     return {
@@ -73,4 +73,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { isHoistableDecoderCall, rule as requireTopLevelDecoder }

@@ -1,4 +1,4 @@
-export const presetRuleNames = [
+const presetRuleNames = [
   'consistent-import-extension',
   'effect-tracing',
   'no-eslint-disable-comments',
@@ -40,4 +40,6 @@ export const presetRuleNames = [
 ] as const
 
 // Keep the public export for consumers of earlier presets.
-export const compatibilityRuleNames = [] as const
+const compatibilityRuleNames = [] as const
+
+export { compatibilityRuleNames, presetRuleNames }

@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isIterableSizeCall } from './force-iterable-empty.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-const makeIterableSize = (objectName: string, methodName: string) => ({
+import { isIterableSizeCall, forceIterableEmpty as rule } from './force-iterable-empty.ts'
+
+const makeIterableSize = (objectName: string, methodName: string): unknown => ({
   callee: {
     computed: false,
     object: { name: objectName, type: 'Identifier' },
@@ -13,16 +14,16 @@ const makeIterableSize = (objectName: string, methodName: string) => ({
   type: 'CallExpression',
 })
 
-describe('isIterableSizeCall', () => {
-  test('Iterable.size() returns true', () => {
+describe('recognition of Iterable.size calls', () => {
+  test('recognizes Iterable.size()', () => {
     expect(isIterableSizeCall(makeIterableSize('Iterable', 'size'))).toBe(true)
   })
 
-  test('Array.size() returns false (not Iterable)', () => {
+  test('rejects Array.size()', () => {
     expect(isIterableSizeCall(makeIterableSize('Array', 'size'))).toBe(false)
   })
 
-  test('Iterable.map() returns false (not size)', () => {
+  test('rejects Iterable.map()', () => {
     expect(isIterableSizeCall(makeIterableSize('Iterable', 'map'))).toBe(false)
   })
 
@@ -45,6 +46,7 @@ describe('isIterableSizeCall', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers cases synchronously during test collection.
 runRuleTest('force-iterable-empty', rule, {
   invalid: [
     { code: 'if (Iterable.size(xs) === 0) {}', errors: 1, name: 'size === 0 reports empty' },

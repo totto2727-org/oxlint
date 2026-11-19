@@ -1,9 +1,10 @@
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule from './require-tagged-data.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { requireTaggedData as rule } from './require-tagged-data.ts'
 
 runRuleTest('require-tagged-data', rule, {
   invalid: [
-    { code: "type State = { _tag: 'Ready' } | { _tag: 'Pending' }", filename: 'test.ts', errors: 2, output: null },
+    { code: "type State = { _tag: 'Ready' } | { _tag: 'Pending' }", errors: 2, filename: 'test.ts' },
     ...[
       "type State = { readonly _tag: 'Ready' }",
       "interface State { readonly '_tag': 'Ready' }",
@@ -17,7 +18,7 @@ runRuleTest('require-tagged-data', rule, {
       'const state = { [`_tag`]: name }',
       'const state = { _tag }',
       "const Shape = Schema.Struct({ _tag: Schema.Literal('Ready') })",
-    ].map((code) => ({ code, filename: 'test.ts', errors: 1, output: null })),
+    ].map((code) => ({ code, errors: 1, filename: 'test.ts' })),
   ],
   valid: [
     "class Ready extends Data.TaggedClass('Ready')<{ readonly count: number }> {}",

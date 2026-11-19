@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isAllowedEffectImport } from './no-effect-subpath-import.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isAllowedEffectImport', () => {
+import { isAllowedEffectImport, noEffectSubpathImport as rule } from './no-effect-subpath-import.ts'
+
+describe('classification of Effect package entries', () => {
   describe('allowed imports', () => {
     test('effect root package', () => {
       expect(isAllowedEffectImport('effect')).toBe(true)
@@ -36,29 +37,18 @@ describe('isAllowedEffectImport', () => {
     )
   })
 
-  describe('disallowed subpath imports', () => {
-    test('@effect/platform/NodeRuntime', () => {
-      expect(isAllowedEffectImport('@effect/platform/NodeRuntime')).toBe(false)
-    })
-
-    test('effect/Stream subpath', () => {
-      expect(isAllowedEffectImport('effect/Stream')).toBe(false)
-    })
-
-    test('effect/unstable/HttpClient is an individual module', () => {
-      expect(isAllowedEffectImport('effect/unstable/HttpClient')).toBe(false)
-    })
-
-    test('effect/http/client is a nested path even though it has no uppercase segment', () => {
-      expect(isAllowedEffectImport('effect/http/client')).toBe(false)
-    })
-
-    test('effect/unstable/foo/bar (double segment under unstable/)', () => {
-      expect(isAllowedEffectImport('effect/unstable/foo/bar')).toBe(false)
-    })
+  test.each([
+    '@effect/platform/NodeRuntime',
+    'effect/Stream',
+    'effect/unstable/HttpClient',
+    'effect/http/client',
+    'effect/unstable/foo/bar',
+  ])('rejects the subpath %s', (source) => {
+    expect(isAllowedEffectImport(source)).toBe(false)
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers cases synchronously during test collection.
 runRuleTest('no-effect-subpath-import', rule, {
   invalid: [
     {

@@ -1,10 +1,11 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { getForbiddenDateStaticMethod, isDateIdentifier } from './no-js-date.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isDateIdentifier', () => {
-  test('Date identifier returns true', () => {
+import { getForbiddenDateStaticMethod, isDateIdentifier, noJsDate as rule } from './no-js-date.ts'
+
+describe('date identifier detection', () => {
+  test('recognizes the Date identifier', () => {
     expect(isDateIdentifier({ name: 'Date', type: 'Identifier' })).toBe(true)
   })
 
@@ -17,12 +18,12 @@ describe('isDateIdentifier', () => {
   })
 
   test('non-object returns false', () => {
-    expect(isDateIdentifier(null)).toBe(false)
+    expect(isDateIdentifier(JSON.parse('null'))).toBe(false)
   })
 })
 
-describe('getForbiddenDateStaticMethod', () => {
-  test.each(['now', 'parse', 'UTC'])('Date.%s returns method name', (method) => {
+describe('forbidden date static method detection', () => {
+  test.each(['now', 'parse', 'UTC'])('recognizes Date.%s', (method) => {
     expect(
       getForbiddenDateStaticMethod({
         computed: false,
@@ -33,7 +34,7 @@ describe('getForbiddenDateStaticMethod', () => {
     ).toBe(method)
   })
 
-  test('Date.toString returns null (not forbidden)', () => {
+  test('allows Date.toString', () => {
     expect(
       getForbiddenDateStaticMethod({
         computed: false,
@@ -41,10 +42,10 @@ describe('getForbiddenDateStaticMethod', () => {
         property: { name: 'toString', type: 'Identifier' },
         type: 'MemberExpression',
       }),
-    ).toBeNull()
+    ).toBeUndefined()
   })
 
-  test('Math.now returns null (not Date)', () => {
+  test('allows Math.now from another namespace', () => {
     expect(
       getForbiddenDateStaticMethod({
         computed: false,
@@ -52,10 +53,10 @@ describe('getForbiddenDateStaticMethod', () => {
         property: { name: 'now', type: 'Identifier' },
         type: 'MemberExpression',
       }),
-    ).toBeNull()
+    ).toBeUndefined()
   })
 
-  test('computed member expression returns null', () => {
+  test('allows computed member expressions', () => {
     expect(
       getForbiddenDateStaticMethod({
         computed: true,
@@ -63,10 +64,11 @@ describe('getForbiddenDateStaticMethod', () => {
         property: { name: 'now', type: 'Identifier' },
         type: 'MemberExpression',
       }),
-    ).toBeNull()
+    ).toBeUndefined()
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('no-js-date', rule, {
   invalid: [
     { code: 'const d = new Date()', errors: 1, name: 'new Date() is reported' },

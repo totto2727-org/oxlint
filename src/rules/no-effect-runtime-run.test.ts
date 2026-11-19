@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { getRuntimeMethod } from './no-effect-runtime-run.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('getRuntimeMethod', () => {
+import { getRuntimeMethod, noEffectRuntimeRun as rule } from './no-effect-runtime-run.ts'
+
+describe('extraction of Effect runtime method names', () => {
   test('detects Effect.runPromise member expression', () => {
     expect(
       getRuntimeMethod({
@@ -27,6 +28,7 @@ describe('getRuntimeMethod', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers cases synchronously during test collection.
 runRuleTest('no-effect-runtime-run', rule, {
   invalid: [
     { code: 'Effect.runPromise(program)', errors: 1, name: 'Effect.runPromise is reported' },

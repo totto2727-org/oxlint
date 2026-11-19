@@ -1,9 +1,9 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable } from '../helpers.ts'
+import { isReportable } from '#src/helpers.ts'
 
-export const isLetDeclaration = (node: unknown): boolean => Predicate.isObject(node) && node['kind'] === 'let'
+const isLetDeclaration = (node: unknown): boolean => Predicate.isObject(node) && node['kind'] === 'let'
 
 const rule: Rule = {
   create(context: Context) {
@@ -26,4 +26,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { isLetDeclaration, rule as noLet }

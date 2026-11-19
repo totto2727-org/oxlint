@@ -1,4 +1,5 @@
 import type { ESTree } from '@oxlint/plugins'
+import { Array } from 'effect'
 
 export const isTagKey = (key: ESTree.Node, computed: boolean): boolean => {
   if (key.type === 'Identifier') {
@@ -7,5 +8,9 @@ export const isTagKey = (key: ESTree.Node, computed: boolean): boolean => {
   if (key.type === 'Literal') {
     return key.value === '_tag'
   }
-  return key.type === 'TemplateLiteral' && key.expressions.length === 0 && key.quasis[0]?.value.cooked === '_tag'
+  return (
+    key.type === 'TemplateLiteral' &&
+    Array.isReadonlyArrayEmpty(key.expressions) &&
+    key.quasis[0]?.value.cooked === '_tag'
+  )
 }

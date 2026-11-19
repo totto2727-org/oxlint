@@ -9,7 +9,7 @@ const rule: Rule = {
     return {
       Program() {
         context.report({
-          loc: { line: 1, column: 0 },
+          loc: { column: 0, line: 1 },
           message: 'Rename this file. Use a name that describes the module instead of index.ts or index.tsx.',
         })
       },
@@ -18,4 +18,4 @@ const rule: Rule = {
   meta: { type: 'suggestion' },
 }
 
-export default rule
+export { rule as noIndexFilename }

@@ -1,9 +1,9 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate, String } from 'effect'
 
-import { isEqualityOperator, isReportable } from '../helpers.ts'
+import { isEqualityOperator, isReportable } from '#src/helpers.ts'
 
-export const isEmptyStringLiteral = (node: unknown): boolean =>
+const isEmptyStringLiteral = (node: unknown): boolean =>
   Predicate.isObject(node) &&
   node['type'] === 'Literal' &&
   Predicate.isString(node['value']) &&
@@ -37,4 +37,4 @@ const rule: Rule = {
   },
 }
 
-export default rule
+export { isEmptyStringLiteral, rule as forceStringEmpty }

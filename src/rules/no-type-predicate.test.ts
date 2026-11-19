@@ -1,13 +1,14 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isTypePredicateAnnotation } from './no-type-predicate.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { isTypePredicateAnnotation, noTypePredicate as rule } from './no-type-predicate.ts'
 
 const tsParserOptions: { languageOptions: { parserOptions: { lang: 'ts' } } } = {
   languageOptions: { parserOptions: { lang: 'ts' } },
 }
 
-describe('isTypePredicateAnnotation', () => {
+describe('type predicate annotation detection', () => {
   test('detects TypeScript type predicate annotations', () => {
     expect(isTypePredicateAnnotation({ type: 'TSTypePredicate' })).toBe(true)
   })
@@ -17,6 +18,7 @@ describe('isTypePredicateAnnotation', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('no-type-predicate', rule, {
   invalid: [
     {

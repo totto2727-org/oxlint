@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { hasDisableReason, isOxlintDisableDirective } from './require-disable-reason.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isOxlintDisableDirective', () => {
+import { hasDisableReason, isOxlintDisableDirective, requireDisableReason as rule } from './require-disable-reason.ts'
+
+describe('oxlint disable directive detection', () => {
   test('oxlint-disable matches', () => {
     expect(isOxlintDisableDirective(' oxlint-disable')).toBe(true)
   })
@@ -25,7 +26,7 @@ describe('isOxlintDisableDirective', () => {
   })
 })
 
-describe('hasDisableReason', () => {
+describe('disable reason detection', () => {
   test('comment with reason after " -- " matches', () => {
     expect(hasDisableReason(' oxlint-disable -- some reason here')).toBe(true)
   })
@@ -43,6 +44,7 @@ describe('hasDisableReason', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('require-disable-reason', rule, {
   invalid: [
     {

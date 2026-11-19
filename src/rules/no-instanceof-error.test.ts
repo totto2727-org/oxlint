@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isInstanceofError } from './no-instanceof-error.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isInstanceofError', () => {
+import { isInstanceofError, noInstanceofError as rule } from './no-instanceof-error.ts'
+
+describe('native error instanceof detection', () => {
   test('detects instanceof Error', () => {
     expect(
       isInstanceofError({
@@ -16,6 +17,7 @@ describe('isInstanceofError', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('no-instanceof-error', rule, {
   invalid: [{ code: 'const isError = error instanceof Error', errors: 1, name: 'instanceof Error is reported' }],
   valid: [

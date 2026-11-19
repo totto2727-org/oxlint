@@ -1,5 +1,6 @@
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule from './no-direct-tag-access.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
+
+import { noDirectTagAccess as rule } from './no-direct-tag-access.ts'
 
 runRuleTest('no-direct-tag-access', rule, {
   invalid: [
@@ -14,7 +15,12 @@ runRuleTest('no-direct-tag-access', rule, {
     "const read = ({ ['_tag']: tag }) => tag",
     '({ _tag: tag } = state)',
     "'_tag' in value",
-  ].map((code) => ({ code, errors: 1, output: null })),
+  ].map((code) => ({
+    code,
+    errors: 1,
+    // oxlint-disable-next-line unicorn/no-null -- RuleTester requires null to assert that the diagnostic has no fix.
+    output: null,
+  })),
   valid: [
     'Option.isSome(value)',
     'Option.isNone(value)',
