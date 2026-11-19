@@ -8,7 +8,6 @@ import noDirectTagAccess from './rules/no-direct-tag-access.ts'
 import noEffectImportAs from './rules/no-effect-import-as.ts'
 import noEffectRuntimeRun from './rules/no-effect-runtime-run.ts'
 import noEffectSubpathImport from './rules/no-effect-subpath-import.ts'
-import noErrorCauseOption from './rules/no-error-cause-option.ts'
 import noErrorPropertyAccess from './rules/no-error-property-access.ts'
 import noEslintDisableComments from './rules/no-eslint-disable-comments.ts'
 import noFetch from './rules/no-fetch.ts'
@@ -56,7 +55,6 @@ const plugin = {
     'no-direct-tag-access': noDirectTagAccess,
     'no-effect-runtime-run': noEffectRuntimeRun,
     'no-effect-subpath-import': noEffectSubpathImport,
-    'no-error-cause-option': noErrorCauseOption,
     'no-error-property-access': noErrorPropertyAccess,
     'no-eslint-disable-comments': noEslintDisableComments,
     'no-fetch': noFetch,

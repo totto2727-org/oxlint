@@ -84,7 +84,6 @@ describe('public plugin and standard preset', () => {
 
   test('preserves the original failure when rethrowing a native error', () => {
     expect(preset.rules?.['eslint/preserve-caught-error']).toBe('error')
-    expect(preset.rules?.['rules/no-error-cause-option']).toBe('off')
   })
 
   test('uses dedicated rules for tag access and handwritten tag definitions', () => {

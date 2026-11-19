@@ -38,7 +38,6 @@ export const compatibilityRuleNames = [
   'force-ts-extension',
   'no-effect-import-as',
   'no-effect-subpath-import',
-  'no-error-cause-option',
   'no-import-from-barrel-package',
   'no-js-extension-imports',
 ] as const
