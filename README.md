@@ -18,6 +18,8 @@ If a loop is necessary, add `oxlint-disable-next-line rules/no-for-loops -- <rea
 `rules/no-local-export-list` requires named exports at their declarations, such as `export const value`, instead of a separate `export { value }`.
 Use `export { value } from './source.ts'` to re-export from another module. Empty `export {}` module markers are allowed.
 Tests use the same general rules as application files, plus Vitest rules for `*.test.ts` and `*.test.tsx`.
+Use Vitest's `test` instead of `it`, including inside `describe`.
+ESM modules may use top-level `await` without a lint suppression.
 
 ## Key features
 

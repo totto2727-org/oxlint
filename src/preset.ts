@@ -51,6 +51,8 @@ const preset: OxlintConfig = {
         // Tests use literal inputs and expected values to make each case clear.
         'no-magic-numbers': 'off',
         [`rules/${testRule}`]: 'error',
+        // Use the same Vitest test function inside and outside describe blocks.
+        'vitest/consistent-test-it': ['error', { fn: 'test' }],
         // Shared setup and cleanup belong in hooks. Keep test data in test-local const bindings.
         'vitest/no-hooks': 'off',
         // Vitest disables globals by default, so tests must be able to import its APIs explicitly.
@@ -112,6 +114,8 @@ const preset: OxlintConfig = {
     'no-underscore-dangle': ['error', { allow: ['_tag'] }],
     // Effect's synchronous interpreter is not Node.js synchronous I/O.
     'node/no-sync': ['error', { ignores: ['runSync'] }],
+    // ESM supports awaiting asynchronous initialization at module scope.
+    'node/no-top-level-await': 'off',
     'one-var': ['error', 'never'],
     // Keep async/await available for rules that require it, such as promise/prefer-await-to-then.
     'oxc/no-async-await': 'off',

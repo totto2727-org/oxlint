@@ -101,6 +101,7 @@ describe('rules replaced by the standard policy', () => {
     'import/group-exports',
     'import/no-namespace',
     'import/no-nodejs-modules',
+    'node/no-top-level-await',
     'react/jsx-no-literals',
     'react/react-in-jsx-scope',
     'typescript/prefer-for-of',
@@ -172,6 +173,10 @@ describe('vitest rule policy', () => {
       'error',
       { onlyFunctionsWithExpectInCallback: true },
     ])
+  })
+
+  test('uses test for Vitest test declarations', () => {
+    expect(vitestRules?.['vitest/consistent-test-it']).toStrictEqual(['error', { fn: 'test' }])
   })
 
   test.each([

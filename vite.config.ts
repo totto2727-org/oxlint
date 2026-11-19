@@ -3,7 +3,6 @@ import { defineConfig } from 'vite-plus'
 
 import libraryPreset from './src/library.ts'
 
-// oxlint-disable-next-line node/no-top-level-await -- The ESM Vite+ config must finish resolving the Git ignore patterns before exporting its settings.
 const ignorePatterns = await generateIgnorePatterns(new URL('.', import.meta.url))
 
 // oxlint-disable-next-line import/no-default-export -- Vite+ reads its configuration from the default export.
@@ -29,15 +28,6 @@ export default defineConfig({
     ignorePatterns,
     jsPlugins: ['./src/plugin.ts'],
     options: { ...libraryPreset.options, typeCheck: true },
-    overrides: [
-      ...(libraryPreset.overrides ?? []),
-      {
-        files: ['**/*.test.ts', '**/*.test.tsx'],
-        plugins: ['vitest'],
-        // Match the suite's explicit imports: the autofix renames calls, not imports.
-        rules: { 'vitest/consistent-test-it': ['error', { fn: 'test' }] },
-      },
-    ],
   },
   pack: {
     clean: true,
