@@ -18,6 +18,7 @@ import noJsxScriptTag from './rules/no-jsx-script-tag.ts'
 import noLet from './rules/no-let.ts'
 import noNodeImports from './rules/no-node-imports.ts'
 import noOptionalErrorCause from './rules/no-optional-error-cause.ts'
+import noReadonly from './rules/no-readonly.ts'
 import noRedundantAlias from './rules/no-redundant-alias.ts'
 import noStringStyle from './rules/no-string-style.ts'
 import noSyncDecode from './rules/no-sync-decode.ts'
@@ -65,6 +66,7 @@ const plugin = {
     'no-let': noLet,
     'no-node-imports': noNodeImports,
     'no-optional-error-cause': noOptionalErrorCause,
+    'no-readonly': noReadonly,
     'no-redundant-alias': noRedundantAlias,
     'no-string-style': noStringStyle,
     'no-sync-decode': noSyncDecode,

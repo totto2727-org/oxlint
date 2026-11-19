@@ -63,8 +63,10 @@ const preset: OxlintConfig = {
       'error',
       { allowExpressions: true, allowTypedFunctionExpressions: true },
     ],
-    // Requiring deeply readonly parameters adds type wrappers or allowlists at external API boundaries.
+    // Infer immutable data types from Effect Schema. Deep readonly parameter checks add wrappers at external boundaries.
     'typescript/prefer-readonly-parameter-types': 'off',
+    // This rule recommends the manual modifier that rules/no-readonly prohibits.
+    'typescript/prefer-readonly': 'off',
     // import/no-duplicates also detects imports that resolve to the same module.
     'no-duplicate-imports': 'off',
     // unicorn/prefer-ternary can require a conditional expression instead of an if/else.

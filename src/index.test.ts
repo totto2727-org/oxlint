@@ -27,6 +27,12 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['import/no-namespace']).toBe('off')
   })
 
+  test('uses Schema for immutable types instead of recommending readonly modifiers', () => {
+    expect(preset.rules?.['rules/no-readonly']).toBe('error')
+    expect(preset.rules?.['typescript/prefer-readonly']).toBe('off')
+    expect(preset.rules?.['typescript/prefer-readonly-parameter-types']).toBe('off')
+  })
+
   test('resolves the built public plugin without consumer-specific file exemptions', () => {
     expect(preset.jsPlugins?.[0]).toMatch(/index\.js$/)
     expect(preset.overrides).toBeUndefined()

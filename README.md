@@ -97,7 +97,7 @@ Use `Data.TaggedError` or `Schema.TaggedError` for application errors whether or
 If an error wraps a previous failure, retain the original value in a required `cause` field.
 Use a separate tagged error for failures with no cause.
 `no-optional-error-cause` reports optional `cause` declarations in tagged error definitions, including same-file type aliases, interfaces, and constant Schema field objects.
-Use `readonly cause: unknown` or `cause: Schema.Unknown` when wrapping a failure. Omit `cause` entirely when the error has no cause.
+Use `cause: Schema.Unknown` or a required `cause: unknown` when wrapping a failure. Omit `cause` entirely when the error has no cause.
 `no-error-property-access` checks JavaScript catch bindings and direct `Effect.try` or `Effect.tryPromise` callbacks, not typed failures that happen to be named `error`.
 If an external API requires a native constructor, use a line-level suppression with the interoperability reason. `eslint/preserve-caught-error` still checks native rethrows.
 
@@ -124,6 +124,13 @@ If the schema depends on runtime input, or a factory builds and retains a decode
 // oxlint-disable-next-line rules/require-top-level-decoder -- The factory builds this decoder once from the selected schema and reuses it for every request.
 const decode = Schema.decodeUnknownEffect(selectedSchema)
 ```
+
+### Immutable data types
+
+`no-readonly` reports handwritten TypeScript `readonly` modifiers, including on properties, arrays, tuples, and mapped types.
+Use `Schema.Struct`, `Schema.Array`, or `Schema.Tuple`, and derive the type via `typeof MySchema.Type`.
+These schemas infer immutable types by default. They do not freeze values at runtime.
+If an external contract requires the modifier, suppress only the declaration line and state the reason.
 
 ## Development
 
