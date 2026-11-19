@@ -11,6 +11,7 @@ import noErrorCauseOption from './rules/no-error-cause-option.ts'
 import noErrorPropertyAccess from './rules/no-error-property-access.ts'
 import noEslintDisableComments from './rules/no-eslint-disable-comments.ts'
 import noFetch from './rules/no-fetch.ts'
+import noIndexFilename from './rules/no-index-filename.ts'
 import noInstanceofError from './rules/no-instanceof-error.ts'
 import noJsDate from './rules/no-js-date.ts'
 import noJsxScriptTag from './rules/no-jsx-script-tag.ts'
@@ -58,6 +59,7 @@ const plugin = {
     'no-error-property-access': noErrorPropertyAccess,
     'no-eslint-disable-comments': noEslintDisableComments,
     'no-fetch': noFetch,
+    'no-index-filename': noIndexFilename,
     'no-instanceof-error': noInstanceofError,
     'no-js-date': noJsDate,
     'no-jsx-script-tag': noJsxScriptTag,

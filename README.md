@@ -81,6 +81,10 @@ These rules check relative paths and slash-containing `#` paths, such as `#@/uti
 They ignore slashless aliases such as `#utils`.
 They preserve query strings and fragments and ignore bare package imports and non-code assets.
 
+`no-index-filename` rejects files named `index.ts` or `index.tsx`, even if no code imports them.
+Name the file for its purpose, such as `routes.ts` or `dashboard.tsx`, and update its import paths or package export targets.
+The rule does not rename files automatically.
+
 ### Effect errors and validation
 
 `require-tagged-error` reports direct construction and subclassing of native errors and untagged `Data.Error`.

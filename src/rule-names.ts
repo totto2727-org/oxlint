@@ -1,6 +1,7 @@
 export const presetRuleNames = [
   'consistent-import-extension',
   'no-eslint-disable-comments',
+  'no-index-filename',
   'no-jsx-script-tag',
   'no-let',
   'no-redundant-alias',
