@@ -1,3 +1,3 @@
-import { withTracingPolicy } from './preset.ts'
+import { createPreset } from './preset.ts'
 
-export default withTracingPolicy('application')
+export default createPreset('application')

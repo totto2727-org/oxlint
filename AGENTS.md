@@ -6,7 +6,7 @@ Resolve repeated conflicts with normal Effect or framework usage in the standard
 
 | Path                | Purpose                                  |
 | ------------------- | ---------------------------------------- |
-| `src/index.ts`      | Plugin and named exports                 |
+| `src/plugin.ts`     | Plugin and named exports                 |
 | `src/rules/`        | Local rules and RuleTester tests         |
 | `src/upstream/`     | Fixed Effect rules                       |
 | `src/rule-names.ts` | Standard and compatibility rule lists    |
@@ -31,7 +31,7 @@ Resolve repeated conflicts with normal Effect or framework usage in the standard
 | --------------------------------- | ----------------------------------------------- |
 | `nix develop`                     | Enter the pinned development environment        |
 | `vp install --frozen-lockfile`    | Install locked dependencies                     |
-| `vp run fix`                      | Format and apply supported lint fixes           |
+| `vp run fix`                      | Format project files                            |
 | `vp run check`                    | Check formatting, lint and source types         |
 | `vp run test`                     | Run tests                                       |
 | `vp run build`                    | Build ESM files and declarations with `vp pack` |
@@ -41,6 +41,9 @@ Resolve repeated conflicts with normal Effect or framework usage in the standard
 | `npm pack --pack-destination tmp` | Create a consumer archive                       |
 
 Create `tmp/` before packing an archive.
+The check task builds the local plugin before loading it with the library preset.
+The warning lists in `vite.config.ts` apply only to this repository during migration. Fix the findings for each rule, then remove that rule from the list.
+During migration, the fix task only formats files because lint autofixes also rewrite warnings and can leave unresolved test imports.
 Validate workflows with `actionlint .github/workflows/ci.yml .github/workflows/publish.yml` when actionlint is available.
 Do not trigger publication just to validate a workflow.
 
@@ -60,7 +63,7 @@ Update incorporated sources, tests and MIT notices together.
 Keep the stable `typescript-api` dependency separate from the development compiler.
 When enabling an opt-in import policy, check that it does not conflict with other import rules.
 Keep compatibility rules opt-in.
-Assume JavaScript and TypeScript projects use Effect. Share the standard rules between the application and library presets and differ only in their tracing policy.
+Assume JavaScript and TypeScript projects use Effect. Keep common settings in the shared preset. Declare rule settings that differ between applications and libraries in `modeRules` in `src/preset.ts`.
 Enable all native categories, general-purpose built-in plugins, React, React Perf and JSX A11y for all files.
 Enable Vitest and the custom Vitest hooks rule only for `*.test.ts` and `*.test.tsx`.
 Keep Next.js, Vue and Jest opt-in.

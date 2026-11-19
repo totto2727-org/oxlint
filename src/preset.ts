@@ -40,7 +40,7 @@ const preset: OxlintConfig = {
     style: 'error',
     suspicious: 'error',
   },
-  jsPlugins: [fileURLToPath(new URL('./index.js', import.meta.url))],
+  jsPlugins: [fileURLToPath(new URL('./plugin.js', import.meta.url))],
   options: { typeAware: true },
   plugins,
   overrides: [
@@ -142,9 +142,14 @@ const preset: OxlintConfig = {
   },
 }
 
-export const withTracingPolicy = (mode: 'application' | 'library'): OxlintConfig => ({
+const modeRules = {
+  application: { 'rules/effect-tracing': ['error', 'application'] },
+  library: { 'rules/effect-tracing': ['error', 'library'] },
+} satisfies Record<string, NonNullable<OxlintConfig['rules']>>
+
+export const createPreset = (mode: keyof typeof modeRules): OxlintConfig => ({
   ...preset,
-  rules: { ...preset.rules, 'rules/effect-tracing': ['error', mode] },
+  rules: { ...preset.rules, ...modeRules[mode] },
 })
 
 export default preset

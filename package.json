@@ -12,11 +12,11 @@
     "THIRD-PARTY-NOTICES.md"
   ],
   "type": "module",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/plugin.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "types": "./dist/plugin.d.ts",
+      "import": "./dist/plugin.js"
     },
     "./preset": {
       "types": "./dist/preset.d.ts",

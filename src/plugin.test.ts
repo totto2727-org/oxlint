@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'vite-plus/test'
 
 import applicationPreset from './application.ts'
-import plugin, { compatibilityRuleNames, presetRuleNames } from './index.ts'
 import libraryPreset from './library.ts'
+import plugin, { compatibilityRuleNames, presetRuleNames } from './plugin.ts'
 import preset from './preset.ts'
 
 const keys = (names: readonly string[]) => names.map((name) => `rules/${name}`).sort()
@@ -42,7 +42,7 @@ describe('public plugin and standard preset', () => {
   })
 
   test('resolves the built public plugin and scopes Vitest to TypeScript test filenames', () => {
-    expect(preset.jsPlugins?.[0]).toMatch(/index\.js$/)
+    expect(preset.jsPlugins?.[0]).toMatch(/plugin\.js$/)
     expect(preset.overrides).toHaveLength(1)
     expect(vitest?.files).toEqual(['**/*.test.ts', '**/*.test.tsx'])
     expect(vitest?.plugins).toEqual(['vitest'])
