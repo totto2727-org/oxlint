@@ -104,8 +104,6 @@ const preset: OxlintConfig = {
     'no-undefined': 'off',
     // The dedicated rule still bans direct tag access. Leave only its Effect-specific diagnostic for `_tag`.
     'no-underscore-dangle': ['error', { allow: ['_tag'] }],
-    // A standalone void documents an intentionally unawaited promise.
-    'no-void': ['error', { allowAsStatement: true }],
     // Effect's synchronous interpreter is not Node.js synchronous I/O.
     'node/no-sync': ['error', { ignores: ['runSync'] }],
     'one-var': ['error', 'never'],
