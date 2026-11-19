@@ -5,8 +5,11 @@ import preset from './preset.ts'
 
 const keys = (names: readonly string[]) => names.map((name) => `rules/${name}`).sort()
 
+const vitest = preset.overrides?.[0]
+const vitestRules = vitest?.rules
+
 const customKeys = () =>
-  Object.entries(preset.rules ?? {})
+  Object.entries({ ...preset.rules, ...vitestRules })
     .filter(([name, setting]) => name.startsWith('rules/') && setting !== 'off')
     .map(([name]) => name)
     .sort()
@@ -33,9 +36,13 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['typescript/prefer-readonly-parameter-types']).toBe('off')
   })
 
-  test('resolves the built public plugin without consumer-specific file exemptions', () => {
+  test('resolves the built public plugin and scopes Vitest to TypeScript test filenames', () => {
     expect(preset.jsPlugins?.[0]).toMatch(/index\.js$/)
-    expect(preset.overrides).toBeUndefined()
+    expect(preset.overrides).toHaveLength(1)
+    expect(vitest?.files).toEqual(['**/*.test.ts', '**/*.test.tsx'])
+    expect(vitest?.plugins).toEqual(['vitest'])
+    expect(Object.keys(preset.rules ?? {}).some((name) => name.startsWith('vitest/'))).toBe(false)
+    expect(preset.rules?.['rules/require-vitest-hooks']).toBeUndefined()
   })
 
   test('enables all native categories and the standard plugins without other stacks', () => {
@@ -60,7 +67,6 @@ describe('public plugin and standard preset', () => {
       'react-perf',
       'typescript',
       'unicorn',
-      'vitest',
     ])
     expect(preset.options?.typeAware).toBe(true)
   })
@@ -104,18 +110,18 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['react/jsx-filename-extension']).toEqual(['error', { extensions: ['jsx', 'tsx'] }])
     expect(preset.rules?.['react/jsx-no-literals']).toBe('off')
     expect(preset.rules?.['react/react-in-jsx-scope']).toBe('off')
-    expect(preset.rules?.['vitest/no-importing-vitest-globals']).toBe('off')
-    expect(preset.rules?.['vitest/prefer-called-times']).toBe('off')
-    expect(preset.rules?.['vitest/require-hook']).toBe('off')
-    expect(preset.rules?.['vitest/no-hooks']).toBe('off')
-    expect(preset.rules?.['rules/require-vitest-hooks']).toBe('error')
+    expect(vitestRules?.['vitest/no-importing-vitest-globals']).toBe('off')
+    expect(vitestRules?.['vitest/prefer-called-times']).toBe('off')
+    expect(vitestRules?.['vitest/require-hook']).toBe('off')
+    expect(vitestRules?.['vitest/no-hooks']).toBe('off')
+    expect(vitestRules?.['rules/require-vitest-hooks']).toBe('error')
     expect(preset.rules?.['rules/no-let']).toBe('error')
     expect(preset.rules?.['eslint/require-await']).toBe('off')
     expect(preset.rules?.['typescript/require-await']).not.toBe('off')
   })
 
   test('recognizes Effect tests without requiring boilerplate assertion counts and timeouts', () => {
-    expect(preset.rules?.['vitest/no-standalone-expect']).toEqual([
+    expect(vitestRules?.['vitest/no-standalone-expect']).toEqual([
       'error',
       {
         additionalTestBlockFunctions: expect.arrayContaining([
@@ -135,16 +141,16 @@ describe('public plugin and standard preset', () => {
         ]),
       },
     ])
-    expect(preset.rules?.['vitest/prefer-expect-assertions']).toEqual([
+    expect(vitestRules?.['vitest/prefer-expect-assertions']).toEqual([
       'error',
       { onlyFunctionsWithExpectInCallback: true },
     ])
-    expect(preset.rules?.['vitest/require-test-timeout']).toBe('off')
+    expect(vitestRules?.['vitest/require-test-timeout']).toBe('off')
   })
 
   test('preserves assertions that require an exact boolean', () => {
-    expect(preset.rules?.['vitest/prefer-to-be-falsy']).toBe('off')
-    expect(preset.rules?.['vitest/prefer-to-be-truthy']).toBe('off')
+    expect(vitestRules?.['vitest/prefer-to-be-falsy']).toBe('off')
+    expect(vitestRules?.['vitest/prefer-to-be-truthy']).toBe('off')
   })
 
   test('does not require deeply readonly parameter types', () => {

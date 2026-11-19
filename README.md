@@ -12,7 +12,7 @@ npx oxlint --config .oxlintrc.mjs src
 
 Replace `src` with your source directory.
 The preset reports policy violations, such as `rules/no-let` for a `let` declaration.
-Tests use the same rules as application files.
+Tests use the same general rules as application files, plus Vitest rules for `*.test.ts` and `*.test.tsx`.
 
 ## Key features
 
@@ -48,7 +48,8 @@ If you used `typescriptRuleNames` or `effectRuleNames`, use the combined `preset
 Remove explicit `rules/force-ts-extension` and `rules/no-js-extension-imports` entries. The standard preset uses `require-import-extension` and `consistent-import-extension` instead.
 
 The preset enables all seven native rule categories as errors, including nursery rules, and turns on type-aware linting.
-React, React Perf, JSX A11y and Vitest are enabled alongside the general-purpose built-in plugins.
+React, React Perf and JSX A11y are enabled alongside the general-purpose built-in plugins.
+The built-in Vitest plugin and `rules/require-vitest-hooks` apply only to `*.test.ts` and `*.test.tsx` at any directory depth.
 `rules/require-vitest-hooks` reports standalone setup and cleanup expressions outside hooks in recognized Vitest test modules and suites.
 Put shared setup and cleanup in hooks, for example `beforeEach(() => vi.clearAllMocks())`.
 When a test needs the result of setup, create it in that test with `const` instead of assigning it to a shared `let` in a hook.

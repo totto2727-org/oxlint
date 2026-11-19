@@ -14,6 +14,22 @@ const effectVitestTestBlocks = [
   'it.prop',
 ]
 
+const plugins: NonNullable<OxlintConfig['plugins']> = [
+  'eslint',
+  'import',
+  'jsdoc',
+  'jsx-a11y',
+  'node',
+  'oxc',
+  'promise',
+  'react',
+  'react-perf',
+  'typescript',
+  'unicorn',
+]
+
+const testRule = 'require-vitest-hooks'
+
 const preset: OxlintConfig = {
   categories: {
     correctness: 'error',
@@ -26,23 +42,38 @@ const preset: OxlintConfig = {
   },
   jsPlugins: [fileURLToPath(new URL('./index.js', import.meta.url))],
   options: { typeAware: true },
-  // The standard stack uses React and Vitest, not Next.js, Vue or Jest.
-  plugins: [
-    'eslint',
-    'import',
-    'jsdoc',
-    'jsx-a11y',
-    'node',
-    'oxc',
-    'promise',
-    'react',
-    'react-perf',
-    'typescript',
-    'unicorn',
-    'vitest',
+  plugins,
+  overrides: [
+    {
+      // Scope the whole Vitest plugin so its category rules cannot run on application or type-only files.
+      files: ['**/*.test.ts', '**/*.test.tsx'],
+      plugins: ['vitest'],
+      rules: {
+        [`rules/${testRule}`]: 'error',
+        // Shared setup and cleanup belong in hooks. Keep test data in test-local const bindings.
+        'vitest/no-hooks': 'off',
+        // Vitest disables globals by default, so tests must be able to import its APIs explicitly.
+        'vitest/no-importing-vitest-globals': 'off',
+        // Assertions inside @effect/vitest test blocks are not standalone.
+        'vitest/no-standalone-expect': ['error', { additionalTestBlockFunctions: effectVitestTestBlocks }],
+        // Use the dedicated called-once matchers instead of requiring an argument of 1.
+        'vitest/prefer-called-times': 'off',
+        // Keep exact boolean assertions. Falsy and truthy matchers would accept non-boolean values.
+        'vitest/prefer-to-be-falsy': 'off',
+        'vitest/prefer-to-be-truthy': 'off',
+        // Assertion counts are useful when a callback might not run, not after direct assertions.
+        'vitest/prefer-expect-assertions': ['error', { onlyFunctionsWithExpectInCallback: true }],
+        // Our rule also checks standalone state changes such as vi.stubEnv that the native rule misses.
+        'vitest/require-hook': 'off',
+        // Vitest already enforces a shared timeout. Only exceptional tests need their own value.
+        'vitest/require-test-timeout': 'off',
+      },
+    },
   ],
   rules: {
-    ...Object.fromEntries(presetRuleNames.map((name) => [`rules/${name}`, 'error'] as const)),
+    ...Object.fromEntries(
+      presetRuleNames.filter((name) => name !== testRule).map((name) => [`rules/${name}`, 'error'] as const),
+    ),
     // Effect uses anonymous generators as callbacks, where a name adds no information.
     'func-names': ['error', 'as-needed', { generators: 'never' }],
     'id-length': ['error', { checkGeneric: false, properties: 'never' }],
@@ -108,23 +139,6 @@ const preset: OxlintConfig = {
     'react/jsx-no-literals': 'off',
     // The automatic JSX runtime does not need React in scope. Classic JSX can opt back in.
     'react/react-in-jsx-scope': 'off',
-    // Shared setup and cleanup belong in hooks. Keep test data in test-local const bindings.
-    'vitest/no-hooks': 'off',
-    // Vitest disables globals by default, so tests must be able to import its APIs explicitly.
-    'vitest/no-importing-vitest-globals': 'off',
-    // Assertions inside @effect/vitest test blocks are not standalone.
-    'vitest/no-standalone-expect': ['error', { additionalTestBlockFunctions: effectVitestTestBlocks }],
-    // Use the dedicated called-once matchers instead of requiring an argument of 1.
-    'vitest/prefer-called-times': 'off',
-    // Keep exact boolean assertions. Falsy and truthy matchers would accept non-boolean values.
-    'vitest/prefer-to-be-falsy': 'off',
-    'vitest/prefer-to-be-truthy': 'off',
-    // Assertion counts are useful when a callback might not run, not after direct assertions.
-    'vitest/prefer-expect-assertions': ['error', { onlyFunctionsWithExpectInCallback: true }],
-    // The native rule also flags production startup and type-only fixtures. Our rule requires a Vitest suite or test.
-    'vitest/require-hook': 'off',
-    // Vitest already enforces a shared timeout. Only exceptional tests need their own value.
-    'vitest/require-test-timeout': 'off',
   },
 }
 
