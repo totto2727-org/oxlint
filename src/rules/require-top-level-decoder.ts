@@ -4,7 +4,7 @@ import { Predicate } from 'effect'
 import { hasProperty, isReportable } from '../helpers.ts'
 
 const TOP_LEVEL_DECODER_MESSAGE =
-  'Hoist schema decoder construction to module top level and call the cached function inside this scope. Building the decoder per call re-runs the schema compilation on every invocation.'
+  'Hoist fixed schema decoder construction to module top level so it is not repeated on every call. If the schema must be built from runtime input, or a factory builds the decoder only once per instance, disable this rule on the decoder line and explain why.'
 
 const matchMemberCallByPrefix = (node: unknown, namespace: string, prefix: string): boolean => {
   if (

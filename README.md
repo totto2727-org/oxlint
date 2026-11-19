@@ -96,8 +96,29 @@ Use `readonly cause: unknown` or `cause: Schema.Unknown` when wrapping a failure
 `no-error-property-access` checks JavaScript catch bindings and direct `Effect.try` or `Effect.tryPromise` callbacks, not typed failures that happen to be named `error`.
 If an external API requires a native constructor, use a line-level suppression with the interoperability reason. `eslint/preserve-caught-error` still checks native rethrows.
 
+`no-direct-tag-access` replaces `no-option-tag-comparison` and rejects direct `_tag` access, including literal brackets, optional chaining, destructuring and `in` checks.
+Use `Option.isSome` or `Option.isNone` for `Option`, and `Result.isSuccess` or `Result.isFailure` for `Result`.
+Use `Exit.isSuccess` or `Exit.isFailure` for `Exit`.
+Use `Match.tag` or `Match.tagsExhaustive` for tagged domain values, such as values defined with `Data.TaggedClass` or `Data.TaggedError`.
+The rule does not guess the receiver type or rewrite branches automatically.
+
+`require-tagged-data` rejects handwritten `_tag` properties in TypeScript types, classes and object literals.
+Define data with `Data.TaggedClass`, `Data.TaggedEnum`, `Schema.TaggedClass`, `Schema.TaggedStruct` or `Schema.TaggedUnion`.
+Pair the `Data.TaggedEnum` type with `Data.taggedEnum` to create values.
+Infer TypeScript types from those definitions instead of redeclaring the tag.
+Keep `require-tagged-error` for error constructions that do not define a tag at all.
+
 `prefer-schema-format-validation` reports inline regex tests that reject input by throwing or yielding a newly constructed failure.
 Define a named Schema for the format and its length or range constraints. This rule does not report ordinary regex classification or infer the domain of numeric comparisons.
+
+`require-top-level-decoder` reports decoder construction inside a function.
+Build decoders for fixed schemas at module scope so calls can reuse them.
+If the schema depends on runtime input, or a factory builds and retains a decoder once per instance, suppress only the construction line and state why it cannot be hoisted.
+
+```ts
+// oxlint-disable-next-line rules/require-top-level-decoder -- The factory builds this decoder once from the selected schema and reuses it for every request.
+const decode = Schema.decodeUnknownEffect(selectedSchema)
+```
 
 ## Development
 

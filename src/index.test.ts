@@ -87,13 +87,12 @@ describe('public plugin and standard preset', () => {
     expect(preset.rules?.['rules/no-error-cause-option']).toBe('off')
   })
 
-  test('disallows direct tag access without changing tag declarations', () => {
-    expect(preset.rules?.['no-underscore-dangle']).toBeUndefined()
-    expect(preset.rules?.['no-restricted-properties']).toEqual([
-      'error',
-      { property: '_tag', message: 'Use a public predicate or matcher instead of accessing `_tag` directly.' },
-    ])
-    expect(preset.rules?.['rules/no-option-tag-comparison']).toBe('error')
+  test('uses dedicated rules for tag access and handwritten tag definitions', () => {
+    expect(preset.rules?.['rules/no-direct-tag-access']).toBe('error')
+    expect(preset.rules?.['rules/require-tagged-data']).toBe('error')
+    expect(preset.rules?.['no-underscore-dangle']).toEqual(['error', { allow: ['_tag'] }])
+    expect(preset.rules?.['no-restricted-properties']).toBeUndefined()
+    expect(preset.rules?.['rules/no-option-tag-comparison']).toBeUndefined()
   })
 
   test('supports automatic JSX and explicit Vitest APIs without conflicting hook policies', () => {
