@@ -49,6 +49,9 @@ Remove explicit `rules/force-ts-extension` and `rules/no-js-extension-imports` e
 
 The preset enables all seven native rule categories as errors, including nursery rules, and turns on type-aware linting.
 React, React Perf, JSX A11y and Vitest are enabled alongside the general-purpose built-in plugins.
+`rules/require-vitest-hooks` reports standalone setup and cleanup expressions outside hooks in recognized Vitest test modules and suites.
+Put shared setup and cleanup in hooks, for example `beforeEach(() => vi.clearAllMocks())`.
+When a test needs the result of setup, create it in that test with `const` instead of assigning it to a shared `let` in a hook.
 Next.js, Vue and Jest are opt-in.
 If you set `plugins` in your own config, include the preset plugins as well: `plugins: [...(preset.plugins ?? []), 'nextjs']`.
 Set the environment for your runtime in your own config.

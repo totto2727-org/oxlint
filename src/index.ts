@@ -30,6 +30,7 @@ import requireImportExtension from './rules/require-import-extension.ts'
 import requireTaggedData from './rules/require-tagged-data.ts'
 import requireTaggedError from './rules/require-tagged-error.ts'
 import requireTopLevelDecoder from './rules/require-top-level-decoder.ts'
+import requireVitestHooks from './rules/require-vitest-hooks.ts'
 import noBigintLiterals from './upstream/effect/no-bigint-literals.ts'
 import noImportFromBarrelPackage from './upstream/effect/no-import-from-barrel-package.ts'
 import noOpaqueInstanceFields from './upstream/effect/no-opaque-instance-fields.ts'
@@ -74,6 +75,7 @@ const plugin = {
     'require-tagged-data': requireTaggedData,
     'require-tagged-error': requireTaggedError,
     'require-top-level-decoder': requireTopLevelDecoder,
+    'require-vitest-hooks': requireVitestHooks,
   },
 }
 

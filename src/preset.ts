@@ -108,6 +108,8 @@ const preset: OxlintConfig = {
     'react/jsx-no-literals': 'off',
     // The automatic JSX runtime does not need React in scope. Classic JSX can opt back in.
     'react/react-in-jsx-scope': 'off',
+    // Shared setup and cleanup belong in hooks. Keep test data in test-local const bindings.
+    'vitest/no-hooks': 'off',
     // Vitest disables globals by default, so tests must be able to import its APIs explicitly.
     'vitest/no-importing-vitest-globals': 'off',
     // Assertions inside @effect/vitest test blocks are not standalone.
@@ -119,7 +121,7 @@ const preset: OxlintConfig = {
     'vitest/prefer-to-be-truthy': 'off',
     // Assertion counts are useful when a callback might not run, not after direct assertions.
     'vitest/prefer-expect-assertions': ['error', { onlyFunctionsWithExpectInCallback: true }],
-    // Keep setup local to tests rather than requiring hooks that vitest/no-hooks forbids.
+    // The native rule also flags production startup and type-only fixtures. Our rule requires a Vitest suite or test.
     'vitest/require-hook': 'off',
     // Vitest already enforces a shared timeout. Only exceptional tests need their own value.
     'vitest/require-test-timeout': 'off',

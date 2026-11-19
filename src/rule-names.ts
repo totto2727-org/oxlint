@@ -33,6 +33,7 @@ export const presetRuleNames = [
   'require-tagged-data',
   'require-tagged-error',
   'require-top-level-decoder',
+  'require-vitest-hooks',
 ] as const
 
 // Retained opt-in rules support alternate import policies.
