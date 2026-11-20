@@ -1,10 +1,12 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { getNullishSide, getStringValue, getTypeofType } from './force-predicate.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('getNullishSide', () => {
+import { getNullishSide, getStringValue, getTypeofType, forcePredicate as rule } from './force-predicate.ts'
+
+describe('nullish operand classification', () => {
   test('null literal returns "null"', () => {
+    // oxlint-disable-next-line unicorn/no-null -- ESTree uses null for the value of a null literal.
     expect(getNullishSide({ type: 'Literal', value: null })).toBe('null')
   })
 
@@ -12,35 +14,36 @@ describe('getNullishSide', () => {
     expect(getNullishSide({ name: 'undefined', type: 'Identifier' })).toBe('undefined')
   })
 
-  test('number literal returns null', () => {
-    expect(getNullishSide({ type: 'Literal', value: 42 })).toBeNull()
+  test('rejects numeric literals as nullish operands', () => {
+    expect(getNullishSide({ type: 'Literal', value: 42 })).toBeUndefined()
   })
 
-  test('non-undefined identifier returns null', () => {
-    expect(getNullishSide({ name: 'foo', type: 'Identifier' })).toBeNull()
+  test('rejects other identifiers as nullish operands', () => {
+    expect(getNullishSide({ name: 'foo', type: 'Identifier' })).toBeUndefined()
   })
 
-  test('non-object returns null', () => {
-    expect(getNullishSide(null)).toBeNull()
-    expect(getNullishSide('null')).toBeNull()
+  test('rejects non-object operands', () => {
+    // oxlint-disable-next-line unicorn/no-null -- Verify that a primitive null does not look like an ESTree node.
+    expect(getNullishSide(null)).toBeUndefined()
+    expect(getNullishSide('null')).toBeUndefined()
   })
 })
 
-describe('getTypeofType', () => {
+describe('typeof operand recognition', () => {
   test('typeof UnaryExpression returns "typeof"', () => {
     expect(getTypeofType({ argument: {}, operator: 'typeof', type: 'UnaryExpression' })).toBe('typeof')
   })
 
-  test('non-typeof unary expression returns null', () => {
-    expect(getTypeofType({ argument: {}, operator: '!', type: 'UnaryExpression' })).toBeNull()
+  test('rejects unary expressions with another operator', () => {
+    expect(getTypeofType({ argument: {}, operator: '!', type: 'UnaryExpression' })).toBeUndefined()
   })
 
-  test('non-UnaryExpression returns null', () => {
-    expect(getTypeofType({ type: 'Literal', value: 42 })).toBeNull()
+  test('rejects other AST node types', () => {
+    expect(getTypeofType({ type: 'Literal', value: 42 })).toBeUndefined()
   })
 })
 
-describe('getStringValue', () => {
+describe('string operand extraction', () => {
   test('string literal returns its value', () => {
     expect(getStringValue({ type: 'Literal', value: 'hello' })).toBe('hello')
   })
@@ -49,15 +52,16 @@ describe('getStringValue', () => {
     expect(getStringValue({ type: 'Literal', value: '' })).toBe('')
   })
 
-  test('number literal returns null', () => {
-    expect(getStringValue({ type: 'Literal', value: 42 })).toBeNull()
+  test('does not extract a string from a number literal', () => {
+    expect(getStringValue({ type: 'Literal', value: 42 })).toBeUndefined()
   })
 
-  test('non-literal returns null', () => {
-    expect(getStringValue({ name: 'foo', type: 'Identifier' })).toBeNull()
+  test('does not extract a string from an identifier', () => {
+    expect(getStringValue({ name: 'foo', type: 'Identifier' })).toBeUndefined()
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers cases synchronously during test collection.
 runRuleTest('force-predicate', rule, {
   invalid: [
     { code: 'if (x === null) {}', errors: 1, name: '=== null reports Predicate.isNull' },

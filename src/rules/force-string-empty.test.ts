@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isEmptyStringLiteral } from './force-string-empty.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isEmptyStringLiteral', () => {
+import { isEmptyStringLiteral, forceStringEmpty as rule } from './force-string-empty.ts'
+
+describe('recognition of empty string literals', () => {
   test('empty string literal returns true', () => {
     expect(isEmptyStringLiteral({ type: 'Literal', value: '' })).toBe(true)
   })
@@ -17,6 +18,7 @@ describe('isEmptyStringLiteral', () => {
   })
 
   test('null literal returns false', () => {
+    // oxlint-disable-next-line unicorn/no-null -- ESTree uses null for the value of a null literal.
     expect(isEmptyStringLiteral({ type: 'Literal', value: null })).toBe(false)
   })
 
@@ -25,6 +27,7 @@ describe('isEmptyStringLiteral', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers cases synchronously during test collection.
 runRuleTest('force-string-empty', rule, {
   invalid: [
     { code: "if (s === '') {}", errors: 1, name: "=== '' reports String.isEmpty" },

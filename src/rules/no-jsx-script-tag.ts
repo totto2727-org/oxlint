@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable } from '../helpers.ts'
+import { isReportable } from '#src/helpers.ts'
 
 export const isScriptJsxElement = (node: unknown): boolean =>
   Predicate.isObject(node) &&
@@ -10,7 +10,7 @@ export const isScriptJsxElement = (node: unknown): boolean =>
   (node['name'] as { type?: string }).type === 'JSXIdentifier' &&
   (node['name'] as { name?: string }).name === 'script'
 
-const rule: Rule = {
+export const noJsxScriptTag: Rule = {
   create(context: Context) {
     return {
       JSXOpeningElement(node: unknown) {
@@ -31,5 +31,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

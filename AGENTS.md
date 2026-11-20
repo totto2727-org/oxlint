@@ -1,17 +1,19 @@
 # @totto2727/oxlint
 
+Resolve repeated conflicts with normal Effect or framework usage in the standard preset. Keep custom rules that require an explicit reason for intentional exceptions enabled. An explained exception at an Effect runtime boundary is intentional policy, not a preset conflict.
+
 ## Repository structure
 
-| Path                                | Purpose                                    |
-| ----------------------------------- | ------------------------------------------ |
-| `src/index.ts`                      | Plugin and named exports                   |
-| `src/rules/`                        | Local rules and RuleTester tests           |
-| `src/upstream/`                     | Fixed Effect rules and Ultracite settings  |
-| `src/rule-groups.ts`                | TypeScript, Effect and compatibility lists |
-| `src/{preset,typescript,effect}.ts` | Preset exports                             |
-| `vite.config.ts`                    | Formatting, lint, tests, build and tasks   |
-| `package.json`                      | Dependencies, exports and package files    |
-| `flake.nix`                         | Development shell                          |
+| Path                | Purpose                                  |
+| ------------------- | ---------------------------------------- |
+| `src/plugin.ts`     | Plugin and named exports                 |
+| `src/rules/`        | Local rules and RuleTester tests         |
+| `src/upstream/`     | Fixed Effect rules                       |
+| `src/rule-names.ts` | Standard and compatibility rule lists    |
+| `src/preset.ts`     | Standard preset                          |
+| `vite.config.ts`    | Formatting, lint, tests, build and tasks |
+| `package.json`      | Dependencies, exports and package files  |
+| `flake.nix`         | Development shell                        |
 
 ## Development commands
 
@@ -39,6 +41,8 @@
 | `npm pack --pack-destination tmp` | Create a consumer archive                       |
 
 Create `tmp/` before packing an archive.
+The check task loads the local TypeScript plugin with the library preset without building it. The package task still builds the distributed JavaScript and declarations.
+The warning lists in `vite.config.ts` apply only to this repository during migration. Fix the findings for each rule, then remove that rule from the list.
 Validate workflows with `actionlint .github/workflows/ci.yml .github/workflows/publish.yml` when actionlint is available.
 Do not trigger publication just to validate a workflow.
 
@@ -54,22 +58,25 @@ Check accepted and rejected calls, then run the built exports.
 Source type checks alone do not validate the distributed declarations.
 Keep required notices in the package's `files` list.
 
-Update incorporated sources, tests and MIT notices together.
+Keep the Effect rules used by this preset in version control under `src/upstream/effect/`. Do not replace these files with an external plugin dependency.
+When updating these rules, update their tests and record the exact upstream revision in `THIRD-PARTY-NOTICES.md`. Keep the MIT notice.
 Keep the stable `typescript-api` dependency separate from the development compiler.
-Do not combine the official Effect import policy with its conflicting local compatibility rules.
-Keep the duplicate official extension rule off in presets.
-Preserve native settings, plugins, environment and shared ignores from Ultracite.
-Exclude external file overrides, including test exemptions.
-Keep the three native conflict adjustments common to both preset groups.
-Do not add React, JavaScript-plugin, type-aware or formatter layers implicitly.
-Validate both preset orders with an installed archive after preset changes.
+When enabling an opt-in import policy, check that it does not conflict with other import rules.
+Keep compatibility rules opt-in.
+Assume JavaScript and TypeScript projects use Effect. Keep common settings in the shared preset. Declare rule settings that differ between applications and libraries in `modeRules` in `src/preset.ts`.
+Enable all native categories, general-purpose built-in plugins, React, React Perf and JSX A11y for all files.
+Enable Vitest and the custom Vitest hooks rule only for `*.test.ts` and `*.test.tsx`.
+Keep Next.js, Vue and Jest opt-in.
+Prefer existing custom rules over overlapping native rules unless the native rule has demonstrably better coverage.
+Document every disabled rule next to its setting and keep consumer-specific exceptions in the consumer.
+Validate the standard preset with an installed archive after preset changes.
 
 ## Development tools
 
 - **Dependencies**: Use Node.js, pnpm and Vite+, with compatible caret ranges. Keep `minimumReleaseAge: 1440` and `minimumReleaseAgeStrict: true` in `pnpm-workspace.yaml`. Do not add age exclusions or manual dependency overrides. The [official Vite+ core alias and bundled Vitest overrides](https://viteplus.dev/guide/local-cli#manual-installation) are the only exceptions and must exactly match the installed Vite+ toolchain. Keep these overrides under `vite@*` and `vitest@*` in `pnpm-workspace.yaml`. Keep the stable TypeScript API alias separate from the development compiler. Commit only `pnpm-lock.yaml` as the package-manager lockfile. This library has no direct Bun runtime requirement.
 - **Vite+**: Keep tasks in `vite.config.ts`. Keep `dist/` out of formatting and lint inputs.
 - **Task caching**: Track build inputs automatically, excluding `dist/**`. Keep `cache.output: ['dist/**']` for cache restoration. Package inspection depends on build. Do not bypass that dependency with `--parallel`.
-- **TypeScript**: Keep the strictest preset before node-ts in `tsconfig.json`. Use default file discovery. Remove temporary TypeScript consumers before whole-project checks.
+- **TypeScript**: Keep the strictest preset before node-ts in `tsconfig.json`. Include TypeScript files at the repository root and under `src/`. Keep temporary TypeScript consumers under `tmp/`.
 - **Nix flakes**: Keep JavaScript tool provisioning outside Nix. Preserve the exact `packageManager` pin, currently `pnpm@12.4.1`. Export development shells only. Keep the local `default` hook and the hook-free `ci` profile. Do not add package or CLI outputs.
 - **GitHub Actions**: Keep shared actions on `@main` and use their existing Nix environment loading.
 

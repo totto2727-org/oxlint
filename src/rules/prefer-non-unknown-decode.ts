@@ -1,23 +1,17 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable, isSchemaMethodCall } from '../helpers.ts'
+import { isReportable, isSchemaMethodCall } from '#src/helpers.ts'
 
 const UNKNOWN_DECODE_METHODS: Record<string, string> = {
   decodeUnknownEffect: 'decodeEffect',
   decodeUnknownExit: 'decodeExit',
 }
 
-export const isSchemaUnknownDecodeCall = (node: unknown): string | null => {
-  for (const method of Object.keys(UNKNOWN_DECODE_METHODS)) {
-    if (isSchemaMethodCall(node, method)) {
-      return method
-    }
-  }
-  return null
-}
+export const isSchemaUnknownDecodeCall = (node: unknown): string | undefined =>
+  Object.keys(UNKNOWN_DECODE_METHODS).find((method) => isSchemaMethodCall(node, method))
 
-const rule: Rule = {
+export const preferNonUnknownDecode: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
@@ -39,5 +33,3 @@ const rule: Rule = {
     type: 'suggestion',
   },
 }
-
-export default rule

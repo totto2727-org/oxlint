@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { getLiteralNumber, isReportable } from '../helpers.ts'
+import { getLiteralNumber, isReportable } from '#src/helpers.ts'
 
 const isLengthMember = (node: unknown): boolean =>
   Predicate.isObject(node) &&
@@ -11,95 +11,72 @@ const isLengthMember = (node: unknown): boolean =>
   node['property']['type'] === 'Identifier' &&
   node['property']['name'] === 'length'
 
-export type EmptyKind = 'empty' | 'non-empty'
+type EmptyKind = 'empty' | 'non-empty'
 
-export type LiteralPosition = 'left' | 'right'
+type LiteralPosition = 'left' | 'right'
 
-const classifyAgainstZero = (operator: string, literalPosition: LiteralPosition): EmptyKind | null => {
-  if (operator === '===' || operator === '==') {
-    return 'empty'
-  }
-  if (operator === '!==' || operator === '!=') {
-    return 'non-empty'
-  }
-  if (operator === '>') {
-    // length > 0 -> non-empty; 0 > length -> impossible (length is always >= 0)
-    return literalPosition === 'right' ? 'non-empty' : null
-  }
-  if (operator === '<') {
-    // length < 0 -> impossible; 0 < length -> non-empty
-    return literalPosition === 'right' ? null : 'non-empty'
-  }
-  if (operator === '>=') {
-    // length >= 0 -> tautology; 0 >= length -> length === 0 -> empty
-    return literalPosition === 'right' ? null : 'empty'
-  }
-  if (operator === '<=') {
-    // length <= 0 -> length === 0 -> empty; 0 <= length -> tautology
-    return literalPosition === 'right' ? 'empty' : null
-  }
-  return null
-}
+const emptyLength = 0
+const minimumNonEmptyLength = 1
 
-const classifyAgainstOne = (operator: string, literalPosition: LiteralPosition): EmptyKind | null => {
-  if (operator === '<') {
-    // length < 1 -> length === 0 -> empty; 1 < length -> length >= 2, not a clean empty/non-empty check
-    return literalPosition === 'right' ? 'empty' : null
-  }
-  if (operator === '>=') {
-    // length >= 1 -> non-empty; 1 >= length -> length is 0 or 1, not a clean empty/non-empty check
-    return literalPosition === 'right' ? 'non-empty' : null
-  }
-  if (operator === '>') {
-    // length > 1 -> length >= 2, not a clean empty/non-empty check; 1 > length -> length === 0 -> empty
-    return literalPosition === 'right' ? null : 'empty'
-  }
-  if (operator === '<=') {
-    // length <= 1 -> length is 0 or 1, not a clean empty/non-empty check; 1 <= length -> non-empty
-    return literalPosition === 'right' ? null : 'non-empty'
-  }
-  return null
-}
+// Normalize to the size on the left, then keep only exact empty or non-empty checks.
+const reverseOperators: ReadonlyMap<string, string> = new Map([
+  ['<', '>'],
+  ['<=', '>='],
+  ['>', '<'],
+  ['>=', '<='],
+])
+const compareWithZero: ReadonlyMap<string, EmptyKind> = new Map([
+  ['!=', 'non-empty'],
+  ['!==', 'non-empty'],
+  ['<=', 'empty'],
+  ['==', 'empty'],
+  ['===', 'empty'],
+  ['>', 'non-empty'],
+])
+const compareWithOne: ReadonlyMap<string, EmptyKind> = new Map([
+  ['<', 'empty'],
+  ['>=', 'non-empty'],
+])
 
 export const classifyLengthComparison = (
   operator: string,
   literalPosition: LiteralPosition,
   literal: number,
-): EmptyKind | null => {
-  if (literal === 0) {
-    return classifyAgainstZero(operator, literalPosition)
+): EmptyKind | undefined => {
+  const normalizedOperator = literalPosition === 'left' ? (reverseOperators.get(operator) ?? operator) : operator
+  if (literal === emptyLength) {
+    return compareWithZero.get(normalizedOperator)
   }
-  if (literal === 1) {
-    return classifyAgainstOne(operator, literalPosition)
+  if (literal === minimumNonEmptyLength) {
+    return compareWithOne.get(normalizedOperator)
   }
-  return null
+  return undefined
 }
 
-const rule: Rule = {
+export const classifySizeComparison = (
+  node: Record<string, unknown>,
+  isSize: (operand: unknown) => boolean,
+): EmptyKind | undefined => {
+  const { left, operator, right } = node
+  if (!Predicate.isString(operator)) {
+    return undefined
+  }
+  const literalPosition = isSize(left) ? 'right' : 'left'
+  if (literalPosition === 'left' && !isSize(right)) {
+    return undefined
+  }
+  const literal = getLiteralNumber(literalPosition === 'right' ? right : left)
+  return Predicate.isNullish(literal) ? undefined : classifyLengthComparison(operator, literalPosition, literal)
+}
+
+export const forceArrayEmpty: Rule = {
   create(context: Context) {
     return {
       BinaryExpression(node: unknown) {
         if (!isReportable(node)) {
           return
         }
-        if (!Predicate.isObject(node)) {
-          return
-        }
-        if (!Predicate.isString(node['operator'])) {
-          return
-        }
-        const leftIsLength = isLengthMember(node['left'])
-        const rightIsLength = isLengthMember(node['right'])
-        if (!leftIsLength && !rightIsLength) {
-          return
-        }
-        const literalPosition: LiteralPosition = leftIsLength ? 'right' : 'left'
-        const literalSide = literalPosition === 'right' ? node['right'] : node['left']
-        const literal = getLiteralNumber(literalSide)
-        if (Predicate.isNullish(literal)) {
-          return
-        }
-        const kind = classifyLengthComparison(node['operator'], literalPosition, literal)
+        const kind = classifySizeComparison(node, isLengthMember)
         if (Predicate.isNullish(kind)) {
           return
         }
@@ -118,5 +95,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { hasStringStyleValue } from './no-string-style.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('hasStringStyleValue', () => {
+import { hasStringStyleValue, noStringStyle as rule } from './no-string-style.ts'
+
+describe('string style attribute detection', () => {
   test('string style attribute returns true', () => {
     expect(
       hasStringStyleValue({
@@ -45,6 +46,7 @@ describe('hasStringStyleValue', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('no-string-style', rule, {
   invalid: [
     {

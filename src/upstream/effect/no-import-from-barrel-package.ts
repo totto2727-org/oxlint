@@ -1,120 +1,119 @@
+// oxlint-disable-next-line rules/no-node-imports -- The synchronous Oxlint visitor must probe the filesystem before returning.
 import * as fs from 'node:fs'
-import * as path from 'node:path'
+// oxlint-disable-next-line rules/no-node-imports -- Relative barrel resolution needs host filesystem path semantics.
+import path from 'node:path'
 
 // Vendored from Effect-TS/effect at b1d200c40a1dad69def51ebdbf0a1a612a12b8ac.
 // MIT, Copyright (c) 2023 Effectful Technologies Inc. See THIRD-PARTY-NOTICES.md.
-import type { CreateRule, ESTree, Visitor } from '@oxlint/plugins'
+import type { CreateRule, ESTree } from '@oxlint/plugins'
+import { Array, Predicate } from 'effect'
 
 interface RuleOptions {
-  checkPatterns?: Array<string>
-  checkRelativeIndexImports?: boolean
+  checkRelativeIndexImports: boolean
+  patterns: RegExp[]
 }
 
 const extensions = ['.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs']
 
-function getModuleName(specifier: ESTree.ImportSpecifier): string {
-  return specifier.imported.type === 'Identifier' ? specifier.imported.name : specifier.imported.value
+const getModuleName = (specifier: ESTree.ImportSpecifier): string =>
+  specifier.imported.type === 'Identifier' ? specifier.imported.name : specifier.imported.value
+
+const isRelativeImport = (source: string): boolean => source.startsWith('./') || source.startsWith('../')
+
+const resolvesToBarrel = (importSource: string, currentFile: string): boolean => {
+  const basename = path.basename(importSource)
+  const resolved = path.resolve(path.dirname(currentFile), importSource)
+  return (
+    basename === 'index' ||
+    extensions.some((extension) => basename === `index${extension}`) ||
+    extensions.some((extension) =>
+      // oxlint-disable-next-line node/no-sync -- Oxlint only accepts synchronous visitors.
+      fs.existsSync(path.join(resolved, `index${extension}`)),
+    )
+  )
 }
 
-function isRelativeImport(source: string): boolean {
-  return source.startsWith('./') || source.startsWith('../')
-}
-
-function hasIndexFile(dirPath: string): boolean {
-  for (const ext of extensions) {
-    if (fs.existsSync(path.join(dirPath, `index${ext}`))) {
-      return true
-    }
+const parseOptions = (input: unknown): RuleOptions => {
+  if (!Predicate.isObject(input)) {
+    return { checkRelativeIndexImports: true, patterns: [] }
   }
-  return false
-}
-
-function isIndexImport(importPath: string): boolean {
-  const basename = path.basename(importPath)
-  return basename === 'index' || /^index\.(ts|tsx|js|jsx|mts|cts|mjs|cjs)$/.test(basename)
-}
-
-function resolvesToBarrel(importSource: string, currentFile: string): boolean {
-  const dir = path.dirname(currentFile)
-  const resolved = path.resolve(dir, importSource)
-  if (isIndexImport(importSource)) return true
-  if (hasIndexFile(resolved)) return true
-  return false
-}
-
-function createBarrelMatcher(options: RuleOptions): (source: string, currentFile: string) => boolean {
-  const patterns = (options.checkPatterns ?? []).map((p) => new RegExp(p))
-  const checkRelative = options.checkRelativeIndexImports !== false
-  return (source: string, currentFile: string): boolean => {
-    if (isRelativeImport(source)) return checkRelative && resolvesToBarrel(source, currentFile)
-    for (const pattern of patterns) {
-      if (pattern.test(source)) return true
-    }
-    return false
+  const checkPatterns: unknown = input['checkPatterns']
+  const patterns = (Array.isArray(checkPatterns) ? checkPatterns : [])
+    .filter((pattern) => Predicate.isString(pattern))
+    .map(
+      (pattern) =>
+        // oxlint-disable-next-line eslint/require-unicode-regexp -- Existing user regex patterns use legacy RegExp syntax.
+        new RegExp(pattern),
+    )
+  return {
+    checkRelativeIndexImports: input['checkRelativeIndexImports'] !== false,
+    patterns,
   }
 }
 
-const rule: CreateRule = {
+const namedImportMessage = (specifier: ESTree.ImportSpecifier, source: string): string => {
+  const moduleName = getModuleName(specifier)
+  return isRelativeImport(source)
+    ? `Do not import "${moduleName}" from barrel file "${source}", import from specific module instead`
+    : `Use import * as ${specifier.local.name} from "${source}/${moduleName}" instead`
+}
+
+const matchesBarrel = (source: string, filename: string, options: RuleOptions): boolean =>
+  isRelativeImport(source)
+    ? options.checkRelativeIndexImports && resolvesToBarrel(source, filename)
+    : options.patterns.some((pattern) => pattern.test(source))
+
+export const noImportFromBarrelPackage: CreateRule = {
+  create(context) {
+    const currentFile = context.filename
+    const options = parseOptions(context.options[0])
+    return {
+      ImportDeclaration(node: ESTree.ImportDeclaration) {
+        const importSource = node.source.value
+        if (node.importKind === 'type' || !matchesBarrel(importSource, currentFile, options)) {
+          return
+        }
+        Array.forEach(
+          node.specifiers.filter((item) => item.type === 'ImportNamespaceSpecifier'),
+          (specifier) => {
+            context.report({
+              message: `Do not use namespace import from barrel file "${importSource}", import from specific modules instead`,
+              node: specifier,
+            })
+          },
+        )
+        Array.forEach(
+          node.specifiers.filter((item) => item.type === 'ImportSpecifier'),
+          (specifier) => {
+            if (specifier.importKind !== 'type') {
+              context.report({ message: namedImportMessage(specifier, importSource), node: specifier })
+            }
+          },
+        )
+      },
+    }
+  },
   meta: {
-    type: 'suggestion',
     docs: {
       description: 'Disallow importing from barrel files (index.ts), encourage importing specific modules instead',
     },
     schema: [
       {
-        type: 'object',
+        additionalProperties: false,
         properties: {
           checkPatterns: {
-            type: 'array',
-            items: { type: 'string' },
             description: 'Regex patterns to match barrel imports',
+            items: { type: 'string' },
+            type: 'array',
           },
           checkRelativeIndexImports: {
-            type: 'boolean',
             description: 'Whether to check relative imports that resolve to index files',
+            type: 'boolean',
           },
         },
-        additionalProperties: false,
+        type: 'object',
       },
     ],
-  },
-  create(context) {
-    const currentFile = context.filename
-    const options: RuleOptions = (context.options[0] as RuleOptions) ?? {}
-    const isBarrelImport = createBarrelMatcher(options)
-    return {
-      ImportDeclaration(node: ESTree.ImportDeclaration) {
-        if (node.importKind === 'type') return
-        const importSource = node.source.value
-        if (!isBarrelImport(importSource, currentFile)) return
-        const namespaceSpecifiers: Array<ESTree.ImportNamespaceSpecifier> = []
-        const namedValueSpecifiers: Array<ESTree.ImportSpecifier> = []
-        for (const specifier of node.specifiers) {
-          if (specifier.type === 'ImportNamespaceSpecifier') {
-            namespaceSpecifiers.push(specifier)
-          } else if (specifier.type === 'ImportSpecifier') {
-            if (specifier.importKind !== 'type') {
-              namedValueSpecifiers.push(specifier)
-            }
-          }
-        }
-        for (const specifier of namespaceSpecifiers) {
-          context.report({
-            node: specifier,
-            message: `Do not use namespace import from barrel file "${importSource}", import from specific modules instead`,
-          })
-        }
-        for (const specifier of namedValueSpecifiers) {
-          const moduleName = getModuleName(specifier)
-          const localName = specifier.local.name
-          const message = isRelativeImport(importSource)
-            ? `Do not import "${moduleName}" from barrel file "${importSource}", import from specific module instead`
-            : `Use import * as ${localName} from "${importSource}/${moduleName}" instead`
-          context.report({ node: specifier, message })
-        }
-      },
-    } as Visitor
+    type: 'suggestion',
   },
 }
-
-export default rule

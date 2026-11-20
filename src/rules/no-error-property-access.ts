@@ -1,36 +1,54 @@
-import type { Context, Rule } from '@oxlint/plugins'
-import { Predicate } from 'effect'
+import type { ESTree, Rule, SourceCode } from '@oxlint/plugins'
 
-import { isReportable } from '../helpers.ts'
+import { fieldName, findBinding, isEffectMethod } from '#src/effect-method.ts'
 
-const NO_ERROR_PROPERTY_ACCESS_MESSAGE =
-  'Do not access properties on caught error values (`e`, `error`, `c`, `cause`, or `err`). Pass the value through as `error` unchanged.'
+const isEffectCatchProperty = (source: SourceCode, property: ESTree.Node): boolean => {
+  if (property.type !== 'Property' || property.computed || fieldName(property.key) !== 'catch') {
+    return false
+  }
+  const options = property.parent
+  if (options.type !== 'ObjectExpression' || options.parent.type !== 'CallExpression') {
+    return false
+  }
+  const { callee } = options.parent
+  return (
+    isEffectMethod(source, callee, { module: 'Effect', name: 'try' }) ||
+    isEffectMethod(source, callee, { module: 'Effect', name: 'tryPromise' })
+  )
+}
 
-const ERROR_VALUE_NAMES = new Set(['c', 'cause', 'e', 'err', 'error'])
+const isEffectCatch = (source: SourceCode, node: ESTree.Node, name: string): boolean => {
+  if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression') {
+    return false
+  }
+  const [parameter] = node.params
+  return parameter?.type === 'Identifier' && parameter.name === name && isEffectCatchProperty(source, node.parent)
+}
 
-const getIdentifierName = (node: unknown): string | null =>
-  Predicate.isObject(node) && node['type'] === 'Identifier' && Predicate.isString(node['name']) ? node['name'] : null
-
-export const isErrorPropertyAccess = (node: unknown): boolean =>
-  Predicate.isObject(node) &&
-  node['type'] === 'MemberExpression' &&
-  Predicate.isObject(node['object']) &&
-  ERROR_VALUE_NAMES.has(getIdentifierName(node['object']) ?? '')
-
-const rule: Rule = {
-  create(context: Context) {
+export const noErrorPropertyAccess: Rule = {
+  create(context) {
+    const { sourceCode } = context
     return {
-      MemberExpression(node: unknown) {
-        if (!isReportable(node) || !isErrorPropertyAccess(node)) {
+      MemberExpression(node) {
+        const { object } = node
+        if (object.type !== 'Identifier') {
           return
         }
-        context.report({ message: NO_ERROR_PROPERTY_ACCESS_MESSAGE, node })
+        const binding = findBinding(sourceCode.getScope(object), object.name)
+        if (
+          binding?.defs.some(
+            (definition) =>
+              definition.type === 'CatchClause' ||
+              (definition.type === 'Parameter' && isEffectCatch(sourceCode, definition.node, object.name)),
+          ) === true
+        ) {
+          context.report({
+            message: 'Do not read properties of an untyped caught value. Preserve it as the cause of a tagged error.',
+            node,
+          })
+        }
       },
     }
   },
-  meta: {
-    type: 'problem',
-  },
+  meta: { type: 'problem' },
 }
-
-export default rule

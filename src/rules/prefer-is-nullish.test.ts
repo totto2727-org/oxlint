@@ -1,42 +1,44 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { getNullishPredicateMember } from './prefer-is-nullish.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-const makePredicateMember = (method: string) => ({
+import { getNullishPredicateMember, preferIsNullish as rule } from './prefer-is-nullish.ts'
+
+const makePredicateMember = (method: string): object => ({
   object: { name: 'Predicate', type: 'Identifier' },
   property: { name: method, type: 'Identifier' },
   type: 'MemberExpression',
 })
 
-describe('getNullishPredicateMember', () => {
+describe('nullish predicate member detection', () => {
   test.each(['isNull', 'isNotNull', 'isUndefined', 'isNotUndefined'])('%s returns method name', (method) => {
     expect(getNullishPredicateMember(makePredicateMember(method))).toBe(method)
   })
 
-  test('isNullish returns null (not in the banned set)', () => {
-    expect(getNullishPredicateMember(makePredicateMember('isNullish'))).toBeNull()
+  test('allows isNullish', () => {
+    expect(getNullishPredicateMember(makePredicateMember('isNullish'))).toBeUndefined()
   })
 
-  test('isNotNullish returns null (not in the banned set)', () => {
-    expect(getNullishPredicateMember(makePredicateMember('isNotNullish'))).toBeNull()
+  test('allows isNotNullish', () => {
+    expect(getNullishPredicateMember(makePredicateMember('isNotNullish'))).toBeUndefined()
   })
 
-  test('non-Predicate object returns null', () => {
+  test('allows other namespaces', () => {
     expect(
       getNullishPredicateMember({
         object: { name: 'Option', type: 'Identifier' },
         property: { name: 'isNull', type: 'Identifier' },
         type: 'MemberExpression',
       }),
-    ).toBeNull()
+    ).toBeUndefined()
   })
 
-  test('non-MemberExpression returns null', () => {
-    expect(getNullishPredicateMember({ name: 'isNull', type: 'Identifier' })).toBeNull()
+  test('ignores expressions without an object', () => {
+    expect(getNullishPredicateMember({ name: 'isNull', type: 'Identifier' })).toBeUndefined()
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers Vitest cases during collection, before hooks run.
 runRuleTest('prefer-is-nullish', rule, {
   invalid: [
     { code: 'if (Predicate.isNull(x)) {}', errors: 1, name: 'Predicate.isNull is reported' },

@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { isReportable } from '../helpers.ts'
+import { isReportable } from '#src/helpers.ts'
 
 const NO_TYPE_PREDICATE_MESSAGE =
   'Do not use TypeScript type predicate annotations (`value is Type`). Model the value with Effect Schema and use `Schema.is(...)` instead.'
@@ -9,7 +9,7 @@ const NO_TYPE_PREDICATE_MESSAGE =
 export const isTypePredicateAnnotation = (node: unknown): boolean =>
   Predicate.isObject(node) && node['type'] === 'TSTypePredicate'
 
-const rule: Rule = {
+export const noTypePredicate: Rule = {
   create(context: Context) {
     return {
       TSTypePredicate(node: unknown) {
@@ -24,5 +24,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule

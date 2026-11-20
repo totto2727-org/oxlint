@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vite-plus/test'
 
-import { runRuleTest } from '../__fixtures__/run-rule-test.ts'
-import rule, { isEffectEcosystemImport } from './no-effect-import-as.ts'
+import { runRuleTest } from '#src/__fixtures__/run-rule-test.ts'
 
-describe('isEffectEcosystemImport', () => {
+import { isEffectEcosystemImport, noEffectImportAs as rule } from './no-effect-import-as.ts'
+
+describe('detection of Effect ecosystem imports', () => {
   describe('effect ecosystem packages', () => {
     test.each(['effect', '@effect/platform', '@effect/platform-node', 'effect/unstable'])(
       '%s returns true',
@@ -20,6 +21,7 @@ describe('isEffectEcosystemImport', () => {
   })
 })
 
+// oxlint-disable-next-line rules/require-vitest-hooks -- RuleTester registers cases synchronously during test collection.
 runRuleTest('no-effect-import-as', rule, {
   invalid: [
     {

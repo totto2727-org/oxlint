@@ -1,7 +1,7 @@
 import type { Context, Rule } from '@oxlint/plugins'
 import { Predicate } from 'effect'
 
-import { hasProperty, isReportable } from '../helpers.ts'
+import { hasProperty, isReportable } from '#src/helpers.ts'
 
 const FETCH_GLOBALS: ReadonlySet<string> = new Set(['globalThis', 'self', 'window'])
 const FETCH_GUIDANCE_MESSAGE =
@@ -27,7 +27,7 @@ export const isFetchOnGlobal = (node: unknown): boolean => {
   )
 }
 
-const rule: Rule = {
+export const noFetch: Rule = {
   create(context: Context) {
     return {
       CallExpression(node: unknown) {
@@ -48,5 +48,3 @@ const rule: Rule = {
     type: 'problem',
   },
 }
-
-export default rule
