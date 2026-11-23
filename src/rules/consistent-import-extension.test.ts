@@ -45,8 +45,8 @@ runRuleTest('consistent-import-extension', rule, {
     })),
     { code: "export * from '#/foo.tsx'", errors: 1, options: [{ mode: 'js' }], output: "export * from '#/foo.js'" },
     { code: "import('../foo.ts')", errors: 1, options: [{ mode: 'js' }], output: "import('../foo.js')" },
-    { code: "import './it\\'s.js'", errors: 1, output: "import './it\\'s.ts'" },
-    { code: "import './foo\\u002ejs'", errors: 1, output: "import './foo.ts'" },
+    { code: String.raw`import './it\'s.js'`, errors: 1, output: String.raw`import './it\'s.ts'` },
+    { code: String.raw`import './foo\u002ejs'`, errors: 1, output: "import './foo.ts'" },
     { code: 'import("./it\\\"s.js")', errors: 1, output: 'import("./it\\\"s.ts")' },
   ],
   valid: [
