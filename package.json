@@ -39,23 +39,23 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "@oxlint/plugins": "^1.87.0",
-    "effect": "^4.0.2",
-    "oxlint": "^1.87.0",
+    "@oxlint/plugins": "^1.94.0",
+    "effect": "^4.1.5",
+    "oxlint": "^1.94.0",
     "typescript-api": "npm:typescript@^6.0.3"
   },
   "devDependencies": {
     "@totto2727/gitignore-patterns": "^0.1.0",
-    "@tsconfig/node-ts": "^23.6.4",
-    "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "^24.19.1",
+    "@tsconfig/node-ts": "^23.6.5",
+    "@tsconfig/strictest": "^2.0.9",
+    "@types/node": "^24.19.2",
     "typescript": "^7.0.2",
-    "vite": "npm:@voidzero-dev/vite-plus-core@^1.1.0",
-    "vite-plus": "^1.1.0",
-    "vitest": "^5.0.3"
+    "vite": "npm:@voidzero-dev/vite-plus-core@^8.3.8000",
+    "vite-plus": "^1.7.0",
+    "vitest": "^5.1.0"
   },
   "engines": {
     "node": ">=24"
   },
-  "packageManager": "pnpm@12.4.1"
+  "packageManager": "pnpm@12.23.0"
 }
