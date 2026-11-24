@@ -7,5 +7,6 @@
     "rewriteRelativeImportExtensions": false,
     "target": "ESNext",
     "types": ["node"]
-  }
+  },
+  "include": ["*.ts", "*.tsx", "src/**/*.ts", "src/**/*.tsx"]
 }
