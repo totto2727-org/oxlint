@@ -11,6 +11,7 @@ npx oxlint --config .oxlintrc.mjs src
 ```
 
 Replace `src` with your source directory.
+For a `rules/<id>` diagnostic, open the matching [Oxlint skill rule page](skills/oxlint/SKILL.md).
 The preset reports policy violations, such as `rules/no-let` for a `let` declaration.
 `rules/no-for-loops` reports `for`, `for...of`, `for...in`, and `for await...of`.
 Use collection combinators, `Effect.forEach`, or `Stream.runForEach` when they express the same behavior.
