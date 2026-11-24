@@ -29,6 +29,7 @@ export const presetRuleNames = [
   'no-js-date',
   'no-node-imports',
   'no-optional-error-cause',
+  'no-raw-crypto',
   'no-readonly',
   'no-sync-decode',
   'no-type-predicate',
