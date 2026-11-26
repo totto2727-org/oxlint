@@ -9,7 +9,6 @@ import preset from './preset.ts'
 
 const checkedPreset: OxlintConfig = preset
 const vitest = checkedPreset.overrides?.[0]
-const jsx = checkedPreset.overrides?.[1]
 const vitestRules = vitest?.rules
 const productionRules = checkedPreset.rules ?? {}
 
@@ -23,13 +22,13 @@ const getStandaloneExpect = (): { functions: unknown; severity: unknown } => {
 }
 
 const customKeys = (): string[] =>
-  Object.entries({ ...productionRules, ...vitestRules, ...jsx?.rules })
+  Object.entries({ ...productionRules, ...vitestRules })
     .filter(([name, setting]) => name.startsWith('rules/') && setting !== 'off')
     .map(([name]) => name)
     .toSorted()
 
 describe('public plugin and standard preset', () => {
-  test('enables all registered plugin rules in their configured scope', () => {
+  test('enables all registered plugin rules by default', () => {
     const names = Array.fromIterable(presetRuleNames)
     expect(new Set(names).size).toBe(names.length)
     expect(Object.keys(plugin.rules).toSorted()).toStrictEqual(names.toSorted())
@@ -65,23 +64,20 @@ describe('public plugin and standard preset', () => {
 
   test('resolves the distributed plugin and scopes Vitest to test filenames', () => {
     expect(checkedPreset.jsPlugins?.[0]).toMatch(/plugin\.js$/u)
-    expect(preset.overrides).toHaveLength(2)
+    expect(preset.overrides).toHaveLength(1)
     expect(vitest?.files).toStrictEqual(['**/*.test.ts', '**/*.test.tsx'])
     expect(vitest?.plugins).toStrictEqual(['vitest'])
     expect(Object.keys(productionRules).some((name) => name.startsWith('vitest/'))).toBe(false)
   })
 })
 
-describe('function style in JSX', () => {
-  test('replaces the conflicting native function rules only in JSX and TSX', () => {
-    expect(jsx).toStrictEqual({
-      files: ['**/*.jsx', '**/*.tsx'],
-      rules: {
-        'eslint/func-style': 'off',
-        'react/function-component-definition': 'off',
-        'rules/function-style': 'error',
-      },
-    })
+describe('shared function style', () => {
+  test('checks named functions through the expression policy and retains the inline React policy', () => {
+    expect(productionRules['eslint/func-style']).toStrictEqual(['error', 'expression'])
+    expect(productionRules['react/function-component-definition']).toStrictEqual([
+      'error',
+      { namedComponents: ['arrow-function', 'function-expression', 'function-declaration'] },
+    ])
   })
 })
 
@@ -133,16 +129,12 @@ describe('rules replaced by the standard policy', () => {
     expect(productionRules[rule]).toBe('off')
   })
 
-  test.each([
-    'eslint/func-style',
-    'no-restricted-properties',
-    'react/function-component-definition',
-    'rules/function-style',
-    'rules/no-option-tag-comparison',
-    'rules/require-vitest-hooks',
-  ])('does not set %s globally', (rule) => {
-    expect(productionRules[rule]).toBeUndefined()
-  })
+  test.each(['no-restricted-properties', 'rules/no-option-tag-comparison', 'rules/require-vitest-hooks'])(
+    'does not set %s globally',
+    (rule) => {
+      expect(productionRules[rule]).toBeUndefined()
+    },
+  )
 })
 
 describe('standard rule options', () => {

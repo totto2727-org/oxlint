@@ -14,7 +14,6 @@ export const presetRuleNames = [
   'force-iterable-empty',
   'force-predicate',
   'force-string-empty',
-  'function-style',
   'no-effect-import-as',
   'no-effect-runtime-run',
   'no-effect-subpath-import',

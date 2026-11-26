@@ -29,7 +29,6 @@ const plugins = [
 ] satisfies NonNullable<OxlintConfig['plugins']>
 
 const testRule = 'require-vitest-hooks'
-const jsxFunctionRule = 'function-style'
 
 // Validate against Oxlint without exporting all rule options from the build's Oxlint version.
 const preset = {
@@ -74,23 +73,13 @@ const preset = {
         'vitest/require-test-timeout': 'off',
       },
     },
-    {
-      files: ['**/*.jsx', '**/*.tsx'],
-      rules: {
-        // Apply both function conventions together so each JSX function has one required form.
-        'eslint/func-style': 'off',
-        'react/function-component-definition': 'off',
-        [`rules/${jsxFunctionRule}`]: 'error',
-      },
-    },
   ],
   plugins,
   rules: {
     ...Object.fromEntries(
-      presetRuleNames
-        .filter((name) => name !== testRule && name !== jsxFunctionRule)
-        .map((name) => [`rules/${name}`, 'error'] as const),
+      presetRuleNames.filter((name) => name !== testRule).map((name) => [`rules/${name}`, 'error'] as const),
     ),
+    'eslint/func-style': ['error', 'expression'],
     // The custom rule rejects every let, including declarations that prefer-const can fix.
     'eslint/prefer-const': 'off',
     // Require the caught value as the cause when wrapping it in a native error.
@@ -136,6 +125,11 @@ const preset = {
     'oxc/no-optional-chaining': 'off',
     // The eslint/prefer-object-spread rule recommends the syntax this rule bans.
     'oxc/no-rest-spread-properties': 'off',
+    // Leave named functions to func-style while retaining the React rule for inline components.
+    'react/function-component-definition': [
+      'error',
+      { namedComponents: ['arrow-function', 'function-expression', 'function-declaration'] },
+    ],
     'react/jsx-filename-extension': ['error', { extensions: ['jsx', 'tsx'] }],
     // Allow JSX text. The default no-literals policy requires braces that jsx-curly-brace-presence removes.
     'react/jsx-no-literals': 'off',
