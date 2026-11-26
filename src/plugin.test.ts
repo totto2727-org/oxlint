@@ -72,7 +72,6 @@ describe('public plugin and standard preset', () => {
 describe('standard rule policy', () => {
   test.each([
     'eslint/preserve-caught-error',
-    'rules/effect-tracing',
     'rules/no-direct-tag-access',
     'rules/no-effect-import-as',
     'rules/no-effect-runtime-run',
@@ -143,11 +142,12 @@ describe('standard rule options', () => {
     expect(vitestRules?.['no-magic-numbers']).toBe('off')
   })
 
-  test('shares its rules across application and library variants', () => {
-    expect(applicationPreset).toStrictEqual({
-      ...preset,
-      rules: { ...productionRules, 'rules/effect-tracing': ['error', 'application'] },
-    })
+  test('uses application mode for the standard preset', () => {
+    expect(preset).toStrictEqual(applicationPreset)
+    expect(productionRules['rules/effect-tracing']).toStrictEqual(['error', 'application'])
+  })
+
+  test('changes only the tracing policy in library mode', () => {
     expect(libraryPreset).toStrictEqual({
       ...preset,
       rules: { ...productionRules, 'rules/effect-tracing': ['error', 'library'] },

@@ -30,7 +30,7 @@ const plugins: NonNullable<OxlintConfig['plugins']> = [
 
 const testRule = 'require-vitest-hooks'
 
-const preset: OxlintConfig = {
+const sharedConfig: OxlintConfig = {
   categories: {
     correctness: 'error',
     nursery: 'error',
@@ -162,9 +162,9 @@ const modeRules = {
 } satisfies Record<string, NonNullable<OxlintConfig['rules']>>
 
 export const createPreset = (mode: keyof typeof modeRules): OxlintConfig => ({
-  ...preset,
-  rules: { ...preset.rules, ...modeRules[mode] },
+  ...sharedConfig,
+  rules: { ...sharedConfig.rules, ...modeRules[mode] },
 })
 
-// oxlint-disable-next-line import/no-default-export -- Oxlint consumers import the shared config as the package subpath's default export.
-export default preset
+// oxlint-disable-next-line import/no-default-export -- Oxlint consumers import the standard config as the package subpath's default export.
+export default createPreset('application')
