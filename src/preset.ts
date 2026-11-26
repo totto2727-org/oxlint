@@ -14,7 +14,7 @@ const effectVitestTestBlocks = [
   'it.prop',
 ]
 
-const plugins: NonNullable<OxlintConfig['plugins']> = [
+const plugins = [
   'eslint',
   'import',
   'jsdoc',
@@ -26,12 +26,13 @@ const plugins: NonNullable<OxlintConfig['plugins']> = [
   'react-perf',
   'typescript',
   'unicorn',
-]
+] satisfies NonNullable<OxlintConfig['plugins']>
 
 const testRule = 'require-vitest-hooks'
 const jsxFunctionRule = 'function-style'
 
-const preset: OxlintConfig = {
+// Validate against Oxlint without exporting all rule options from the build's Oxlint version.
+const preset = {
   categories: {
     correctness: 'error',
     nursery: 'error',
@@ -166,14 +167,19 @@ const preset: OxlintConfig = {
     // Its automatic replacement, Date.now(), is forbidden by the custom Temporal policy.
     'unicorn/prefer-date-now': 'off',
   },
-}
+} satisfies OxlintConfig
 
 const modeRules = {
   application: { 'rules/effect-tracing': ['error', 'application'] },
   library: { 'rules/effect-tracing': ['error', 'library'] },
 } satisfies Record<string, NonNullable<OxlintConfig['rules']>>
 
-export const createPreset = (mode: keyof typeof modeRules): OxlintConfig => ({
+type PresetMode = keyof typeof modeRules
+type ModePreset = Omit<typeof preset, 'rules'> & {
+  rules: typeof preset.rules & (typeof modeRules)[PresetMode]
+}
+
+export const createPreset = (mode: PresetMode): ModePreset => ({
   ...preset,
   rules: { ...preset.rules, ...modeRules[mode] },
 })
