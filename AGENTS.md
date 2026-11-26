@@ -94,7 +94,8 @@ Validate the standard preset with an installed archive after preset changes.
 ## Task-specific documentation
 
 To refresh the [Oxlint skill](skills/oxlint/SKILL.md), run `nix develop --command node sync-oxlint-skill.ts /path/to/oxlint-docs` against a trusted checkout with clean documentation sources.
-The script checks the documentation IDs against this checkout's plugin and records the exact documentation revision.
+The script checks the imported and local reference IDs against this checkout's plugin and records the exact external documentation revision.
+Maintain the references listed in `localRuleNames` in this repository.
 Review the incorporated Effect rule pages against `src/upstream/effect/` and its tests, then run `nix develop --command vp fmt skills/oxlint` and the standard checks.
 
 - When changing task dependencies or cache inputs: [Vite+ tasks](https://viteplus.dev/config/run) and [input tracking](https://viteplus.dev/guide/automatic-data-tracking).

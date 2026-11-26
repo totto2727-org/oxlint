@@ -48,17 +48,19 @@ const { ruleArticles, ruleMarkdown } = (await import(pathToFileURL(path.join(doc
 const { externalEffectRuleNames } = (await import(pathToFileURL(path.join(docs, 'src/content/policies.ts')).href)) as {
   externalEffectRuleNames: string[]
 }
+const localRuleNames = ['no-raw-crypto']
+const maintainedRuleNames = [...externalEffectRuleNames, ...localRuleNames]
 const ids = Object.keys(plugin.rules).toSorted()
 assert.deepEqual(
-  [...ruleArticles.map(({ name }) => name), ...externalEffectRuleNames].toSorted(),
+  [...ruleArticles.map(({ name }) => name), ...maintainedRuleNames].toSorted(),
   ids,
-  'Documentation and repository plugin must cover the same rule IDs',
+  'Imported and local references must cover the same rule IDs as the plugin',
 )
 const skill = new URL('skills/oxlint/', import.meta.url)
 const refs = new URL('references/', skill)
 const existing = await readdir(refs)
-externalEffectRuleNames.forEach((name) => {
-  assert.ok(existing.includes(`${name}.md`), `Write the missing incorporated rule reference: ${name}`)
+maintainedRuleNames.forEach((name) => {
+  assert.ok(existing.includes(`${name}.md`), `Write the missing rule reference: ${name}`)
 })
 existing.forEach((file) => {
   assert.ok(

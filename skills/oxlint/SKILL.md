@@ -36,6 +36,7 @@ For preset selection, see the [package documentation](https://github.com/totto27
 - [no-node-imports](references/no-node-imports.md)
 - [no-opaque-instance-fields](references/no-opaque-instance-fields.md)
 - [no-optional-error-cause](references/no-optional-error-cause.md)
+- [no-raw-crypto](references/no-raw-crypto.md)
 - [no-readonly](references/no-readonly.md)
 - [no-redundant-alias](references/no-redundant-alias.md)
 - [no-string-style](references/no-string-style.md)
