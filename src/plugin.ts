@@ -4,11 +4,12 @@ import { forceArrayEmpty } from './rules/force-array-empty.ts'
 import { forceIterableEmpty } from './rules/force-iterable-empty.ts'
 import { forcePredicate } from './rules/force-predicate.ts'
 import { forceStringEmpty } from './rules/force-string-empty.ts'
+import { functionStyle } from './rules/function-style.ts'
 import { noDirectTagAccess } from './rules/no-direct-tag-access.ts'
 import { noEffectImportAs } from './rules/no-effect-import-as.ts'
 import { noEffectRuntimeRun } from './rules/no-effect-runtime-run.ts'
-import { noEffectSubpathImport } from './rules/no-effect-subpath-import.ts'
 // oxlint-disable-next-line import/max-dependencies -- The plugin entry must register every rule; a barrel would only hide these dependencies.
+import { noEffectSubpathImport } from './rules/no-effect-subpath-import.ts'
 import { noErrorPropertyAccess } from './rules/no-error-property-access.ts'
 import { noEslintDisableComments } from './rules/no-eslint-disable-comments.ts'
 import { noFetch } from './rules/no-fetch.ts'
@@ -49,6 +50,7 @@ const plugin = {
     'force-iterable-empty': forceIterableEmpty,
     'force-predicate': forcePredicate,
     'force-string-empty': forceStringEmpty,
+    'function-style': functionStyle,
     'no-bigint-literals': noBigintLiterals,
     'no-direct-tag-access': noDirectTagAccess,
     'no-effect-import-as': noEffectImportAs,

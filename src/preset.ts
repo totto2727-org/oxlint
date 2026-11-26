@@ -29,6 +29,7 @@ const plugins: NonNullable<OxlintConfig['plugins']> = [
 ]
 
 const testRule = 'require-vitest-hooks'
+const jsxFunctionRule = 'function-style'
 
 const preset: OxlintConfig = {
   categories: {
@@ -43,6 +44,15 @@ const preset: OxlintConfig = {
   jsPlugins: [fileURLToPath(new URL('plugin.js', import.meta.url))],
   options: { typeAware: true },
   overrides: [
+    {
+      files: ['**/*.jsx', '**/*.tsx'],
+      rules: {
+        // Apply both function conventions together so each JSX function has one required form.
+        'eslint/func-style': 'off',
+        'react/function-component-definition': 'off',
+        [`rules/${jsxFunctionRule}`]: 'error',
+      },
+    },
     {
       // Scope the whole Vitest plugin so its category rules cannot run on application or type-only files.
       files: ['**/*.test.ts', '**/*.test.tsx'],
@@ -76,7 +86,9 @@ const preset: OxlintConfig = {
   plugins,
   rules: {
     ...Object.fromEntries(
-      presetRuleNames.filter((name) => name !== testRule).map((name) => [`rules/${name}`, 'error'] as const),
+      presetRuleNames
+        .filter((name) => name !== testRule && name !== jsxFunctionRule)
+        .map((name) => [`rules/${name}`, 'error'] as const),
     ),
     // The custom rule rejects every let, including declarations that prefer-const can fix.
     'eslint/prefer-const': 'off',
