@@ -80,21 +80,27 @@ See [the preset source](https://github.com/totto2727-org/oxlint/blob/main/src/pr
 
 ### Function style
 
-The shared, application and library presets set `eslint/func-style` to `expression`.
-The rule permits both arrow functions and `function` expressions in variable declarations.
-Use `const` arrow functions for helper functions and named JSX components.
+The shared, application and library presets set both function style rules to `error`.
+`eslint/func-style` uses `expression` and permits both arrow functions and named `function` expressions for ordinary functions assigned to variables.
+`react/function-component-definition` sets both `namedComponents` and `unnamedComponents` to `'arrow-function'` for the React components it detects.
+Use arrow functions for those components, including inline components passed to `React.memo` or `React.forwardRef`.
 
 ```jsx
+import * as React from 'react'
+
 export const Card = () => <article />
+export const MemoCard = React.memo(() => <article />)
+export const SearchField = React.forwardRef(({ label }, ref) => <input aria-label={label} ref={ref} />)
 ```
 
 ```js
-export const formatName = (name) => name.trim()
+export const formatName = function formatName(name) {
+  return name.trim()
+}
 ```
 
-A declaration such as `function Card() { return <article /> }` produces one `eslint/func-style` diagnostic.
-The rule permits default-exported function declarations.
-For inline components passed to React's `memo` or `forwardRef`, `react/function-component-definition` requires a `function` expression.
+Both rules report an error for `function Card() { return <article /> }`.
+For `export default function Card() { return <article /> }`, the React rule reports the error.
 
 ### Import extensions
 

@@ -125,10 +125,10 @@ const preset = {
     'oxc/no-optional-chaining': 'off',
     // The eslint/prefer-object-spread rule recommends the syntax this rule bans.
     'oxc/no-rest-spread-properties': 'off',
-    // Leave named functions to func-style while retaining the React rule for inline components.
+    // Use the same arrow form for named and inline React components.
     'react/function-component-definition': [
       'error',
-      { namedComponents: ['arrow-function', 'function-expression', 'function-declaration'] },
+      { namedComponents: 'arrow-function', unnamedComponents: 'arrow-function' },
     ],
     'react/jsx-filename-extension': ['error', { extensions: ['jsx', 'tsx'] }],
     // Allow JSX text. The default no-literals policy requires braces that jsx-curly-brace-presence removes.

@@ -72,11 +72,11 @@ describe('public plugin and standard preset', () => {
 })
 
 describe('shared function style', () => {
-  test('checks named functions through the expression policy and retains the inline React policy', () => {
+  test('uses expressions for functions and requires arrows for React components', () => {
     expect(productionRules['eslint/func-style']).toStrictEqual(['error', 'expression'])
     expect(productionRules['react/function-component-definition']).toStrictEqual([
       'error',
-      { namedComponents: ['arrow-function', 'function-expression', 'function-declaration'] },
+      { namedComponents: 'arrow-function', unnamedComponents: 'arrow-function' },
     ])
   })
 })
