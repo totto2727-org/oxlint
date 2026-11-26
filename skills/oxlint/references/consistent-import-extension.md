@@ -1,35 +1,60 @@
 # rules/consistent-import-extension
 
-Normalize code-module import extensions for your runtime.
+Match the extension to the file that the runtime or build tool resolves.
+TypeScript can resolve some JavaScript extensions to TypeScript sources during type checking, but the runtime might still look for the literal JavaScript path.
+Choose a mode based on what resolves the import, not just the language of the file that contains it.
 
-## Purpose and behavior
+## Choose a mode
 
-The rule checks relative paths and # subpath aliases containing a slash in static imports, re-exports and literal dynamic imports. In ts mode, .js/.jsx become .ts/.tsx, .mjs becomes .mts and .cjs becomes .cts. In js mode, .js/.jsx/.ts/.tsx become .js, .mjs/.mts become .mjs and .cjs/.cts become .cjs. Use [require-import-extension](require-import-extension.md) for missing extensions. The rule ignores asset extensions, bare packages and absolute paths. Fixes preserve query strings, fragments and quotes. Slashless aliases such as #utils are outside its scope.
+| Mode            | Rule setting                               | Use when                                                                                               |
+| --------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| `ts` (standard) | `"error"` or `["error", { "mode": "ts" }]` | A runtime or tool resolves the TypeScript source files.                                                |
+| `js`            | `["error", { "mode": "js" }]`              | Imports refer to JavaScript files at runtime, including builds that preserve specifiers in the output. |
 
-## Options
+| Input          | `ts` target | `js` target |
+| -------------- | ----------- | ----------- |
+| `.js`, `.ts`   | `.ts`       | `.js`       |
+| `.jsx`, `.tsx` | `.tsx`      | `.js`       |
+| `.mjs`, `.mts` | `.mts`      | `.mjs`      |
+| `.cjs`, `.cts` | `.cts`      | `.cjs`      |
 
-`{ mode: "ts" }` is the default. Use `{ mode: "js" }` for emitted JavaScript. Example: `["error", { "mode": "js" }]`. The import examples below use ts mode. Check runtime module resolution before applying fixes.
+## TypeScript mode
 
-## Invalid example
+Point to the source file so the loader can find it without remapping an extension.
+If you also emit JavaScript, use this mode only if the build rewrites the specifiers or the output loader can resolve them.
 
-Examples cover this rule only. They may omit imports or declarations.
-
-```tsx
-import { foo } from './foo.js'
+```ts
+// Reported when the source file is ./parse.ts.
+import './parse.js'
+// Corrected path in ts mode:
+import './parse.ts'
 ```
 
-## Valid example
+## JavaScript mode
 
-```tsx
-import { foo } from './foo.ts'
+Point to the output file so a JavaScript runtime does not look for a `.ts` file that was not shipped.
+The rule assumes JSX compiles to `.js`.
+Check your output if your tool preserves `.jsx`.
+Both modes keep the explicit ESM and CommonJS extension families separate.
+
+```ts
+// Reported when the emitted file is ./parse.js.
+import './parse.ts'
+// Corrected path in js mode:
+import './parse.js'
 ```
 
-## Fixes and exceptions
+## Scope and fixes
 
-Review the automatic fix before applying it.
+The rule checks relative paths and `#` aliases that contain a slash in static imports, re-exports, and literal dynamic imports.
+It ignores bare package names, absolute paths, slashless aliases such as `#utils`, and asset extensions.
+Use [require-import-extension](require-import-extension.md) for missing extensions.
 
-Add `// oxlint-disable-next-line rules/consistent-import-extension -- reason` above the diagnostic line. Explain the exception in `reason`.
+The fix changes only the extension and preserves the quotes, query string, and fragment.
+The rule does not check whether the target file exists.
+Verify the actual source or output extension before accepting the fix.
+If an individual import must follow a different loader convention, suppress only that line and name the convention in the reason.
 
 ## Source and tests
 
-[consistent-import-extension.ts](https://github.com/totto2727-org/oxlint/blob/bed13483292d75318f9ca01e124aa666edaa8202/src/rules/consistent-import-extension.ts) · [Tests](https://github.com/totto2727-org/oxlint/blob/bed13483292d75318f9ca01e124aa666edaa8202/src/rules/consistent-import-extension.test.ts)
+[Rule implementation](https://github.com/totto2727-org/oxlint/blob/main/src/rules/consistent-import-extension.ts) · [Tests](https://github.com/totto2727-org/oxlint/blob/main/src/rules/consistent-import-extension.test.ts)

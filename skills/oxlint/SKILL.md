@@ -53,4 +53,4 @@ For preset selection, see the [package documentation](https://github.com/totto27
 - [require-top-level-decoder](references/require-top-level-decoder.md)
 - [require-vitest-hooks](references/require-vitest-hooks.md)
 
-[English documentation source](https://github.com/totto2727-org/oxlint-docs/blob/aaab016489d6780649923e43d6f9c9bcb03fec75/src/content/rules.ts) · [License](LICENSE)
+[Source for imported references](https://github.com/totto2727-org/oxlint-docs/blob/aaab016489d6780649923e43d6f9c9bcb03fec75/src/content/rules.ts) · [License](LICENSE)

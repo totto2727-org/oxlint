@@ -48,11 +48,12 @@ const { ruleArticles, ruleMarkdown } = (await import(pathToFileURL(path.join(doc
 const { externalEffectRuleNames } = (await import(pathToFileURL(path.join(docs, 'src/content/policies.ts')).href)) as {
   externalEffectRuleNames: string[]
 }
-const localRuleNames = ['no-raw-crypto']
+const localRuleNames = new Set(['consistent-import-extension', 'effect-tracing', 'no-raw-crypto'])
+const importedArticles = ruleArticles.filter(({ name }) => !localRuleNames.has(name))
 const maintainedRuleNames = [...externalEffectRuleNames, ...localRuleNames]
 const ids = Object.keys(plugin.rules).toSorted()
 assert.deepEqual(
-  [...ruleArticles.map(({ name }) => name), ...maintainedRuleNames].toSorted(),
+  [...importedArticles.map(({ name }) => name), ...maintainedRuleNames].toSorted(),
   ids,
   'Imported and local references must cover the same rule IDs as the plugin',
 )
@@ -69,7 +70,7 @@ existing.forEach((file) => {
   )
 })
 await Promise.all(
-  ruleArticles.map(async (article) => {
+  importedArticles.map(async (article) => {
     const markdown = ruleMarkdown(article, 'en')
       .replaceAll(/^(?<heading>## .+?) \{#[\w-]+\}$/gmu, '$<heading>')
       .replaceAll(/\]\(\/rules\/(?<rule>[\w-]+)\)/gu, (_match, id: string) => {
@@ -101,6 +102,6 @@ For preset selection, see the [package documentation](https://github.com/totto27
 
 ${links}
 
-[English documentation source](https://github.com/totto2727-org/oxlint-docs/blob/${revision}/src/content/rules.ts) · [License](LICENSE)
+[Source for imported references](https://github.com/totto2727-org/oxlint-docs/blob/${revision}/src/content/rules.ts) · [License](LICENSE)
 `,
 )
