@@ -21,6 +21,7 @@ import { noLet } from './rules/no-let.ts'
 import { noLocalExportList } from './rules/no-local-export-list.ts'
 import { noNodeImports } from './rules/no-node-imports.ts'
 import { noOptionalErrorCause } from './rules/no-optional-error-cause.ts'
+import { noRawCrypto } from './rules/no-raw-crypto.ts'
 import { noReadonly } from './rules/no-readonly.ts'
 import { noRedundantAlias } from './rules/no-redundant-alias.ts'
 import { noStringStyle } from './rules/no-string-style.ts'
@@ -68,6 +69,7 @@ const plugin = {
     'no-node-imports': noNodeImports,
     'no-opaque-instance-fields': noOpaqueInstanceFields,
     'no-optional-error-cause': noOptionalErrorCause,
+    'no-raw-crypto': noRawCrypto,
     'no-readonly': noReadonly,
     'no-redundant-alias': noRedundantAlias,
     'no-string-style': noStringStyle,
