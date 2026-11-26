@@ -84,6 +84,7 @@ describe('standard rule policy', () => {
     'rules/no-let',
     'rules/no-local-export-list',
     'rules/no-node-imports',
+    'rules/no-raw-crypto',
     'rules/no-readonly',
     'rules/require-disable-reason',
     'rules/require-tagged-data',
