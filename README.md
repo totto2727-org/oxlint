@@ -80,29 +80,21 @@ See [the preset source](https://github.com/totto2727-org/oxlint/blob/main/src/pr
 
 ### Function style
 
-The shared, application and library presets use `rules/function-style` in `.jsx` and `.tsx` files, including `.test.tsx` files.
-The rule replaces `eslint/func-style` and `react/function-component-definition` in those files.
-In its default `expression` mode, `eslint/func-style` reports declarations that `react/function-component-definition` requires for named JSX components.
-Other files use the native rules.
+The shared, application and library presets set `eslint/func-style` to `expression`.
+The rule permits both arrow functions and `function` expressions in variable declarations.
+Use `const` arrow functions for helper functions and named JSX components.
 
-Use a function declaration for a named JSX component.
-The rule checks the function's position and return syntax to identify components.
-The same syntax checks apply to React, Preact and Solid JSX.
-A PascalCase helper that returns a string or number follows the ordinary function style.
-Use an arrow function or `function` expression for an ordinary function binding.
-
-```tsx
-function Card() {
-  return <article />
-}
-
-const formatName = (name: string) => name.trim()
+```jsx
+export const Card = () => <article />
 ```
 
-The rule reports `const Card = () => <article />` and `const Card = function Card() { return <article /> }`.
-It also reports `function formatName(name: string) { return name.trim() }`.
-Use a function expression for an inline component passed to React's `memo` or `forwardRef`.
-Change the form manually because a rewrite can change function hoisting or `this` binding.
+```js
+export const formatName = (name) => name.trim()
+```
+
+A declaration such as `function Card() { return <article /> }` produces one `eslint/func-style` diagnostic.
+The rule permits default-exported function declarations.
+For inline components passed to React's `memo` or `forwardRef`, `react/function-component-definition` requires a `function` expression.
 
 ### Import extensions
 
