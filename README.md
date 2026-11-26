@@ -84,6 +84,11 @@ The presets also disable `eslint/sort-keys`.
 Keep object keys in the order required by initializer evaluation and enumeration.
 For example, CVA uses variant key order when it assembles class names.
 
+In ordinary TypeScript declaration files (`*.d.ts`), all three presets disable `import/unambiguous`.
+This lets a declaration file introduce a virtual module or provide types for an untyped package.
+A top-level import or export would turn that declaration into an augmentation of an existing module.
+The rule remains active in implementation files, including `.ts`, `.tsx` and `.js`.
+
 ### Function style
 
 The shared, application and library presets set both function style rules to `error`.

@@ -73,6 +73,11 @@ const preset = {
         'vitest/require-test-timeout': 'off',
       },
     },
+    {
+      // A top-level import or export would turn an ambient module declaration into an augmentation.
+      files: ['**/*.d.ts'],
+      rules: { 'import/unambiguous': 'off' },
+    },
   ],
   plugins,
   rules: {

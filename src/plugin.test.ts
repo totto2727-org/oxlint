@@ -64,7 +64,7 @@ describe('public plugin and standard preset', () => {
 
   test('resolves the distributed plugin and scopes Vitest to test filenames', () => {
     expect(checkedPreset.jsPlugins?.[0]).toMatch(/plugin\.js$/u)
-    expect(preset.overrides).toHaveLength(1)
+    expect(checkedPreset.overrides?.filter((override) => override.plugins?.includes('vitest') === true)).toHaveLength(1)
     expect(vitest?.files).toStrictEqual(['**/*.test.ts', '**/*.test.tsx'])
     expect(vitest?.plugins).toStrictEqual(['vitest'])
     expect(Object.keys(productionRules).some((name) => name.startsWith('vitest/'))).toBe(false)
@@ -147,6 +147,13 @@ describe('standard rule options', () => {
     expect(productionRules['no-underscore-dangle']).toStrictEqual(['error', { allow: ['_tag'] }])
     expect(productionRules['react/jsx-filename-extension']).toStrictEqual(['error', { extensions: ['jsx', 'tsx'] }])
     expect(productionRules['typescript/require-await']).not.toBe('off')
+  })
+
+  test('permits ambient module declarations in declaration files', () => {
+    expect(preset.overrides.filter((override) => 'import/unambiguous' in override.rules)).toStrictEqual([
+      { files: ['**/*.d.ts'], rules: { 'import/unambiguous': 'off' } },
+    ])
+    expect(productionRules['import/unambiguous']).toBeUndefined()
   })
 
   test('allows magic numbers only in test files', () => {
