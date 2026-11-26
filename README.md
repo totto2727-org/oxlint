@@ -89,6 +89,12 @@ This lets a declaration file introduce a virtual module or provide types for an 
 A top-level import or export would turn that declaration into an augmentation of an existing module.
 The rule remains active in implementation files, including `.ts`, `.tsx` and `.js`.
 
+All three presets enable `eslint/no-void` with `allowAsStatement: true`.
+A synchronous callback can use a statement such as `void upload()` before returning the boolean its caller requires.
+The upload starts immediately. Give the operation a rejection handler when it needs to report a failure.
+Use `await` when the caller needs the result or must wait for completion.
+The rule reports `void` in an initializer or an expression-bodied arrow function.
+
 ### Function style
 
 The shared, application and library presets set both function style rules to `error`.

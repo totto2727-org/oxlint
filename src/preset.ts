@@ -87,6 +87,8 @@ const preset = {
     'eslint/func-style': ['error', 'expression'],
     // TypeScript resolves names against the consumer's declarations and runtime libraries.
     'eslint/no-undef': 'off',
+    // Synchronous event handlers can start asynchronous work and discard its return value.
+    'eslint/no-void': ['error', { allowAsStatement: true }],
     // The custom rule rejects every let, including declarations that prefer-const can fix.
     'eslint/prefer-const': 'off',
     // Require the caught value as the cause when wrapping it in a native error.

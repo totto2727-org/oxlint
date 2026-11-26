@@ -149,6 +149,11 @@ describe('standard rule options', () => {
     expect(productionRules['typescript/require-await']).not.toBe('off')
   })
 
+  test('allows void statements in synchronous callbacks', () => {
+    expect(productionRules['eslint/no-void']).toStrictEqual(['error', { allowAsStatement: true }])
+    expect(vitestRules?.['eslint/no-void']).toBeUndefined()
+  })
+
   test('permits ambient module declarations in declaration files', () => {
     expect(preset.overrides.filter((override) => 'import/unambiguous' in override.rules)).toStrictEqual([
       { files: ['**/*.d.ts'], rules: { 'import/unambiguous': 'off' } },

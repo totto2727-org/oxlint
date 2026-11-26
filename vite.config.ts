@@ -60,7 +60,7 @@ export default defineConfig({
         dependsOn: ['build'],
       },
       test: {
-        command: 'vp test run',
+        command: 'vp test run && sh src/__fixtures__/test-void-statements.sh',
       },
     },
   },
