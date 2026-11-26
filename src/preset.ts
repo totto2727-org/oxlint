@@ -80,12 +80,16 @@ const preset = {
       presetRuleNames.filter((name) => name !== testRule).map((name) => [`rules/${name}`, 'error'] as const),
     ),
     'eslint/func-style': ['error', 'expression'],
+    // TypeScript resolves names against the consumer's declarations and runtime libraries.
+    'eslint/no-undef': 'off',
     // The custom rule rejects every let, including declarations that prefer-const can fix.
     'eslint/prefer-const': 'off',
     // Require the caught value as the cause when wrapping it in a native error.
     'eslint/preserve-caught-error': 'error',
     // TypeScript's require-await also recognizes directly returned promises.
     'eslint/require-await': 'off',
+    // Initializer evaluation, property enumeration and CVA class output can depend on key order.
+    'eslint/sort-keys': 'off',
     // Effect uses anonymous generators as callbacks, where a name adds no information.
     'func-names': ['error', 'as-needed', { generators: 'never' }],
     'id-length': ['error', { checkGeneric: false, properties: 'never' }],

@@ -78,6 +78,12 @@ The `compatibilityRuleNames` export is empty.
 
 See [the preset source](https://github.com/totto2727-org/oxlint/blob/main/src/preset.ts) for conflict resolutions and their reasons.
 
+All three presets disable `eslint/no-undef` for JavaScript, TypeScript and tests.
+Run the TypeScript compiler to detect undeclared names in the files covered by your project.
+The presets also disable `eslint/sort-keys`.
+Keep object keys in the order required by initializer evaluation and enumeration.
+For example, CVA uses variant key order when it assembles class names.
+
 ### Function style
 
 The shared, application and library presets set both function style rules to `error`.

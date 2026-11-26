@@ -107,8 +107,10 @@ describe('standard rule policy', () => {
 
 describe('rules replaced by the standard policy', () => {
   test.each([
+    'eslint/no-undef',
     'eslint/prefer-const',
     'eslint/require-await',
+    'eslint/sort-keys',
     'import/exports-last',
     'import/extensions',
     'import/group-exports',
