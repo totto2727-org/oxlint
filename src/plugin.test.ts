@@ -7,6 +7,7 @@ import plugin, { compatibilityRuleNames, presetRuleNames } from './plugin.ts'
 import preset from './preset.ts'
 
 const vitest = preset.overrides?.[0]
+const jsx = preset.overrides?.[1]
 const vitestRules = vitest?.rules
 const productionRules = preset.rules ?? {}
 
@@ -20,13 +21,13 @@ const getStandaloneExpect = (): { functions: unknown; severity: unknown } => {
 }
 
 const customKeys = (): string[] =>
-  Object.entries({ ...productionRules, ...vitestRules })
+  Object.entries({ ...productionRules, ...vitestRules, ...jsx?.rules })
     .filter(([name, setting]) => name.startsWith('rules/') && setting !== 'off')
     .map(([name]) => name)
     .toSorted()
 
 describe('public plugin and standard preset', () => {
-  test('enables all registered plugin rules by default', () => {
+  test('enables all registered plugin rules in their configured scope', () => {
     const names = Array.fromIterable(presetRuleNames)
     expect(new Set(names).size).toBe(names.length)
     expect(Object.keys(plugin.rules).toSorted()).toStrictEqual(names.toSorted())
@@ -62,10 +63,23 @@ describe('public plugin and standard preset', () => {
 
   test('resolves the distributed plugin and scopes Vitest to test filenames', () => {
     expect(preset.jsPlugins?.[0]).toMatch(/plugin\.js$/u)
-    expect(preset.overrides).toHaveLength(1)
+    expect(preset.overrides).toHaveLength(2)
     expect(vitest?.files).toStrictEqual(['**/*.test.ts', '**/*.test.tsx'])
     expect(vitest?.plugins).toStrictEqual(['vitest'])
     expect(Object.keys(productionRules).some((name) => name.startsWith('vitest/'))).toBe(false)
+  })
+})
+
+describe('function style in JSX', () => {
+  test('replaces the conflicting native function rules only in JSX and TSX', () => {
+    expect(jsx).toStrictEqual({
+      files: ['**/*.jsx', '**/*.tsx'],
+      rules: {
+        'eslint/func-style': 'off',
+        'react/function-component-definition': 'off',
+        'rules/function-style': 'error',
+      },
+    })
   })
 })
 
@@ -117,12 +131,16 @@ describe('rules replaced by the standard policy', () => {
     expect(productionRules[rule]).toBe('off')
   })
 
-  test.each(['no-restricted-properties', 'rules/no-option-tag-comparison', 'rules/require-vitest-hooks'])(
-    'does not set %s globally',
-    (rule) => {
-      expect(productionRules[rule]).toBeUndefined()
-    },
-  )
+  test.each([
+    'eslint/func-style',
+    'no-restricted-properties',
+    'react/function-component-definition',
+    'rules/function-style',
+    'rules/no-option-tag-comparison',
+    'rules/require-vitest-hooks',
+  ])('does not set %s globally', (rule) => {
+    expect(productionRules[rule]).toBeUndefined()
+  })
 })
 
 describe('standard rule options', () => {

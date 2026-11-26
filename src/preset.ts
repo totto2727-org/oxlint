@@ -45,15 +45,6 @@ const preset: OxlintConfig = {
   options: { typeAware: true },
   overrides: [
     {
-      files: ['**/*.jsx', '**/*.tsx'],
-      rules: {
-        // Apply both function conventions together so each JSX function has one required form.
-        'eslint/func-style': 'off',
-        'react/function-component-definition': 'off',
-        [`rules/${jsxFunctionRule}`]: 'error',
-      },
-    },
-    {
       // Scope the whole Vitest plugin so its category rules cannot run on application or type-only files.
       files: ['**/*.test.ts', '**/*.test.tsx'],
       plugins: ['vitest'],
@@ -80,6 +71,15 @@ const preset: OxlintConfig = {
         'vitest/require-hook': 'off',
         // Vitest already enforces a shared timeout. Only exceptional tests need their own value.
         'vitest/require-test-timeout': 'off',
+      },
+    },
+    {
+      files: ['**/*.jsx', '**/*.tsx'],
+      rules: {
+        // Apply both function conventions together so each JSX function has one required form.
+        'eslint/func-style': 'off',
+        'react/function-component-definition': 'off',
+        [`rules/${jsxFunctionRule}`]: 'error',
       },
     },
   ],
