@@ -115,14 +115,12 @@ It reports these references inside `Effect.tryPromise` callbacks as well.
 It reports static imports, dynamic imports, direct `require` calls and re-exports of Node.js `node:crypto` and `crypto` with string literal specifiers.
 Local bindings and type-only references are allowed.
 The rule checks direct references and literal property names without tracing aliases of global objects.
-The shared preset assigns Node.js crypto imports to this rule for the crypto-specific diagnostic.
-If you override the `no-node-imports` allowlist, include `crypto` to retain this behavior.
+The shared preset keeps `no-node-imports` active with no exceptions, so static `node:crypto` imports may produce both diagnostics.
 
 For SHA-256 digests, import `Digest` from `effect/crypto`, get the `Digest.Digest` service and call `digest.digest(Digest.sha256, bytes)`.
 Provide `Digest.layerWebCrypto` where you configure the services.
 For secure random bytes and UUIDs, use `SecureRandom.SecureRandom` and provide `SecureRandom.layerWebCrypto`.
 See the [Digest service](https://github.com/Effect-TS/effect/blob/effect%404.1.5/packages/effect/src/crypto/Digest.ts) and [SecureRandom service](https://github.com/Effect-TS/effect/blob/effect%404.1.5/packages/effect/src/crypto/SecureRandom.ts) in Effect 4.1.5.
-If a runtime adapter needs direct access, suppress the specific line with an `oxlint-disable-next-line rules/no-raw-crypto -- <reason>` comment.
 
 ### Effect errors and validation
 

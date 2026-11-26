@@ -83,16 +83,13 @@ describe('standard rule policy', () => {
     'rules/no-jsx-script-tag',
     'rules/no-let',
     'rules/no-local-export-list',
+    'rules/no-node-imports',
     'rules/no-raw-crypto',
     'rules/no-readonly',
     'rules/require-disable-reason',
     'rules/require-tagged-data',
   ])('enables %s', (rule) => {
     expect(productionRules[rule]).toBe('error')
-  })
-
-  test('assigns Node crypto imports to no-raw-crypto', () => {
-    expect(productionRules['rules/no-node-imports']).toStrictEqual(['error', { allow: ['crypto'] }])
   })
 })
 

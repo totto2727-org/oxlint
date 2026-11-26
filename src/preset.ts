@@ -128,8 +128,6 @@ const preset: OxlintConfig = {
     'react/jsx-no-literals': 'off',
     // The automatic JSX runtime does not need React in scope. Classic JSX can opt back in.
     'react/react-in-jsx-scope': 'off',
-    // The crypto rule covers runtime imports of both Node.js specifiers and gives crypto-specific guidance.
-    'rules/no-node-imports': ['error', { allow: ['crypto'] }],
     // The formatter orders import declarations. Do not impose a separate member-order convention.
     'sort-imports': 'off',
     // Contextually typed callbacks already have return types at their boundaries.
