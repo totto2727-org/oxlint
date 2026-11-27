@@ -30,6 +30,11 @@ const plugins = [
 
 const testRule = 'require-vitest-hooks'
 
+// File lines (300 to 600), function lines (50 to 100), and statements per function (10 to 20) are temporarily relaxed.
+const maxFileLines = 600
+const maxFunctionLines = 100
+const maxFunctionStatements = 20
+
 // Validate against Oxlint without exporting all rule options from the build's Oxlint version.
 const preset = {
   categories: {
@@ -85,6 +90,9 @@ const preset = {
       presetRuleNames.filter((name) => name !== testRule).map((name) => [`rules/${name}`, 'error'] as const),
     ),
     'eslint/func-style': ['error', 'expression'],
+    'eslint/max-lines': ['error', maxFileLines],
+    'eslint/max-lines-per-function': ['error', maxFunctionLines],
+    'eslint/max-statements': ['error', maxFunctionStatements],
     // TypeScript resolves names against the consumer's declarations and runtime libraries.
     'eslint/no-undef': 'off',
     // Synchronous event handlers can start asynchronous work and discard its return value.
