@@ -105,7 +105,7 @@ describe('standard rule policy', () => {
   })
 })
 
-describe('rules replaced by the standard policy', () => {
+describe('rules disabled by the standard policy', () => {
   test.each([
     'eslint/no-undef',
     'eslint/prefer-const',
@@ -118,6 +118,7 @@ describe('rules replaced by the standard policy', () => {
     'import/no-nodejs-modules',
     'node/no-top-level-await',
     'react/jsx-no-literals',
+    'react/no-multi-comp',
     'react/react-in-jsx-scope',
     'typescript/prefer-for-of',
     'typescript/prefer-readonly',
@@ -128,7 +129,7 @@ describe('rules replaced by the standard policy', () => {
     'unicorn/no-typeof-undefined',
     'unicorn/prefer-bigint-literals',
     'unicorn/prefer-date-now',
-  ])('disables conflicting rule %s', (rule) => {
+  ])('disables %s', (rule) => {
     expect(productionRules[rule]).toBe('off')
   })
 

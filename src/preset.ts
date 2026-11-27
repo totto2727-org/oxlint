@@ -152,6 +152,8 @@ const preset = {
     'react/jsx-filename-extension': ['error', { extensions: ['jsx', 'tsx'] }],
     // Allow JSX text. The default no-literals policy requires braces that jsx-curly-brace-presence removes.
     'react/jsx-no-literals': 'off',
+    // Components that work together can share a module.
+    'react/no-multi-comp': 'off',
     // The automatic JSX runtime does not need React in scope. Classic JSX can opt back in.
     'react/react-in-jsx-scope': 'off',
     // The formatter orders import declarations. Do not impose a separate member-order convention.
