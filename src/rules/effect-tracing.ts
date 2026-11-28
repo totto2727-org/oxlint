@@ -21,12 +21,11 @@ const library = {
 export const effectTracing: Rule = {
   create(context) {
     const { sourceCode } = context
-    const [mode] = context.options
-    const policies = mode === 'application' ? Object.entries(application) : []
-    const activePolicies = mode === 'library' ? Object.entries(library) : policies
+    const isLibrary = context.options[0] === 'library'
+    const policies = Object.entries(isLibrary ? library : application)
     return {
       CallExpression(node: ESTree.CallExpression) {
-        const policy = activePolicies.find(([method]) =>
+        const policy = policies.find(([method]) =>
           isEffectMethod(sourceCode, node.callee, { module: 'Effect', name: method }),
         )
         if (Predicate.isNotNullish(policy)) {
@@ -43,10 +42,9 @@ export const effectTracing: Rule = {
           isEffectMethod(sourceCode, node.callee, { module: 'Effect', name: 'gen' })
         ) {
           context.report({
-            message:
-              mode === 'library'
-                ? 'Keep the `Effect.gen` callback anonymous. Leave span creation to the application.'
-                : 'Keep the `Effect.gen` callback anonymous. For a trace name, use `Effect.withSpan` on the returned effect.',
+            message: isLibrary
+              ? 'Keep the `Effect.gen` callback anonymous. Leave span creation to the application.'
+              : 'Keep the `Effect.gen` callback anonymous. For a trace name, use `Effect.withSpan` on the returned effect.',
             node: callback.id,
           })
         }

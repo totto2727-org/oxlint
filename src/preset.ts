@@ -36,7 +36,7 @@ const maxFunctionLines = 100
 const maxFunctionStatements = 20
 
 // Validate against Oxlint without exporting all rule options from the build's Oxlint version.
-const preset = {
+const sharedConfig = {
   categories: {
     correctness: 'error',
     nursery: 'error',
@@ -190,14 +190,14 @@ const modeRules = {
 } satisfies Record<string, NonNullable<OxlintConfig['rules']>>
 
 type PresetMode = keyof typeof modeRules
-type ModePreset = Omit<typeof preset, 'rules'> & {
-  rules: typeof preset.rules & (typeof modeRules)[PresetMode]
+type ModePreset = Omit<typeof sharedConfig, 'rules'> & {
+  rules: typeof sharedConfig.rules & (typeof modeRules)[PresetMode]
 }
 
 export const createPreset = (mode: PresetMode): ModePreset => ({
-  ...preset,
-  rules: { ...preset.rules, ...modeRules[mode] },
+  ...sharedConfig,
+  rules: { ...sharedConfig.rules, ...modeRules[mode] },
 })
 
-// oxlint-disable-next-line import/no-default-export -- Oxlint consumers import the shared config as the package subpath's default export.
-export default preset
+// oxlint-disable-next-line import/no-default-export -- Oxlint consumers import the standard config as the package subpath's default export.
+export default createPreset('application')

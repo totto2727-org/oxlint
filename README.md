@@ -11,6 +11,7 @@ npx oxlint --config .oxlintrc.mjs src
 ```
 
 Replace `src` with your source directory.
+For a `rules/<id>` diagnostic, open the matching [Oxlint skill rule page](skills/oxlint/SKILL.md).
 The preset reports policy violations, such as `rules/no-let` for a `let` declaration.
 `rules/no-for-loops` reports `for`, `for...of`, `for...in`, and `for await...of`.
 Use collection combinators, `Effect.forEach`, or `Stream.runForEach` when they express the same behavior.
@@ -41,10 +42,10 @@ Install the plugin, Oxlint and its type-aware checker as development dependencie
 npm install --save-dev @totto2727/oxlint oxlint oxlint-tsgolint
 ```
 
-Select the application preset in `.oxlintrc.mjs`:
+Select the standard application preset in `.oxlintrc.mjs`:
 
 ```js
-import preset from '@totto2727/oxlint/preset/application'
+import preset from '@totto2727/oxlint/preset'
 import { defineConfig } from 'oxlint'
 
 export default defineConfig({ extends: [preset] })
@@ -70,9 +71,9 @@ When native and custom rules conflict or report the same issue, the preset favor
 
 The default package export is the plugin.
 All plugin rule IDs use the `rules/` prefix.
-The `/preset/application` and `/preset/library` exports apply the same shared rules with different tracing policies.
-The `/preset` export applies the shared rules without assuming a project kind.
-In a workspace that contains both kinds of code, extend `/preset` and set `['error', 'application']` or `['error', 'library']` on `rules/effect-tracing` for each package scope.
+The `/preset` and `/preset/application` exports use the same application settings.
+The `/preset/library` export changes only the tracing policy.
+In a workspace with both kinds of code, extend `/preset` and set `['error', 'library']` on `rules/effect-tracing` for library files in `overrides`.
 The named export `presetRuleNames` lists enabled custom rules.
 The `compatibilityRuleNames` export is empty.
 
@@ -200,12 +201,12 @@ const decode = Schema.decodeUnknownEffect(selectedSchema)
 
 ### Effect tracing
 
-`effect-tracing` reports named generator callbacks written inline in `Effect.gen`. Keep the callback anonymous.
-In an application, use `Effect.fn` for reusable Effect functions. Spans are optional. To name the trace of a generator, use `Effect.gen(function* () { … }).pipe(Effect.withSpan('loadUser'))`.
-In a library, use `Effect.fnUntraced` and leave `Effect.withSpan` and `Effect.withSpanScoped` to the application.
-Named `Effect.fn` records call and definition locations and creates a span. Unnamed `Effect.fn` records the locations but does not create a span.
-If an application needs an untraced function on a performance-critical path, or a library must add tracing, suppress only the call line and state the reason.
-The shared preset checks generator names without requiring either tracing policy.
+Use `application` mode for code that owns the trace.
+`Effect.fn` records definition and call locations, and its named form adds a span.
+Use `library` mode for reusable code.
+`Effect.fnUntraced` leaves the decision to add a span to the caller.
+Both modes report named callbacks written inline in `Effect.gen`.
+See [the mode settings, examples, and exceptions](skills/oxlint/references/effect-tracing.md).
 
 ### Immutable data types
 

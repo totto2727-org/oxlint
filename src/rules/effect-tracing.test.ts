@@ -28,20 +28,26 @@ runRuleTest('effect-tracing', rule, {
 
 const codeUsingEffect = (expression: string): string => `import { Effect } from 'effect'; ${expression}`
 
-runRuleTest('effect-tracing (application)', rule, {
-  invalid: [`Effect.fnUntraced(function* () {})`, `Effect.fnUntracedEager(function* () {})`].map((expression) => ({
-    code: codeUsingEffect(expression),
-    errors: [{ message: /Use `Effect\.fn`.*explain why/u }],
-    options: ['application'],
-  })),
-  valid: [
-    `Effect.fn('loadUser')(function* () {})`,
-    `Effect.fn(function* () {})`,
-    `Effect.gen(function* () {}).pipe(Effect.withSpan('loadUser'))`,
-    `Effect.gen(function* () {}).pipe(Effect.withSpanScoped('loadUser'))`,
-    `Effect.gen(function* () {})`,
-    `function run(Effect) { Effect.fnUntraced(function* () {}) }`,
-  ].map((expression) => ({ code: codeUsingEffect(expression), options: ['application'] })),
+const applicationModes = [
+  { name: 'default', options: [] },
+  { name: 'application', options: ['application'] },
+]
+applicationModes.forEach(({ name, options }) => {
+  runRuleTest(`effect-tracing (${name})`, rule, {
+    invalid: [
+      { expression: `Effect.fnUntraced(function* () {})`, message: /Use `Effect\.fn`.*explain why/u },
+      { expression: `Effect.fnUntracedEager(function* () {})`, message: /Use `Effect\.fn`.*explain why/u },
+      { expression: `Effect.gen(function* loadUser() {})`, message: /anonymous.*`Effect\.withSpan`/u },
+    ].map(({ expression, message }) => ({ code: codeUsingEffect(expression), errors: [{ message }], options })),
+    valid: [
+      `Effect.fn('loadUser')(function* () {})`,
+      `Effect.fn(function* () {})`,
+      `Effect.gen(function* () {}).pipe(Effect.withSpan('loadUser'))`,
+      `Effect.gen(function* () {}).pipe(Effect.withSpanScoped('loadUser'))`,
+      `Effect.gen(function* () {})`,
+      `function run(Effect) { Effect.fnUntraced(function* () {}) }`,
+    ].map((expression) => ({ code: codeUsingEffect(expression), options })),
+  })
 })
 
 runRuleTest('effect-tracing (library)', rule, {
