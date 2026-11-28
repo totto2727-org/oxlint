@@ -1,4 +1,5 @@
 import { Array, Predicate } from 'effect'
+import type { OxlintConfig } from 'oxlint'
 import { describe, expect, test } from 'vite-plus/test'
 
 import applicationPreset from './application.ts'
@@ -6,9 +7,10 @@ import libraryPreset from './library.ts'
 import plugin, { compatibilityRuleNames, presetRuleNames } from './plugin.ts'
 import preset from './preset.ts'
 
-const vitest = preset.overrides?.[0]
+const checkedPreset: OxlintConfig = preset
+const vitest = checkedPreset.overrides?.[0]
 const vitestRules = vitest?.rules
-const productionRules = preset.rules ?? {}
+const productionRules = checkedPreset.rules ?? {}
 
 const getStandaloneExpect = (): { functions: unknown; severity: unknown } => {
   const setting = vitestRules?.['vitest/no-standalone-expect']
@@ -57,15 +59,25 @@ describe('public plugin and standard preset', () => {
       'typescript',
       'unicorn',
     ])
-    expect(preset.options?.typeAware).toBe(true)
+    expect(checkedPreset.options?.typeAware).toBe(true)
   })
 
   test('resolves the distributed plugin and scopes Vitest to test filenames', () => {
-    expect(preset.jsPlugins?.[0]).toMatch(/plugin\.js$/u)
-    expect(preset.overrides).toHaveLength(1)
+    expect(checkedPreset.jsPlugins?.[0]).toMatch(/plugin\.js$/u)
+    expect(checkedPreset.overrides?.filter((override) => override.plugins?.includes('vitest') === true)).toHaveLength(1)
     expect(vitest?.files).toStrictEqual(['**/*.test.ts', '**/*.test.tsx'])
     expect(vitest?.plugins).toStrictEqual(['vitest'])
     expect(Object.keys(productionRules).some((name) => name.startsWith('vitest/'))).toBe(false)
+  })
+})
+
+describe('shared function style', () => {
+  test('uses expressions for functions and requires arrows for React components', () => {
+    expect(productionRules['eslint/func-style']).toStrictEqual(['error', 'expression'])
+    expect(productionRules['react/function-component-definition']).toStrictEqual([
+      'error',
+      { namedComponents: 'arrow-function', unnamedComponents: 'arrow-function' },
+    ])
   })
 })
 
@@ -93,10 +105,12 @@ describe('standard rule policy', () => {
   })
 })
 
-describe('rules replaced by the standard policy', () => {
+describe('rules disabled by the standard policy', () => {
   test.each([
+    'eslint/no-undef',
     'eslint/prefer-const',
     'eslint/require-await',
+    'eslint/sort-keys',
     'import/exports-last',
     'import/extensions',
     'import/group-exports',
@@ -104,6 +118,7 @@ describe('rules replaced by the standard policy', () => {
     'import/no-nodejs-modules',
     'node/no-top-level-await',
     'react/jsx-no-literals',
+    'react/no-multi-comp',
     'react/react-in-jsx-scope',
     'typescript/prefer-for-of',
     'typescript/prefer-readonly',
@@ -114,7 +129,7 @@ describe('rules replaced by the standard policy', () => {
     'unicorn/no-typeof-undefined',
     'unicorn/prefer-bigint-literals',
     'unicorn/prefer-date-now',
-  ])('disables conflicting rule %s', (rule) => {
+  ])('disables %s', (rule) => {
     expect(productionRules[rule]).toBe('off')
   })
 
@@ -133,6 +148,18 @@ describe('standard rule options', () => {
     expect(productionRules['no-underscore-dangle']).toStrictEqual(['error', { allow: ['_tag'] }])
     expect(productionRules['react/jsx-filename-extension']).toStrictEqual(['error', { extensions: ['jsx', 'tsx'] }])
     expect(productionRules['typescript/require-await']).not.toBe('off')
+  })
+
+  test('allows void statements in synchronous callbacks', () => {
+    expect(productionRules['eslint/no-void']).toStrictEqual(['error', { allowAsStatement: true }])
+    expect(vitestRules?.['eslint/no-void']).toBeUndefined()
+  })
+
+  test('permits ambient module declarations in declaration files', () => {
+    expect(preset.overrides.filter((override) => 'import/unambiguous' in override.rules)).toStrictEqual([
+      { files: ['**/*.d.ts'], rules: { 'import/unambiguous': 'off' } },
+    ])
+    expect(productionRules['import/unambiguous']).toBeUndefined()
   })
 
   test('allows magic numbers only in test files', () => {

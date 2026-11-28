@@ -78,6 +78,47 @@ The `compatibilityRuleNames` export is empty.
 
 See [the preset source](https://github.com/totto2727-org/oxlint/blob/main/src/preset.ts) for conflict resolutions and their reasons.
 
+All three presets disable `eslint/no-undef` for JavaScript, TypeScript and tests.
+Run the TypeScript compiler to detect undeclared names in the files covered by your project.
+The presets also disable `eslint/sort-keys`.
+Keep object keys in the order required by initializer evaluation and enumeration.
+For example, CVA uses variant key order when it assembles class names.
+
+In ordinary TypeScript declaration files (`*.d.ts`), all three presets disable `import/unambiguous`.
+This lets a declaration file introduce a virtual module or provide types for an untyped package.
+A top-level import or export would turn that declaration into an augmentation of an existing module.
+The rule remains active in implementation files, including `.ts`, `.tsx` and `.js`.
+
+All three presets enable `eslint/no-void` with `allowAsStatement: true`.
+A synchronous callback can use a statement such as `void upload()` before returning the boolean its caller requires.
+The upload starts immediately. Give the operation a rejection handler when it needs to report a failure.
+Use `await` when the caller needs the result or must wait for completion.
+The rule reports `void` in an initializer or an expression-bodied arrow function.
+
+### Function style
+
+The shared, application and library presets set both function style rules to `error`.
+`eslint/func-style` uses `expression` and permits both arrow functions and named `function` expressions for ordinary functions assigned to variables.
+`react/function-component-definition` sets both `namedComponents` and `unnamedComponents` to `'arrow-function'` for the React components it detects.
+Use arrow functions for those components, including inline components passed to `React.memo` or `React.forwardRef`.
+
+```jsx
+import * as React from 'react'
+
+export const Card = () => <article />
+export const MemoCard = React.memo(() => <article />)
+export const SearchField = React.forwardRef(({ label }, ref) => <input aria-label={label} ref={ref} />)
+```
+
+```js
+export const formatName = function formatName(name) {
+  return name.trim()
+}
+```
+
+Both rules report an error for `function Card() { return <article /> }`.
+For `export default function Card() { return <article /> }`, the React rule reports the error.
+
 ### Import extensions
 
 `require-import-extension` reports missing extensions without adding a guessed extension.
