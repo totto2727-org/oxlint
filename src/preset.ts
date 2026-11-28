@@ -14,7 +14,7 @@ const effectVitestTestBlocks = [
   'it.prop',
 ]
 
-const plugins: NonNullable<OxlintConfig['plugins']> = [
+const plugins = [
   'eslint',
   'import',
   'jsdoc',
@@ -26,11 +26,17 @@ const plugins: NonNullable<OxlintConfig['plugins']> = [
   'react-perf',
   'typescript',
   'unicorn',
-]
+] satisfies NonNullable<OxlintConfig['plugins']>
 
 const testRule = 'require-vitest-hooks'
 
-const sharedConfig: OxlintConfig = {
+// File lines (300 to 600), function lines (50 to 100), and statements per function (10 to 20) are temporarily relaxed.
+const maxFileLines = 600
+const maxFunctionLines = 100
+const maxFunctionStatements = 20
+
+// Validate against Oxlint without exporting all rule options from the build's Oxlint version.
+const sharedConfig = {
   categories: {
     correctness: 'error',
     nursery: 'error',
@@ -72,18 +78,33 @@ const sharedConfig: OxlintConfig = {
         'vitest/require-test-timeout': 'off',
       },
     },
+    {
+      // A top-level import or export would turn an ambient module declaration into an augmentation.
+      files: ['**/*.d.ts'],
+      rules: { 'import/unambiguous': 'off' },
+    },
   ],
   plugins,
   rules: {
     ...Object.fromEntries(
       presetRuleNames.filter((name) => name !== testRule).map((name) => [`rules/${name}`, 'error'] as const),
     ),
+    'eslint/func-style': ['error', 'expression'],
+    'eslint/max-lines': ['error', maxFileLines],
+    'eslint/max-lines-per-function': ['error', maxFunctionLines],
+    'eslint/max-statements': ['error', maxFunctionStatements],
+    // TypeScript resolves names against the consumer's declarations and runtime libraries.
+    'eslint/no-undef': 'off',
+    // Synchronous event handlers can start asynchronous work and discard its return value.
+    'eslint/no-void': ['error', { allowAsStatement: true }],
     // The custom rule rejects every let, including declarations that prefer-const can fix.
     'eslint/prefer-const': 'off',
     // Require the caught value as the cause when wrapping it in a native error.
     'eslint/preserve-caught-error': 'error',
     // TypeScript's require-await also recognizes directly returned promises.
     'eslint/require-await': 'off',
+    // Initializer evaluation, property enumeration and CVA class output can depend on key order.
+    'eslint/sort-keys': 'off',
     // Effect uses anonymous generators as callbacks, where a name adds no information.
     'func-names': ['error', 'as-needed', { generators: 'never' }],
     'id-length': ['error', { checkGeneric: false, properties: 'never' }],
@@ -123,9 +144,16 @@ const sharedConfig: OxlintConfig = {
     'oxc/no-optional-chaining': 'off',
     // The eslint/prefer-object-spread rule recommends the syntax this rule bans.
     'oxc/no-rest-spread-properties': 'off',
+    // Use the same arrow form for named and inline React components.
+    'react/function-component-definition': [
+      'error',
+      { namedComponents: 'arrow-function', unnamedComponents: 'arrow-function' },
+    ],
     'react/jsx-filename-extension': ['error', { extensions: ['jsx', 'tsx'] }],
     // Allow JSX text. The default no-literals policy requires braces that jsx-curly-brace-presence removes.
     'react/jsx-no-literals': 'off',
+    // Components that work together can share a module.
+    'react/no-multi-comp': 'off',
     // The automatic JSX runtime does not need React in scope. Classic JSX can opt back in.
     'react/react-in-jsx-scope': 'off',
     // The formatter orders import declarations. Do not impose a separate member-order convention.
@@ -154,14 +182,19 @@ const sharedConfig: OxlintConfig = {
     // Its automatic replacement, Date.now(), is forbidden by the custom Temporal policy.
     'unicorn/prefer-date-now': 'off',
   },
-}
+} satisfies OxlintConfig
 
 const modeRules = {
   application: { 'rules/effect-tracing': ['error', 'application'] },
   library: { 'rules/effect-tracing': ['error', 'library'] },
 } satisfies Record<string, NonNullable<OxlintConfig['rules']>>
 
-export const createPreset = (mode: keyof typeof modeRules): OxlintConfig => ({
+type PresetMode = keyof typeof modeRules
+type ModePreset = Omit<typeof sharedConfig, 'rules'> & {
+  rules: typeof sharedConfig.rules & (typeof modeRules)[PresetMode]
+}
+
+export const createPreset = (mode: PresetMode): ModePreset => ({
   ...sharedConfig,
   rules: { ...sharedConfig.rules, ...modeRules[mode] },
 })
