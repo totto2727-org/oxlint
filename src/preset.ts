@@ -114,8 +114,7 @@ const sharedConfig = {
     'import/extensions': 'off',
     // Grouping exports into a separate list conflicts with declaration-site exports.
     'import/group-exports': 'off',
-    // Route and plugin registries list their dependencies directly so that registration and ordering remain visible.
-    'import/max-dependencies': 'off',
+    'import/max-dependencies': ['error', { max: 30 }],
     // The no-default-export rule enforces named exports instead of the opposite policy.
     'import/no-named-export': 'off',
     // Namespace imports keep related APIs qualified without requiring per-package exceptions.
