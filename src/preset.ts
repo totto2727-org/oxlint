@@ -114,6 +114,7 @@ const sharedConfig = {
     'import/extensions': 'off',
     // Grouping exports into a separate list conflicts with declaration-site exports.
     'import/group-exports': 'off',
+    'import/max-dependencies': ['error', { max: 30 }],
     // The no-default-export rule enforces named exports instead of the opposite policy.
     'import/no-named-export': 'off',
     // Namespace imports keep related APIs qualified without requiring per-package exceptions.
@@ -163,6 +164,10 @@ const sharedConfig = {
       'error',
       { allowExpressions: true, allowTypedFunctionExpressions: true },
     ],
+    'typescript/no-restricted-types': [
+      'error',
+      { types: { Date: 'Use Effect DateTime.', 'globalThis.Date': 'Use Effect DateTime.' } },
+    ],
     // The custom no-for-loops rule uses combinators instead of converting indexed loops to for...of.
     'typescript/prefer-for-of': 'off',
     // This rule recommends the manual modifier that rules/no-readonly prohibits.
@@ -177,6 +182,8 @@ const sharedConfig = {
     'unicorn/no-array-method-this-argument': 'off',
     // Keep the Effect Predicate diagnostic rather than also suggesting a direct undefined comparison.
     'unicorn/no-typeof-undefined': 'off',
+    // Required call arguments can accept undefined as an explicit value.
+    'unicorn/no-useless-undefined': ['error', { checkArguments: false }],
     // These rules suggest opposite syntax. Keep the Effect policy of using BigInt().
     'unicorn/prefer-bigint-literals': 'off',
     // Its automatic replacement, Date.now(), is forbidden by the custom Temporal policy.
